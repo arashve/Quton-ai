@@ -1085,36 +1085,25 @@ export const Chat: React.FC = () => {
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col relative h-full overflow-hidden bg-white dark:bg-black transition-colors duration-200">
         {/* PixelBlast interactive background - FULL SCREEN for entire chat screen */}
-       {isMounted && (
+{/* PixelBlast interactive background - FULL SCREEN matching reactbits edgeFade=0 */}
+{isMounted && (
   <div
     id="chat-pixel-blast-background"
     className="absolute inset-0 w-full h-full z-0 overflow-hidden pointer-events-auto bg-black"
-    // style={{
-    //   maskImage: 'radial-gradient(ellipse 70% 60% at 50% 45%, black 40%, transparent 85%)',
-    //   WebkitMaskImage: 'radial-gradient(ellipse 70% 60% at 50% 45%, black 40%, transparent 85%)',
-    // }}
   >
-    <div style={{ width: '100%', height: '600px', position: 'relative' }}>
-  <PixelBlast
-    variant="square"
-    pixelSize={4}
-    color="#B497CF"
-    patternScale={2}
-    patternDensity={1}
-    pixelSizeJitter={0}
-    enableRipples
-    rippleSpeed={0.4}
-    rippleThickness={0.12}
-    rippleIntensityScale={1.5}
-    liquid={false}
-    liquidStrength={0.12}
-    liquidRadius={1.2}
-    liquidWobbleSpeed={5}
-    speed={0.5}
-    edgeFade={0.25}
-    transparent
-  />
-</div>
+    <PixelBlast
+      variant="square"
+      pixelSize={4}
+      color="#B497CF"
+      patternScale={2}
+      patternDensity={1}
+      pixelSizeJitter={0}
+      enableRipples={false}
+      liquid={false}
+      speed={0.5}
+      edgeFade={0}
+      transparent={true}
+    />
   </div>
 )}
 
