@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
     // مسیر ۱: پردازش با موتور پرسرعت Groq
     if (useGroq) {
       process.env.GROQ_API_KEY = rawKey;
-      const modelName = 'llama-3.3-70b-versatile';
+      const modelName = 'llama-3.1-8b-instant';
 
       const formattedMessages = normalizedMessages.map((m) => ({
         role: m.role as 'assistant' | 'user',
