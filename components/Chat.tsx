@@ -423,43 +423,43 @@ export const Chat: React.FC = () => {
   // Theme state: default to 'dark' ("رنگ سیاه و مشکی میخوام رنگای اصلی باشه و با تم روشن و تاریک عوض بشه")
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
 
+  const applyThemeVars = useCallback((nextTheme: 'dark' | 'light') => {
+    const isDark = nextTheme === 'dark';
+    document.documentElement.classList.toggle('dark', isDark);
+    document.documentElement.classList.toggle('light', !isDark);
+    document.documentElement.style.setProperty('--page-bg', isDark ? '#0b0b0b' : '#f3f0ee');
+    document.documentElement.style.setProperty('--panel-bg', isDark ? 'rgba(18, 18, 18, 0.72)' : 'rgba(255, 255, 255, 0.72)');
+    document.documentElement.style.setProperty('--panel-strong', isDark ? 'rgba(22, 22, 22, 0.86)' : 'rgba(255, 255, 255, 0.82)');
+    document.documentElement.style.setProperty('--panel-soft', isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(17, 17, 17, 0.05)');
+    document.documentElement.style.setProperty('--panel-muted', isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(17, 17, 17, 0.08)');
+    document.documentElement.style.setProperty('--text-primary', isDark ? '#f5f5f5' : '#111111');
+    document.documentElement.style.setProperty('--text-secondary', isDark ? '#d4d4d4' : '#4b4b4b');
+    document.documentElement.style.setProperty('--muted-accent', isDark ? '#f5f5f5' : '#1a1a1a');
+    document.documentElement.style.setProperty('--muted-accent-soft', isDark ? 'rgba(245, 245, 245, 0.08)' : 'rgba(26, 26, 26, 0.08)');
+    document.documentElement.style.setProperty('--pixel-bg', isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(17, 17, 17, 0.08)');
+  }, []);
+
   useEffect(() => {
     try {
       const savedTheme = localStorage.getItem('chatbot_theme') as 'dark' | 'light' | null;
       const initialTheme = savedTheme || 'dark';
-      if (initialTheme === 'dark') {
-        document.documentElement.classList.add('dark');
-        document.documentElement.classList.remove('light');
-      } else {
-        document.documentElement.classList.remove('dark');
-        document.documentElement.classList.add('light');
-      }
-      if (savedTheme && savedTheme !== 'dark') {
-        queueMicrotask(() => {
-          setTheme(savedTheme);
-        });
-      }
+      setTheme(initialTheme);
+      applyThemeVars(initialTheme);
     } catch (e) {
       console.error('Failed to read theme from localStorage:', e);
     }
-  }, []);
+  }, [applyThemeVars]);
 
   const toggleTheme = useCallback(() => {
     setTheme((prev) => {
       const next = prev === 'dark' ? 'light' : 'dark';
-      if (next === 'dark') {
-        document.documentElement.classList.add('dark');
-        document.documentElement.classList.remove('light');
-      } else {
-        document.documentElement.classList.remove('dark');
-        document.documentElement.classList.add('light');
-      }
+      applyThemeVars(next);
       try {
         localStorage.setItem('chatbot_theme', next);
       } catch (e) {}
       return next;
     });
-  }, []);
+  }, [applyThemeVars]);
 
   // Performance telemetry
   const [lastMetrics, setLastMetrics] = useState<{ ttftMs: number; tps: number } | null>(null);
@@ -963,9 +963,9 @@ export const Chat: React.FC = () => {
   const hasMessages = messages.length > 0;
 
   return (
-    <div className="flex h-screen w-full bg-white dark:bg-black text-zinc-900 dark:text-zinc-100 font-sans overflow-hidden transition-colors duration-200">
+    <div className="flex h-screen w-full bg-[var(--page-bg)] text-[var(--text-primary)] font-sans overflow-hidden transition-colors duration-200">
       {/* Sidebar for Desktop / Tablet - Completely Flat */}
-      <aside className="hidden md:flex w-[270px] bg-zinc-100/70 dark:bg-[#0a0a0a] flex-col flex-shrink-0 z-10 transition-colors duration-200">
+      <aside className="hidden md:flex w-[270px] bg-[var(--panel-bg)] flex-col flex-shrink-0 z-10 transition-colors duration-200">
         {/* New Interaction Button */}
         <div className="p-3.5 sm:p-4">
           <button
@@ -1083,18 +1083,18 @@ export const Chat: React.FC = () => {
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col relative h-full overflow-hidden bg-white dark:bg-black transition-colors duration-200">
+      <main className="flex-1 flex flex-col relative h-full overflow-hidden bg-[var(--page-bg)] transition-colors duration-200">
         {/* PixelBlast interactive background - FULL SCREEN for entire chat screen */}
 {/* PixelBlast interactive background - FULL SCREEN matching reactbits edgeFade=0 */}
 {isMounted && (
   <div
     id="chat-pixel-blast-background"
-    className="absolute inset-0 w-full h-full z-0 overflow-hidden pointer-events-auto bg-black"
+    className="absolute inset-0 w-full h-full z-0 overflow-hidden pointer-events-auto bg-[var(--pixel-bg)]"
   >
  <PixelBlast
     variant="square"
     pixelSize={4}
-    color="#B497CF"
+    color={theme === 'dark' ? '#f5f5f5' : '#1a1a1a'}
     patternScale={2}
     patternDensity={1}
     pixelSizeJitter={0}
@@ -1115,7 +1115,7 @@ export const Chat: React.FC = () => {
 
         {/* Top Header - Translucent / Flat */}
         <header className={`h-14 flex items-center justify-between px-4 sm:px-6 z-20 flex-shrink-0 transition-colors duration-200 ${
-          hasMessages ? 'bg-white/80 dark:bg-black/80 backdrop-blur-md border-b border-zinc-200/50 dark:border-zinc-800/50' : 'bg-transparent'
+          hasMessages ? 'bg-[var(--panel-strong)] backdrop-blur-md border-b border-[var(--panel-muted)]' : 'bg-transparent'
         }`}>
           <div className="flex items-center gap-3">
             {/* Mobile Sidebar Button */}
