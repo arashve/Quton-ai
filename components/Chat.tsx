@@ -1091,19 +1091,25 @@ export const Chat: React.FC = () => {
     id="chat-pixel-blast-background"
     className="absolute inset-0 w-full h-full z-0 overflow-hidden pointer-events-auto bg-black"
   >
-    <PixelBlast
-      variant="square"
-      pixelSize={4}
-      color="#B497CF"
-      patternScale={2}
-      patternDensity={1}
-      pixelSizeJitter={0}
-      enableRipples={false}
-      liquid={false}
-      speed={0.5}
-      edgeFade={0}
-      transparent={true}
-    />
+ <PixelBlast
+    variant="square"
+    pixelSize={4}
+    color="#B497CF"
+    patternScale={2}
+    patternDensity={1}
+    pixelSizeJitter={0}
+    enableRipples
+    rippleSpeed={0.4}
+    rippleThickness={0.12}
+    rippleIntensityScale={1.5}
+    liquid={false}
+    liquidStrength={0.12}
+    liquidRadius={1.2}
+    liquidWobbleSpeed={5}
+    speed={0.5}
+    edgeFade={0.5}
+    transparent
+  />
   </div>
 )}
 
