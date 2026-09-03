@@ -444,14 +444,19 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
         canvas,
         antialias,
         alpha: true,
+        premultipliedAlpha: false,
         powerPreference: 'high-performance'
       });
       renderer.domElement.style.width = '100%';
       renderer.domElement.style.height = '100%';
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
       container.appendChild(renderer.domElement);
-      if (transparent) renderer.setClearAlpha(0);
-      else renderer.setClearColor(0x000000, 1);
+      if (transparent) {
+        renderer.setClearAlpha(0);
+        renderer.setClearColor(0x000000, 0);
+      } else {
+        renderer.setClearColor(0x000000, 1);
+      }
       const uniforms = {
         uResolution: { value: new THREE.Vector2(0, 0) },
         uTime: { value: 0 },
@@ -638,8 +643,12 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
       t.uniforms.uRippleThickness.value = rippleThickness;
       t.uniforms.uRippleSpeed.value = rippleSpeed;
       t.uniforms.uEdgeFade.value = edgeFade;
-      if (transparent) t.renderer.setClearAlpha(0);
-      else t.renderer.setClearColor(0x000000, 1);
+      if (transparent) {
+        t.renderer.setClearAlpha(0);
+        t.renderer.setClearColor(0x000000, 0);
+      } else {
+        t.renderer.setClearColor(0x000000, 1);
+      }
       if (t.liquidEffect) {
         const liqEffect = t.liquidEffect as Effect & { uniforms: Map<string, THREE.Uniform> };
         const uStrength = liqEffect.uniforms.get('uStrength');
