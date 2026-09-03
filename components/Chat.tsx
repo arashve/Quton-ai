@@ -1084,8 +1084,40 @@ export const Chat: React.FC = () => {
 
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col relative h-full overflow-hidden bg-white dark:bg-black transition-colors duration-200">
-        {/* Top Header - Flat */}
-        <header className="h-14 flex items-center justify-between px-4 sm:px-6 bg-white/95 dark:bg-black/95 z-20 flex-shrink-0">
+        {/* PixelBlast interactive background - FULL SCREEN for entire chat screen */}
+        {isMounted && (
+          <div
+            id="chat-pixel-blast-background"
+            className={`absolute inset-0 w-full h-full z-0 overflow-hidden transition-opacity duration-700 ${
+              !hasMessages ? 'opacity-100 pointer-events-auto' : 'opacity-30 pointer-events-none'
+            }`}
+          >
+            <PixelBlast
+              variant="square"
+              pixelSize={4}
+              color={theme === 'dark' ? '#b497cf' : '#27272a'}
+              patternScale={1.75}
+              patternDensity={1}
+              pixelSizeJitter={0}
+              enableRipples={true}
+              rippleSpeed={0.4}
+              rippleThickness={0.12}
+              rippleIntensityScale={1.5}
+              liquid={false}
+              liquidStrength={0.12}
+              liquidRadius={1.2}
+              liquidWobbleSpeed={5}
+              speed={0.7}
+              edgeFade={0.25}
+              transparent={true}
+            />
+          </div>
+        )}
+
+        {/* Top Header - Translucent / Flat */}
+        <header className={`h-14 flex items-center justify-between px-4 sm:px-6 z-20 flex-shrink-0 transition-colors duration-200 ${
+          hasMessages ? 'bg-white/80 dark:bg-black/80 backdrop-blur-md border-b border-zinc-200/50 dark:border-zinc-800/50' : 'bg-transparent'
+        }`}>
           <div className="flex items-center gap-3">
             {/* Mobile Sidebar Button */}
             <button
@@ -1101,7 +1133,7 @@ export const Chat: React.FC = () => {
             <button
               id="header-model-selector-btn"
               onClick={() => setIsModelModalOpen(true)}
-              className="flex items-center gap-2.5 px-3 py-1.5 rounded-full bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-900 dark:hover:bg-zinc-800 transition-all text-left cursor-pointer group"
+              className="flex items-center gap-2.5 px-3 py-1.5 rounded-full bg-zinc-100/90 hover:bg-zinc-200/90 dark:bg-zinc-900/90 dark:hover:bg-zinc-800/90 backdrop-blur-xs transition-all text-left cursor-pointer group"
               title="Click to switch model, provider, or API key"
             >
               <div className="w-2 h-2 rounded-full bg-zinc-900 dark:bg-zinc-100"></div>
@@ -1131,7 +1163,7 @@ export const Chat: React.FC = () => {
             <button
               id="header-theme-toggle-btn"
               onClick={toggleTheme}
-              className="p-2 text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800"
+              className="p-2 text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 cursor-pointer"
               title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
               aria-label="Toggle theme"
             >
@@ -1145,7 +1177,7 @@ export const Chat: React.FC = () => {
             <button
               id="header-model-settings-btn"
               onClick={() => setIsModelModalOpen(true)}
-              className="p-2 text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800"
+              className="p-2 text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 cursor-pointer"
               title="Model & Provider Settings"
             >
               <Sliders className="w-4 h-4" />
@@ -1154,7 +1186,7 @@ export const Chat: React.FC = () => {
             <button
               id="header-export-btn"
               onClick={() => handleExportChat('md')}
-              className="p-2 text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800"
+              className="p-2 text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 cursor-pointer"
               title="Export Markdown"
             >
               <Download className="w-4 h-4" />
@@ -1162,7 +1194,7 @@ export const Chat: React.FC = () => {
             <button
               id="header-search-btn"
               onClick={() => setIsSearchOpen(true)}
-              className="p-2 text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800"
+              className="p-2 text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 cursor-pointer"
               title="Search Chats"
             >
               <Search className="w-4 h-4" />
@@ -1170,47 +1202,13 @@ export const Chat: React.FC = () => {
             <button
               id="header-new-chat-btn"
               onClick={handleNewChat}
-              className="p-2 text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800"
+              className="p-2 text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 cursor-pointer"
               title="New Interaction"
             >
               <RotateCcw className="w-4 h-4" />
             </button>
           </div>
         </header>
-
-        {/* PixelBlast interactive background for first screen - Smoothly dissolves when agent starts working */}
-        <AnimatePresence>
-          {!hasMessages && isMounted && (
-            <motion.div
-              key="pixel-blast-backdrop"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1] }}
-              className="absolute inset-0 z-0 overflow-hidden pointer-events-auto"
-            >
-              <PixelBlast
-                variant="square"
-                pixelSize={4}
-                color={theme === 'dark' ? '#d4d4d8' : '#27272a'}
-                patternScale={1.75}
-                patternDensity={1}
-                pixelSizeJitter={0}
-                enableRipples
-                rippleSpeed={0.4}
-                rippleThickness={0.12}
-                rippleIntensityScale={1.5}
-                liquid={false}
-                liquidStrength={0.12}
-                liquidRadius={1.2}
-                liquidWobbleSpeed={5}
-                speed={0.7}
-                edgeFade={0.25}
-                transparent
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
 
         {/* Scrollable Center Body: Empty State OR Messages Feed */}
         <div className={`flex-1 overflow-y-auto p-4 sm:p-8 space-y-6 relative z-10 ${!hasMessages ? 'pointer-events-none' : ''}`}>
@@ -1306,10 +1304,12 @@ export const Chat: React.FC = () => {
           )}
         </div>
 
-        {/* Floating Bottom Input Bar */}
-        <footer className="p-4 sm:p-6 pt-0 mt-auto flex-shrink-0 relative z-20 bg-white dark:bg-black transition-colors duration-200">
+        {/* Floating Bottom Input Bar - Full-bleed transparency, NO solid cutoff */}
+        <footer className="p-4 sm:p-6 pt-0 mt-auto flex-shrink-0 relative z-20 bg-transparent">
           <div className="max-w-3xl mx-auto relative">
-            <div className="absolute -top-10 left-0 right-0 h-10 bg-gradient-to-t from-white dark:from-black to-transparent pointer-events-none" />
+            {hasMessages && (
+              <div className="absolute -top-10 left-0 right-0 h-10 bg-gradient-to-t from-white/90 dark:from-black/90 to-transparent pointer-events-none" />
+            )}
 
             <ReactBitsAIInput
               inputPrompt={inputPrompt}
@@ -1326,7 +1326,7 @@ export const Chat: React.FC = () => {
             />
 
             {/* Bottom Status Information */}
-            <div className="flex justify-center items-center mt-2.5 gap-4 sm:gap-6 text-[10px] text-zinc-400 dark:text-zinc-500 font-mono tracking-wider">
+            <div className="flex justify-center items-center mt-2.5 gap-4 sm:gap-6 text-[10px] text-zinc-400 dark:text-zinc-500 font-mono tracking-wider select-none">
               <span className="flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-zinc-900 dark:bg-zinc-100 animate-pulse" />
                 Stream: SSE Active
