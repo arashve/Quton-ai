@@ -1107,7 +1107,7 @@ export const Chat: React.FC = () => {
     liquidRadius={1.2}
     liquidWobbleSpeed={5}
     speed={0.5}
-    edgeFade={0.5}
+    edgeFade={0.3}
     transparent
   />
   </div>
