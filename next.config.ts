@@ -20,7 +20,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  transpilePackages: ['motion'],
+  transpilePackages: ['motion', 'three', 'postprocessing'],
   experimental: {
     webpackMemoryOptimizations: true,
     cpus: 1,

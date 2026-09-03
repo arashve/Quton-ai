@@ -47,6 +47,11 @@ import {
 import { CodeBlock } from './CodeBlock';
 import { ShinyText, SpotlightCard, ReactBitsAIInput } from './reactbits';
 import { BorderBeam, AnimatedGradientText, ShimmerButton, TextAnimate } from './magicui';
+import dynamic from 'next/dynamic';
+
+const PixelBlast = dynamic(() => import('./PixelBlast'), {
+  ssr: false,
+});
 
 export interface ChatMessage {
   id: string;
@@ -1080,7 +1085,7 @@ export const Chat: React.FC = () => {
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col relative h-full overflow-hidden bg-white dark:bg-black transition-colors duration-200">
         {/* Top Header - Flat */}
-        <header className="h-14 flex items-center justify-between px-4 sm:px-6 bg-white/95 dark:bg-black/95 z-10 flex-shrink-0">
+        <header className="h-14 flex items-center justify-between px-4 sm:px-6 bg-white/95 dark:bg-black/95 z-20 flex-shrink-0">
           <div className="flex items-center gap-3">
             {/* Mobile Sidebar Button */}
             <button
@@ -1173,13 +1178,47 @@ export const Chat: React.FC = () => {
           </div>
         </header>
 
+        {/* PixelBlast interactive background for first screen - Smoothly dissolves when agent starts working */}
+        <AnimatePresence>
+          {!hasMessages && isMounted && (
+            <motion.div
+              key="pixel-blast-backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1] }}
+              className="absolute inset-0 z-0 overflow-hidden pointer-events-auto"
+            >
+              <PixelBlast
+                variant="square"
+                pixelSize={4}
+                color={theme === 'dark' ? '#d4d4d8' : '#27272a'}
+                patternScale={1.75}
+                patternDensity={1}
+                pixelSizeJitter={0}
+                enableRipples
+                rippleSpeed={0.4}
+                rippleThickness={0.12}
+                rippleIntensityScale={1.5}
+                liquid={false}
+                liquidStrength={0.12}
+                liquidRadius={1.2}
+                liquidWobbleSpeed={5}
+                speed={0.7}
+                edgeFade={0.25}
+                transparent
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Scrollable Center Body: Empty State OR Messages Feed */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-8 space-y-6">
+        <div className={`flex-1 overflow-y-auto p-4 sm:p-8 space-y-6 relative z-10 ${!hasMessages ? 'pointer-events-none' : ''}`}>
           {!hasMessages ? (
             /* Minimalist Monochrome Empty State - Flat */
             <div className="h-full min-h-[440px] flex flex-col items-center justify-center max-w-3xl mx-auto py-6">
-              <div className="text-center mb-8">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-900 text-[11px] font-mono text-zinc-600 dark:text-zinc-400 mb-4">
+              <div className="text-center mb-8 select-none">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-100/90 dark:bg-zinc-900/90 backdrop-blur-xs text-[11px] font-mono text-zinc-600 dark:text-zinc-400 mb-4">
                   <span className="w-1.5 h-1.5 rounded-full bg-zinc-900 dark:bg-zinc-100" />
                   <span>Minimalist Intelligence • SSE Streaming</span>
                 </div>
@@ -1193,14 +1232,14 @@ export const Chat: React.FC = () => {
               </div>
 
               {/* Starter Suggestions Grid - Completely Flat */}
-              <div className="w-full max-w-2xl grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+              <div className="w-full max-w-2xl grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3 pointer-events-auto">
                 {STARTER_PROMPTS.slice(0, 4).map((item) => {
                   const Icon = item.icon;
                   return (
                     <div
                       key={item.title}
                       onClick={() => handleSendMessage(item.prompt, item.mode)}
-                      className="p-3.5 rounded-xl bg-zinc-100/90 hover:bg-zinc-200/80 dark:bg-zinc-900/60 dark:hover:bg-zinc-800 transition-all cursor-pointer group"
+                      className="p-3.5 rounded-xl bg-zinc-100/90 hover:bg-zinc-200/90 dark:bg-zinc-900/80 dark:hover:bg-zinc-800/90 backdrop-blur-xs transition-all cursor-pointer group"
                     >
                       <div className="flex items-center gap-2.5 mb-1.5">
                         <div className="w-7 h-7 rounded-lg bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center text-zinc-700 dark:text-zinc-300 group-hover:text-black dark:group-hover:text-white transition-colors">
@@ -1219,7 +1258,7 @@ export const Chat: React.FC = () => {
               </div>
 
               {/* Quick tags row - Completely Flat */}
-              <div className="flex flex-wrap justify-center items-center gap-2 mt-2">
+              <div className="flex flex-wrap justify-center items-center gap-2 mt-2 pointer-events-auto">
                 {STARTER_PROMPTS.slice(4).map((item) => {
                   const Icon = item.icon;
                   return (
@@ -1227,7 +1266,7 @@ export const Chat: React.FC = () => {
                       key={item.title}
                       id={`starter-pill-${item.title.toLowerCase().replace(/\s+/g, '-')}`}
                       onClick={() => handleSendMessage(item.prompt, item.mode)}
-                      className="group flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-xs text-zinc-700 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition cursor-pointer"
+                      className="group flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-100/90 hover:bg-zinc-200/90 dark:bg-zinc-900/80 dark:hover:bg-zinc-800/90 backdrop-blur-xs text-xs text-zinc-700 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition cursor-pointer"
                     >
                       <Icon className="w-3 h-3 text-zinc-500 group-hover:text-zinc-900 dark:group-hover:text-zinc-200 transition-colors" />
                       <span>{item.title}</span>
@@ -1268,7 +1307,7 @@ export const Chat: React.FC = () => {
         </div>
 
         {/* Floating Bottom Input Bar */}
-        <footer className="p-4 sm:p-6 pt-0 mt-auto flex-shrink-0 relative bg-white dark:bg-black transition-colors duration-200">
+        <footer className="p-4 sm:p-6 pt-0 mt-auto flex-shrink-0 relative z-20 bg-white dark:bg-black transition-colors duration-200">
           <div className="max-w-3xl mx-auto relative">
             <div className="absolute -top-10 left-0 right-0 h-10 bg-gradient-to-t from-white dark:from-black to-transparent pointer-events-none" />
 

@@ -4,3 +4,4 @@ export { ShinyText } from './ShinyText';
 export { SpotlightCard } from './SpotlightCard';
 export { StarBorder } from './StarBorder';
 export { ReactBitsAIInput } from './ReactBitsAIInput';
+export { PixelBlast } from '../PixelBlast';
