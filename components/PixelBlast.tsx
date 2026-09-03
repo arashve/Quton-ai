@@ -169,6 +169,7 @@ uniform float uRippleSpeed;
 uniform float uRippleThickness;
 uniform float uRippleIntensity;
 uniform float uEdgeFade;
+uniform float uEdgeFadeBottom;
 
 uniform int   uShapeType;
 const int SHAPE_SQUARE   = 0;
@@ -190,9 +191,9 @@ float Bayer2(vec2 a) {
 #define Bayer4(a) (Bayer2(.5*(a))*0.25 + Bayer2(a))
 #define Bayer8(a) (Bayer4(.5*(a))*0.25 + Bayer2(a))
 
-#define FBM_OCTAVES     5
-#define FBM_LACUNARITY  1.25
-#define FBM_GAIN        1.0
+#define FBM_OCTAVES     4
+#define FBM_LACUNARITY  1.5
+#define FBM_GAIN        0.65
 
 float hash11(float n){ return fract(sin(n)*43758.5453); }
 
@@ -214,20 +215,22 @@ float vnoise(vec3 p){
   float x11 = mix(n011, n111, w.x);
   float y0  = mix(x00, x10, w.y);
   float y1  = mix(x01, x11, w.y);
-  return mix(y0, y1, w.z) * 2.0 - 1.0;
+  return mix(y0, y1, w.z);
 }
 
 float fbm2(vec2 uv, float t){
   vec3 p = vec3(uv * uScale, t);
   float amp = 1.0;
   float freq = 1.0;
-  float sum = 1.0;
+  float sum = 0.0;
+  float maxAmp = 0.0;
   for (int i = 0; i < FBM_OCTAVES; ++i){
-    sum  += amp * vnoise(p * freq);
-    freq *= FBM_LACUNARITY;
-    amp  *= FBM_GAIN;
+    sum    += amp * vnoise(p * freq);
+    maxAmp += amp;
+    freq   *= FBM_LACUNARITY;
+    amp    *= FBM_GAIN;
   }
-  return sum * 0.5 + 0.5;
+  return sum / maxAmp;
 }
 
 float maskCircle(vec2 p, float cov){
@@ -253,33 +256,28 @@ float maskDiamond(vec2 p, float cov){
 
 void main(){
   float pixelSize = uPixelSize;
-  vec2 fragCoord = gl_FragCoord.xy - uResolution * .5;
   float aspectRatio = uResolution.x / uResolution.y;
 
-  vec2 pixelId = floor(fragCoord / pixelSize);
-  vec2 pixelUV = fract(fragCoord / pixelSize);
+  vec2 pixelCoord = floor(gl_FragCoord.xy / pixelSize);
+  vec2 pixelUV = fract(gl_FragCoord.xy / pixelSize);
 
   float cellPixelSize = 8.0 * pixelSize;
-  vec2 cellId = floor(fragCoord / cellPixelSize);
-  vec2 cellCoord = cellId * cellPixelSize;
-  vec2 uv = cellCoord / uResolution * vec2(aspectRatio, 1.0);
+  vec2 cellCoord = floor(gl_FragCoord.xy / cellPixelSize) * cellPixelSize;
+  vec2 uv = (cellCoord / uResolution - 0.5) * vec2(aspectRatio, 1.0);
 
   float base = fbm2(uv, uTime * 0.05);
-  base = base * 0.5 - 0.65;
-
-  float feed = base + (uDensity - 0.5) * 0.3;
+  float feed = (base - 0.5) * 0.85 + (uDensity - 0.5) * 0.4 + 0.35;
 
   float speed     = uRippleSpeed;
   float thickness = uRippleThickness;
-  const float dampT     = 1.0;
-  const float dampR     = 10.0;
+  const float dampT = 1.0;
+  const float dampR = 5.0;
 
   if (uEnableRipples == 1) {
     for (int i = 0; i < MAX_CLICKS; ++i){
       vec2 pos = uClickPos[i];
       if (pos.x < 0.0) continue;
-      float cellPixelSize = 8.0 * pixelSize;
-      vec2 cuv = (((pos - uResolution * .5 - cellPixelSize * .5) / (uResolution))) * vec2(aspectRatio, 1.0);
+      vec2 cuv = (pos / uResolution - 0.5) * vec2(aspectRatio, 1.0);
       float t = max(uTime - uClickTimes[i], 0.0);
       float r = distance(uv, cuv);
       float waveR = speed * t;
@@ -289,21 +287,26 @@ void main(){
     }
   }
 
-  float bayer = Bayer8(fragCoord / uPixelSize) - 0.5;
-  float bw = step(0.5, feed + bayer);
+  feed = clamp(feed, 0.0, 1.0);
 
-  float h = fract(sin(dot(floor(fragCoord / uPixelSize), vec2(127.1, 311.7))) * 43758.5453);
+  float bayer = Bayer8(pixelCoord);
+  float bw = step(bayer, feed);
+
+  float h = fract(sin(dot(pixelCoord, vec2(127.1, 311.7))) * 43758.5453);
   float jitterScale = 1.0 + (h - 0.5) * uPixelJitter;
   float coverage = bw * jitterScale;
   float M;
   if      (uShapeType == SHAPE_CIRCLE)   M = maskCircle (pixelUV, coverage);
-  else if (uShapeType == SHAPE_TRIANGLE) M = maskTriangle(pixelUV, pixelId, coverage);
+  else if (uShapeType == SHAPE_TRIANGLE) M = maskTriangle(pixelUV, pixelCoord, coverage);
   else if (uShapeType == SHAPE_DIAMOND)  M = maskDiamond(pixelUV, coverage);
   else                                   M = coverage;
 
   if (uEdgeFade > 0.0) {
     vec2 norm = gl_FragCoord.xy / uResolution;
-    float edge = min(min(norm.x, norm.y), min(1.0 - norm.x, 1.0 - norm.y));
+    float edge = min(min(norm.x, 1.0 - norm.x), 1.0 - norm.y);
+    if (uEdgeFadeBottom > 0.5) {
+      edge = min(edge, norm.y);
+    }
     float fade = smoothstep(0.0, uEdgeFade, edge);
     M *= fade;
   }
@@ -345,6 +348,7 @@ export interface PixelBlastProps {
   speed?: number;
   transparent?: boolean;
   edgeFade?: number;
+  edgeFadeBottom?: boolean;
   noiseAmount?: number;
 }
 
@@ -363,16 +367,17 @@ interface ThreeState {
   composer?: EffectComposer;
   touch?: TouchTextureInstance;
   liquidEffect?: Effect;
+  cleanupListeners?: () => void;
 }
 
 const PixelBlast: React.FC<PixelBlastProps> = ({
   variant = 'square',
-  pixelSize = 3,
-  color = '#B497CF',
+  pixelSize = 4,
+  color = '#b497cf',
   className,
   style,
   antialias = true,
-  patternScale = 2,
+  patternScale = 1.75,
   patternDensity = 1,
   liquid = false,
   liquidStrength = 0.1,
@@ -384,9 +389,10 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
   rippleSpeed = 0.3,
   liquidWobbleSpeed = 4.5,
   autoPauseOffscreen = true,
-  speed = 0.5,
+  speed = 0.7,
   transparent = true,
-  edgeFade = 0.5,
+  edgeFade = 0.25,
+  edgeFadeBottom = false,
   noiseAmount = 0
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -415,6 +421,7 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
     if (mustReinit) {
       if (threeRef.current) {
         const t = threeRef.current;
+        t.cleanupListeners?.();
         t.resizeObserver?.disconnect();
         cancelAnimationFrame(t.raf);
         t.quad?.geometry.dispose();
@@ -455,7 +462,8 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
         uRippleSpeed: { value: rippleSpeed },
         uRippleThickness: { value: rippleThickness },
         uRippleIntensity: { value: rippleIntensityScale },
-        uEdgeFade: { value: edgeFade }
+        uEdgeFade: { value: edgeFade },
+        uEdgeFadeBottom: { value: edgeFadeBottom ? 1 : 0 }
       };
       const scene = new THREE.Scene();
       const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
@@ -532,6 +540,27 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
         composer.addPass(noisePass);
       }
       if (composer) composer.setSize(renderer.domElement.width, renderer.domElement.height);
+      const triggerRippleAt = (clientX: number, clientY: number) => {
+        const rect = renderer.domElement.getBoundingClientRect();
+        if (
+          clientX < rect.left ||
+          clientX > rect.right ||
+          clientY < rect.top ||
+          clientY > rect.bottom
+        ) {
+          return;
+        }
+        const scaleX = renderer.domElement.width / rect.width;
+        const scaleY = renderer.domElement.height / rect.height;
+        const fx = (clientX - rect.left) * scaleX;
+        const fy = (rect.height - (clientY - rect.top)) * scaleY;
+        const ix = threeRef.current?.clickIx ?? 0;
+        const posArray = uniforms.uClickPos.value as THREE.Vector2[];
+        posArray[ix].set(fx, fy);
+        (uniforms.uClickTimes.value as Float32Array)[ix] = uniforms.uTime.value;
+        if (threeRef.current) threeRef.current.clickIx = (ix + 1) % MAX_CLICKS;
+      };
+
       const mapToPixels = (e: PointerEvent) => {
         const rect = renderer.domElement.getBoundingClientRect();
         const scaleX = renderer.domElement.width / rect.width;
@@ -546,24 +575,38 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
         };
       };
       const onPointerDown = (e: PointerEvent) => {
-        const { fx, fy } = mapToPixels(e);
-        const ix = threeRef.current?.clickIx ?? 0;
-        const posArray = uniforms.uClickPos.value as THREE.Vector2[];
-        posArray[ix].set(fx, fy);
-        (uniforms.uClickTimes.value as Float32Array)[ix] = uniforms.uTime.value;
-        if (threeRef.current) threeRef.current.clickIx = (ix + 1) % MAX_CLICKS;
+        triggerRippleAt(e.clientX, e.clientY);
       };
       const onPointerMove = (e: PointerEvent) => {
         if (!touch) return;
         const { fx, fy, w, h } = mapToPixels(e);
         touch.addTouch({ x: fx / w, y: fy / h });
       };
+
+      const onGlobalPointerDown = (e: PointerEvent) => {
+        const target = e.target as HTMLElement | null;
+        if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) {
+          return;
+        }
+        triggerRippleAt(e.clientX, e.clientY);
+      };
+
       renderer.domElement.addEventListener('pointerdown', onPointerDown, {
         passive: true
       });
       renderer.domElement.addEventListener('pointermove', onPointerMove, {
         passive: true
       });
+      window.addEventListener('pointerdown', onGlobalPointerDown, {
+        passive: true
+      });
+
+      const cleanupListeners = () => {
+        renderer.domElement.removeEventListener('pointerdown', onPointerDown);
+        renderer.domElement.removeEventListener('pointermove', onPointerMove);
+        window.removeEventListener('pointerdown', onGlobalPointerDown);
+      };
+
       let raf = 0;
       const animate = () => {
         if (autoPauseOffscreen && !visibilityRef.current.visible) {
@@ -604,7 +647,8 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
         timeOffset,
         composer,
         touch,
-        liquidEffect
+        liquidEffect,
+        cleanupListeners
       };
     } else if (threeRef.current) {
       const t = threeRef.current;
@@ -619,6 +663,7 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
       t.uniforms.uRippleThickness.value = rippleThickness;
       t.uniforms.uRippleSpeed.value = rippleSpeed;
       t.uniforms.uEdgeFade.value = edgeFade;
+      t.uniforms.uEdgeFadeBottom.value = edgeFadeBottom ? 1 : 0;
       if (transparent) t.renderer.setClearAlpha(0);
       else t.renderer.setClearColor(0x000000, 1);
       if (t.liquidEffect) {
@@ -634,6 +679,7 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
       if (threeRef.current && mustReinit) return;
       if (!threeRef.current) return;
       const t = threeRef.current;
+      t.cleanupListeners?.();
       t.resizeObserver?.disconnect();
       cancelAnimationFrame(t.raf);
       t.quad?.geometry.dispose();
@@ -657,6 +703,7 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
     rippleSpeed,
     pixelSizeJitter,
     edgeFade,
+    edgeFadeBottom,
     transparent,
     liquidStrength,
     liquidRadius,

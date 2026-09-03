@@ -124,9 +124,9 @@ export const ReactBitsAIInput: React.FC<ReactBitsAIInputProps> = ({
       onMouseMove={handleMouseMove}
       className={`relative w-full max-w-3xl mx-auto group ${className}`}
     >
-      {/* Main Container - Completely Flat */}
+      {/* Main Container - Translucent Glassmorphic with backdrop blur */}
       <div
-        className="relative z-10 rounded-2xl bg-zinc-100 dark:bg-zinc-900 transition-all duration-200 overflow-hidden flex flex-col"
+        className="relative z-10 rounded-2xl bg-zinc-100/90 dark:bg-zinc-900/90 backdrop-blur-xl border border-zinc-200/60 dark:border-zinc-800/60 shadow-xl transition-all duration-200 overflow-hidden flex flex-col"
       >
         {/* Top Control Bar: Active Model Badge & Mode Controls */}
         <div className="flex items-center justify-between px-3.5 pt-2.5 pb-1 text-xs bg-zinc-200/50 dark:bg-zinc-800/40">

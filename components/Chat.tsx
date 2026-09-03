@@ -1088,9 +1088,7 @@ export const Chat: React.FC = () => {
         {isMounted && (
           <div
             id="chat-pixel-blast-background"
-            className={`absolute inset-0 w-full h-full z-0 overflow-hidden transition-opacity duration-700 ${
-              !hasMessages ? 'opacity-100 pointer-events-auto' : 'opacity-30 pointer-events-none'
-            }`}
+            className="absolute inset-0 w-full h-full z-0 overflow-hidden pointer-events-auto"
           >
             <PixelBlast
               variant="square"
@@ -1100,15 +1098,13 @@ export const Chat: React.FC = () => {
               patternDensity={1}
               pixelSizeJitter={0}
               enableRipples={true}
-              rippleSpeed={0.4}
-              rippleThickness={0.12}
-              rippleIntensityScale={1.5}
+              rippleSpeed={0.3}
+              rippleThickness={0.1}
+              rippleIntensityScale={1.0}
               liquid={false}
-              liquidStrength={0.12}
-              liquidRadius={1.2}
-              liquidWobbleSpeed={5}
               speed={0.7}
               edgeFade={0.25}
+              edgeFadeBottom={false}
               transparent={true}
             />
           </div>
@@ -1307,10 +1303,6 @@ export const Chat: React.FC = () => {
         {/* Floating Bottom Input Bar - Full-bleed transparency, NO solid cutoff */}
         <footer className="p-4 sm:p-6 pt-0 mt-auto flex-shrink-0 relative z-20 bg-transparent">
           <div className="max-w-3xl mx-auto relative">
-            {hasMessages && (
-              <div className="absolute -top-10 left-0 right-0 h-10 bg-gradient-to-t from-white/90 dark:from-black/90 to-transparent pointer-events-none" />
-            )}
-
             <ReactBitsAIInput
               inputPrompt={inputPrompt}
               setInputPrompt={setInputPrompt}
