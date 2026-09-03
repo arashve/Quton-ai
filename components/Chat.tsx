@@ -143,6 +143,244 @@ const INITIAL_DEFAULT_SESSION: ChatSession = {
   updatedAt: 0,
 };
 
+interface ChatMessageItemProps {
+  message: ChatMessage;
+  index: number;
+  isStreamingThis: boolean;
+  isLatestAssistant: boolean;
+  copiedId: string | null;
+  onCopy: (id: string, text: string) => void;
+  onSpeak: (id: string, text: string) => void;
+  speakingMessageId: string | null;
+  onRegenerate: (index: number) => void;
+  onFeedback: (id: string, type: 'up' | 'down') => void;
+  feedback: Record<string, 'up' | 'down'>;
+}
+
+const ChatMessageItem = React.memo(function ChatMessageItem({
+  message,
+  index,
+  isStreamingThis,
+  isLatestAssistant,
+  copiedId,
+  onCopy,
+  onSpeak,
+  speakingMessageId,
+  onRegenerate,
+  onFeedback,
+  feedback,
+}: ChatMessageItemProps) {
+  const isUser = message.role === 'user';
+
+  const content = (
+    <div className="flex gap-3 sm:gap-4">
+      {/* Role Avatar - Completely Flat */}
+      {isUser ? (
+        <div className="w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-800 flex-shrink-0 flex items-center justify-center text-xs text-zinc-700 dark:text-zinc-300 font-semibold">
+          U
+        </div>
+      ) : (
+        <div className="w-8 h-8 rounded-full bg-zinc-950 text-white dark:bg-white dark:text-black flex-shrink-0 flex items-center justify-center">
+          <Bot className="w-4.5 h-4.5" />
+        </div>
+      )}
+
+      {/* Message Body - Completely Flat */}
+      <div className="flex-1 flex flex-col gap-1 min-w-0">
+        <div className="flex items-center gap-2 mb-0.5">
+          <span className="text-[11px] text-zinc-500 dark:text-zinc-400 font-medium">
+            {isUser ? 'You' : 'Assistant'}
+          </span>
+          {!isUser && message.modelUsed && (
+            <span className="text-[10px] text-zinc-600 dark:text-zinc-400 font-mono px-1.5 py-0.2 rounded bg-zinc-100 dark:bg-zinc-900">
+              {message.modelUsed}
+            </span>
+          )}
+          {!isUser && message.ttftMs && (
+            <span className="text-[10px] text-zinc-400 dark:text-zinc-600 font-mono">
+              • TTFT {message.ttftMs}ms
+            </span>
+          )}
+        </div>
+
+        {isUser ? (
+          <div className="text-sm leading-relaxed text-zinc-900 dark:text-zinc-100 whitespace-pre-wrap bg-zinc-100 dark:bg-zinc-900 rounded-2xl px-4 py-3">
+            {message.content}
+          </div>
+        ) : (
+          <div className="relative rounded-2xl bg-zinc-100/70 dark:bg-zinc-900/60 p-4 sm:p-5 text-[15px] leading-relaxed text-zinc-900 dark:text-zinc-100 font-sans space-y-4 overflow-hidden">
+            {message.content ? (
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  p({ children }) {
+                    return (
+                      <p className="mb-3 last:mb-0 leading-relaxed text-zinc-800 dark:text-zinc-200">
+                        {children}
+                      </p>
+                    );
+                  },
+                  h1({ children }) {
+                    return (
+                      <h1 className="text-xl font-bold mt-4 mb-2 text-zinc-950 dark:text-white tracking-tight">
+                        {children}
+                      </h1>
+                    );
+                  },
+                  h2({ children }) {
+                    return (
+                      <h2 className="text-lg font-semibold mt-3 mb-2 text-zinc-900 dark:text-zinc-100 tracking-tight">
+                        {children}
+                      </h2>
+                    );
+                  },
+                  h3({ children }) {
+                    return (
+                      <h3 className="text-base font-semibold mt-2.5 mb-1 text-zinc-900 dark:text-zinc-200">
+                        {children}
+                      </h3>
+                    );
+                  },
+                  li({ children }) {
+                    return (
+                      <li className="my-1 text-zinc-800 dark:text-zinc-300">
+                        {children}
+                      </li>
+                    );
+                  },
+                  code({ className, children, ...props }: any) {
+                    const match = /language-(\w+)/.exec(className || '');
+                    const isInline = !match && !String(children).includes('\n');
+                    if (isInline) {
+                      return (
+                        <code
+                          className="px-1.5 py-0.5 rounded bg-zinc-200/80 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-200 font-mono text-xs"
+                          {...props}
+                        >
+                          {children}
+                        </code>
+                      );
+                    }
+                    return (
+                      <CodeBlock
+                        language={match ? match[1] : 'text'}
+                        value={String(children).replace(/\n$/, '')}
+                      />
+                    );
+                  },
+                }}
+              >
+                {message.content}
+              </ReactMarkdown>
+            ) : isStreamingThis ? (
+              <div className="flex items-center gap-2 py-1 text-zinc-600 dark:text-zinc-400 font-mono text-xs">
+                <span className="w-2 h-2 rounded-full bg-zinc-900 dark:bg-zinc-100 animate-pulse" />
+                <span>Generating response...</span>
+              </div>
+            ) : null}
+
+            {/* Blinking cursor while active streaming */}
+            {isStreamingThis && message.content && (
+              <span className="inline-block w-1.5 h-4 ml-1 align-middle bg-zinc-900 dark:bg-zinc-100 animate-pulse" />
+            )}
+
+            {/* Assistant Action Toolbar - Flat */}
+            {message.content && !isStreamingThis && (
+              <div className="pt-2 flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400">
+                <div className="flex items-center gap-1">
+                  <button
+                    id={`copy-btn-${message.id}`}
+                    onClick={() => onCopy(message.id, message.content)}
+                    className="p-1.5 rounded hover:bg-zinc-200 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100 transition cursor-pointer"
+                    title="Copy content"
+                  >
+                    {copiedId === message.id ? (
+                      <Check className="w-3.5 h-3.5 text-zinc-900 dark:text-white" />
+                    ) : (
+                      <Copy className="w-3.5 h-3.5" />
+                    )}
+                  </button>
+                  <button
+                    id={`tts-btn-${message.id}`}
+                    onClick={() => onSpeak(message.id, message.content)}
+                    className={`p-1.5 rounded transition cursor-pointer ${
+                      speakingMessageId === message.id
+                        ? 'text-zinc-950 dark:text-white bg-zinc-200 dark:bg-zinc-800'
+                        : 'hover:bg-zinc-200 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100'
+                    }`}
+                    title={speakingMessageId === message.id ? 'Stop audio' : 'Read aloud'}
+                  >
+                    {speakingMessageId === message.id ? (
+                      <VolumeX className="w-3.5 h-3.5" />
+                    ) : (
+                      <Volume2 className="w-3.5 h-3.5" />
+                    )}
+                  </button>
+                  <button
+                    id={`regen-btn-${message.id}`}
+                    onClick={() => onRegenerate(index)}
+                    className="p-1.5 rounded hover:bg-zinc-200 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100 transition cursor-pointer"
+                    title="Regenerate"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-1">
+                  <button
+                    id={`thumb-up-btn-${message.id}`}
+                    onClick={() => onFeedback(message.id, 'up')}
+                    className={`p-1.5 rounded transition cursor-pointer ${
+                      feedback[message.id] === 'up'
+                        ? 'text-zinc-950 dark:text-white bg-zinc-200 dark:bg-zinc-800'
+                        : 'hover:bg-zinc-200 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100'
+                    }`}
+                    title="Helpful"
+                  >
+                    <ThumbsUp className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    id={`thumb-down-btn-${message.id}`}
+                    onClick={() => onFeedback(message.id, 'down')}
+                    className={`p-1.5 rounded transition cursor-pointer ${
+                      feedback[message.id] === 'down'
+                        ? 'text-zinc-950 dark:text-white bg-zinc-200 dark:bg-zinc-800'
+                        : 'hover:bg-zinc-200 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100'
+                    }`}
+                    title="Unhelpful"
+                  >
+                    <ThumbsDown className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  // Only the active answering AI response gets an entrance animation
+  if (isLatestAssistant && isStreamingThis) {
+    return (
+      <motion.div
+        key={message.id}
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.25 }}
+      >
+        {content}
+      </motion.div>
+    );
+  }
+
+  return (
+    <div key={message.id}>
+      {content}
+    </div>
+  );
+});
+
 export const Chat: React.FC = () => {
   // Client-mounting state to ensure perfect hydration without cascading render warnings
   const isMounted = useSyncExternalStore(
@@ -721,14 +959,14 @@ export const Chat: React.FC = () => {
 
   return (
     <div className="flex h-screen w-full bg-white dark:bg-black text-zinc-900 dark:text-zinc-100 font-sans overflow-hidden transition-colors duration-200">
-      {/* Sidebar for Desktop / Tablet */}
-      <aside className="hidden md:flex w-[270px] bg-zinc-50/80 dark:bg-black border-r border-zinc-200 dark:border-zinc-800/80 flex-col flex-shrink-0 z-10 transition-colors duration-200">
+      {/* Sidebar for Desktop / Tablet - Completely Flat */}
+      <aside className="hidden md:flex w-[270px] bg-zinc-100/70 dark:bg-[#0a0a0a] flex-col flex-shrink-0 z-10 transition-colors duration-200">
         {/* New Interaction Button */}
         <div className="p-3.5 sm:p-4">
           <button
             id="sidebar-new-chat-btn"
             onClick={handleNewChat}
-            className="w-full py-2.5 px-4 rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white hover:bg-zinc-100 dark:bg-zinc-900 dark:hover:bg-zinc-800/90 text-sm font-medium text-zinc-900 dark:text-zinc-100 flex items-center justify-center gap-2 shadow-xs transition-colors cursor-pointer"
+            className="w-full py-2.5 px-4 rounded-xl bg-zinc-200/80 hover:bg-zinc-300 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-sm font-medium text-zinc-900 dark:text-zinc-100 flex items-center justify-center gap-2 transition-colors cursor-pointer"
           >
             <Plus className="w-4 h-4 text-zinc-700 dark:text-zinc-300" />
             <span>New Interaction</span>
@@ -759,10 +997,10 @@ export const Chat: React.FC = () => {
                   key={s.id}
                   id={`archive-item-${s.id}`}
                   onClick={() => handleSelectSession(s.id)}
-                  className={`p-2.5 rounded-lg flex flex-col gap-0.5 transition-colors group cursor-pointer relative border ${
+                  className={`p-2.5 rounded-lg flex flex-col gap-0.5 transition-colors group cursor-pointer relative ${
                     isSelected
-                      ? 'bg-zinc-200/60 dark:bg-zinc-900 border-zinc-300 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100'
-                      : 'hover:bg-zinc-100 dark:hover:bg-zinc-900/50 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 border-transparent'
+                      ? 'bg-zinc-200 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100'
+                      : 'hover:bg-zinc-200/50 dark:hover:bg-zinc-900/50 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
                   }`}
                 >
                   <div className="flex items-center justify-between gap-1">
@@ -795,11 +1033,11 @@ export const Chat: React.FC = () => {
         </nav>
 
         {/* Quick Tools Nav */}
-        <div className="px-3 py-2 border-t border-zinc-200 dark:border-zinc-800/80 space-y-1 text-xs">
+        <div className="px-3 py-2 space-y-1 text-xs">
           <button
             id="sidebar-projects-btn"
             onClick={() => setIsProjectsOpen(true)}
-            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition"
+            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-200/50 dark:hover:bg-zinc-900 transition"
           >
             <FolderKanban className="w-4 h-4 text-zinc-400 dark:text-zinc-500" />
             <span>Templates & Specs</span>
@@ -807,7 +1045,7 @@ export const Chat: React.FC = () => {
           <button
             id="sidebar-library-btn"
             onClick={() => setIsLibraryOpen(true)}
-            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition"
+            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-200/50 dark:hover:bg-zinc-900 transition"
           >
             <FileText className="w-4 h-4 text-zinc-400 dark:text-zinc-500" />
             <span>All Archives ({sessions.length})</span>
@@ -815,16 +1053,16 @@ export const Chat: React.FC = () => {
         </div>
 
         {/* User Profile / Tier Footer */}
-        <div className="p-3 border-t border-zinc-200 dark:border-zinc-800/80 mt-auto bg-zinc-100/50 dark:bg-[#080808]">
+        <div className="p-3 mt-auto bg-zinc-200/40 dark:bg-[#070707]">
           <div
             id="user-profile-badge"
             onClick={() => {
               setAuthMode('login');
               setIsAuthModalOpen(true);
             }}
-            className="flex items-center gap-3 px-2.5 py-2 rounded-lg hover:bg-zinc-200/60 dark:hover:bg-zinc-800/50 transition-colors cursor-pointer group"
+            className="flex items-center gap-3 px-2.5 py-2 rounded-lg hover:bg-zinc-200/70 dark:hover:bg-zinc-800/50 transition-colors cursor-pointer group"
           >
-            <div className="w-8 h-8 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-black flex items-center justify-center text-xs font-serif font-bold shadow-xs">
+            <div className="w-8 h-8 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-black flex items-center justify-center text-xs font-serif font-bold">
               E
             </div>
             <div className="flex flex-col overflow-hidden">
@@ -841,8 +1079,8 @@ export const Chat: React.FC = () => {
 
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col relative h-full overflow-hidden bg-white dark:bg-black transition-colors duration-200">
-        {/* Top Header */}
-        <header className="h-14 border-b border-zinc-200 dark:border-zinc-800/80 flex items-center justify-between px-4 sm:px-6 bg-white/90 dark:bg-black/90 backdrop-blur-xl z-10 flex-shrink-0">
+        {/* Top Header - Flat */}
+        <header className="h-14 flex items-center justify-between px-4 sm:px-6 bg-white/95 dark:bg-black/95 z-10 flex-shrink-0">
           <div className="flex items-center gap-3">
             {/* Mobile Sidebar Button */}
             <button
@@ -854,11 +1092,11 @@ export const Chat: React.FC = () => {
               <LayoutGrid className="w-4 h-4" />
             </button>
 
-            {/* Interactive Model Selector Button */}
+            {/* Interactive Model Selector Button - Flat */}
             <button
               id="header-model-selector-btn"
               onClick={() => setIsModelModalOpen(true)}
-              className="flex items-center gap-2.5 px-3 py-1.5 rounded-full bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-900 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 transition-all text-left cursor-pointer group shadow-xs"
+              className="flex items-center gap-2.5 px-3 py-1.5 rounded-full bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-900 dark:hover:bg-zinc-800 transition-all text-left cursor-pointer group"
               title="Click to switch model, provider, or API key"
             >
               <div className="w-2 h-2 rounded-full bg-zinc-900 dark:bg-zinc-100"></div>
@@ -938,46 +1176,34 @@ export const Chat: React.FC = () => {
         {/* Scrollable Center Body: Empty State OR Messages Feed */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-8 space-y-6">
           {!hasMessages ? (
-            /* Minimalist Monochrome Empty State */
+            /* Minimalist Monochrome Empty State - Flat */
             <div className="h-full min-h-[440px] flex flex-col items-center justify-center max-w-3xl mx-auto py-6">
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-                className="text-center mb-8"
-              >
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[11px] font-mono text-zinc-600 dark:text-zinc-400 mb-4">
+              <div className="text-center mb-8">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-900 text-[11px] font-mono text-zinc-600 dark:text-zinc-400 mb-4">
                   <span className="w-1.5 h-1.5 rounded-full bg-zinc-900 dark:bg-zinc-100" />
                   <span>Minimalist Intelligence • SSE Streaming</span>
                 </div>
 
                 <h1 className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight text-zinc-950 dark:text-white mb-3">
-                  <TextAnimate by="word" animation="blurInUp" duration={0.3}>
-                    What can I build for you?
-                  </TextAnimate>
+                  What can I build for you?
                 </h1>
                 <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 max-w-md mx-auto leading-relaxed">
                   Real-time streaming agent with sub-50ms chunk latency. Select a template below or type a query.
                 </p>
-              </motion.div>
+              </div>
 
-              {/* Starter Suggestions Grid */}
-              <motion.div
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: 0.08 }}
-                className="w-full max-w-2xl grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3"
-              >
+              {/* Starter Suggestions Grid - Completely Flat */}
+              <div className="w-full max-w-2xl grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
                 {STARTER_PROMPTS.slice(0, 4).map((item) => {
                   const Icon = item.icon;
                   return (
                     <div
                       key={item.title}
                       onClick={() => handleSendMessage(item.prompt, item.mode)}
-                      className="p-3.5 rounded-xl border border-zinc-200 dark:border-zinc-800/80 bg-zinc-50/50 hover:bg-zinc-100/80 dark:bg-zinc-950/60 dark:hover:bg-zinc-900 hover:border-zinc-300 dark:hover:border-zinc-700 transition-all cursor-pointer active:scale-[0.99] group shadow-xs"
+                      className="p-3.5 rounded-xl bg-zinc-100/90 hover:bg-zinc-200/80 dark:bg-zinc-900/60 dark:hover:bg-zinc-800 transition-all cursor-pointer group"
                     >
                       <div className="flex items-center gap-2.5 mb-1.5">
-                        <div className="w-7 h-7 rounded-lg bg-zinc-200/80 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 flex items-center justify-center text-zinc-700 dark:text-zinc-300 group-hover:text-black dark:group-hover:text-white transition-colors">
+                        <div className="w-7 h-7 rounded-lg bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center text-zinc-700 dark:text-zinc-300 group-hover:text-black dark:group-hover:text-white transition-colors">
                           <Icon className="w-3.5 h-3.5" />
                         </div>
                         <span className="text-xs sm:text-sm font-medium text-zinc-900 dark:text-zinc-200 group-hover:text-black dark:group-hover:text-white transition-colors">
@@ -990,15 +1216,10 @@ export const Chat: React.FC = () => {
                     </div>
                   );
                 })}
-              </motion.div>
+              </div>
 
-              {/* Quick tags row */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.3, delay: 0.15 }}
-                className="flex flex-wrap justify-center items-center gap-2 mt-2"
-              >
+              {/* Quick tags row - Completely Flat */}
+              <div className="flex flex-wrap justify-center items-center gap-2 mt-2">
                 {STARTER_PROMPTS.slice(4).map((item) => {
                   const Icon = item.icon;
                   return (
@@ -1006,229 +1227,39 @@ export const Chat: React.FC = () => {
                       key={item.title}
                       id={`starter-pill-${item.title.toLowerCase().replace(/\s+/g, '-')}`}
                       onClick={() => handleSendMessage(item.prompt, item.mode)}
-                      className="group flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-900/80 dark:hover:bg-zinc-850 border border-zinc-200 dark:border-zinc-800 text-xs text-zinc-700 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition cursor-pointer active:scale-95"
+                      className="group flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-xs text-zinc-700 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition cursor-pointer"
                     >
                       <Icon className="w-3 h-3 text-zinc-500 group-hover:text-zinc-900 dark:group-hover:text-zinc-200 transition-colors" />
                       <span>{item.title}</span>
                     </button>
                   );
                 })}
-              </motion.div>
+              </div>
             </div>
           ) : (
 
-            /* Active Messages List */
+            /* Active Messages List - Stable, Flat, No typing re-animations */
             <div className="max-w-3xl mx-auto space-y-7 pb-36">
               {messages.map((message, index) => {
-                const isUser = message.role === 'user';
-                const isStreamingThis = isLoading && index === messages.length - 1 && !isUser;
+                const isAssistant = message.role === 'assistant';
+                const isLatest = index === messages.length - 1;
+                const isStreamingThis = isLoading && isLatest && isAssistant;
 
                 return (
-                  <motion.div
+                  <ChatMessageItem
                     key={message.id}
-                    initial={{ opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="flex gap-3 sm:gap-4"
-                  >
-                    {/* Role Avatar */}
-                    {isUser ? (
-                      <div className="w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-800 flex-shrink-0 flex items-center justify-center text-xs text-zinc-700 dark:text-zinc-300 font-semibold border border-zinc-300 dark:border-zinc-700 shadow-xs">
-                        U
-                      </div>
-                    ) : (
-                      <div className="w-8 h-8 rounded-full bg-black text-white dark:bg-white dark:text-black flex-shrink-0 flex items-center justify-center shadow-xs">
-                        <Bot className="w-4.5 h-4.5" />
-                      </div>
-                    )}
-
-                    {/* Message Body */}
-                    <div className="flex-1 flex flex-col gap-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-0.5">
-                        <span className="text-[11px] text-zinc-500 dark:text-zinc-400 font-medium">
-                          {isUser ? 'You' : 'Assistant'}
-                        </span>
-                        {!isUser && message.modelUsed && (
-                          <span className="text-[10px] text-zinc-600 dark:text-zinc-400 font-mono px-1.5 py-0.2 rounded bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
-                            {message.modelUsed}
-                          </span>
-                        )}
-                        {!isUser && message.ttftMs && (
-                          <span className="text-[10px] text-zinc-400 dark:text-zinc-600 font-mono">
-                            • TTFT {message.ttftMs}ms
-                          </span>
-                        )}
-                      </div>
-
-                      {isUser ? (
-                        <div className="text-sm leading-relaxed text-zinc-900 dark:text-zinc-100 whitespace-pre-wrap bg-zinc-100/90 dark:bg-zinc-900/70 border border-zinc-200/80 dark:border-zinc-800/80 rounded-2xl px-4 py-3 shadow-xs">
-                          {message.content}
-                        </div>
-                      ) : (
-                        <div className="relative rounded-2xl bg-white dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800/80 p-4 sm:p-5 text-[15px] leading-relaxed text-zinc-900 dark:text-zinc-100 font-sans space-y-4 shadow-xs overflow-hidden">
-                          {message.content ? (
-                            <ReactMarkdown
-                              remarkPlugins={[remarkGfm]}
-                              components={{
-                                p({ children }) {
-                                  return (
-                                    <div className="mb-3 last:mb-0 leading-relaxed text-zinc-800 dark:text-zinc-200">
-                                      <TextAnimate
-                                        by="word"
-                                        animation="blurInUp"
-                                        duration={0.25}
-                                      >
-                                        {children as any}
-                                      </TextAnimate>
-                                    </div>
-                                  );
-                                },
-                                h1({ children }) {
-                                  return (
-                                    <h1 className="text-xl font-bold mt-4 mb-2 text-zinc-950 dark:text-white tracking-tight">
-                                      <TextAnimate by="word" animation="blurInUp" duration={0.3}>
-                                        {children as any}
-                                      </TextAnimate>
-                                    </h1>
-                                  );
-                                },
-                                h2({ children }) {
-                                  return (
-                                    <h2 className="text-lg font-semibold mt-3 mb-2 text-zinc-900 dark:text-zinc-100 tracking-tight">
-                                      <TextAnimate by="word" animation="blurInUp" duration={0.25}>
-                                        {children as any}
-                                      </TextAnimate>
-                                    </h2>
-                                  );
-                                },
-                                h3({ children }) {
-                                  return (
-                                    <h3 className="text-base font-semibold mt-2.5 mb-1 text-zinc-900 dark:text-zinc-200">
-                                      <TextAnimate by="word" animation="blurInUp" duration={0.2}>
-                                        {children as any}
-                                      </TextAnimate>
-                                    </h3>
-                                  );
-                                },
-                                li({ children }) {
-                                  return (
-                                    <li className="my-1 text-zinc-800 dark:text-zinc-300">
-                                      <TextAnimate by="word" animation="fadeIn" duration={0.2}>
-                                        {children as any}
-                                      </TextAnimate>
-                                    </li>
-                                  );
-                                },
-                                code({ className, children, ...props }: any) {
-                                  const match = /language-(\w+)/.exec(className || '');
-                                  const isInline = !match && !String(children).includes('\n');
-                                  if (isInline) {
-                                    return (
-                                      <code
-                                        className="px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-200 font-mono text-xs border border-zinc-200 dark:border-zinc-800"
-                                        {...props}
-                                      >
-                                        {children}
-                                      </code>
-                                    );
-                                  }
-                                  return (
-                                    <CodeBlock
-                                      language={match ? match[1] : 'text'}
-                                      value={String(children).replace(/\n$/, '')}
-                                    />
-                                  );
-                                },
-                              }}
-                            >
-                              {message.content}
-                            </ReactMarkdown>
-                          ) : isStreamingThis ? (
-                            <div className="flex items-center gap-2 py-1 text-zinc-600 dark:text-zinc-400 font-mono text-xs">
-                              <span className="w-2 h-2 rounded-full bg-zinc-900 dark:bg-zinc-100 animate-pulse" />
-                              <span>Generating streaming response...</span>
-                            </div>
-                          ) : null}
-
-                          {/* Blinking cursor while active streaming */}
-                          {isStreamingThis && message.content && (
-                            <span className="inline-block w-1.5 h-4 ml-1 align-middle bg-zinc-900 dark:bg-zinc-100 animate-pulse" />
-                          )}
-
-                          {/* Assistant Action Toolbar */}
-                          {message.content && !isStreamingThis && (
-                            <div className="pt-2 flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400 border-t border-zinc-100 dark:border-zinc-800/60">
-                              <div className="flex items-center gap-1">
-                                <button
-                                  id={`copy-btn-${message.id}`}
-                                  onClick={() => handleCopyMessage(message.id, message.content)}
-                                  className="p-1.5 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100 transition cursor-pointer"
-                                  title="Copy content"
-                                >
-                                  {copiedId === message.id ? (
-                                    <Check className="w-3.5 h-3.5 text-zinc-900 dark:text-white" />
-                                  ) : (
-                                    <Copy className="w-3.5 h-3.5" />
-                                  )}
-                                </button>
-                                <button
-                                  id={`tts-btn-${message.id}`}
-                                  onClick={() => toggleSpeak(message.id, message.content)}
-                                  className={`p-1.5 rounded transition cursor-pointer ${
-                                    speakingMessageId === message.id
-                                      ? 'text-zinc-950 dark:text-white bg-zinc-200 dark:bg-zinc-800'
-                                      : 'hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100'
-                                  }`}
-                                  title={speakingMessageId === message.id ? 'Stop audio' : 'Read aloud'}
-                                >
-                                  {speakingMessageId === message.id ? (
-                                    <VolumeX className="w-3.5 h-3.5" />
-                                  ) : (
-                                    <Volume2 className="w-3.5 h-3.5" />
-                                  )}
-                                </button>
-                                <button
-                                  id={`regen-btn-${message.id}`}
-                                  onClick={() => handleRegenerate(index)}
-                                  className="p-1.5 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100 transition cursor-pointer"
-                                  title="Regenerate"
-                                >
-                                  <RotateCcw className="w-3.5 h-3.5" />
-                                </button>
-                              </div>
-
-                              <div className="flex items-center gap-1">
-                                <button
-                                  id={`thumb-up-btn-${message.id}`}
-                                  onClick={() => handleFeedback(message.id, 'up')}
-                                  className={`p-1.5 rounded transition cursor-pointer ${
-                                    feedback[message.id] === 'up'
-                                      ? 'text-zinc-950 dark:text-white bg-zinc-200 dark:bg-zinc-800'
-                                      : 'hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100'
-                                  }`}
-                                  title="Helpful"
-                                >
-                                  <ThumbsUp className="w-3.5 h-3.5" />
-                                </button>
-                                <button
-                                  id={`thumb-down-btn-${message.id}`}
-                                  onClick={() => handleFeedback(message.id, 'down')}
-                                  className={`p-1.5 rounded transition cursor-pointer ${
-                                    feedback[message.id] === 'down'
-                                      ? 'text-zinc-950 dark:text-white bg-zinc-200 dark:bg-zinc-800'
-                                      : 'hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100'
-                                  }`}
-                                  title="Unhelpful"
-                                >
-                                  <ThumbsDown className="w-3.5 h-3.5" />
-                                </button>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </motion.div>
+                    message={message}
+                    index={index}
+                    isStreamingThis={isStreamingThis}
+                    isLatestAssistant={isAssistant && isLatest}
+                    copiedId={copiedId}
+                    onCopy={handleCopyMessage}
+                    onSpeak={toggleSpeak}
+                    speakingMessageId={speakingMessageId}
+                    onRegenerate={handleRegenerate}
+                    onFeedback={handleFeedback}
+                    feedback={feedback}
+                  />
                 );
               })}
               <div ref={messagesEndRef} />
@@ -1271,7 +1302,7 @@ export const Chat: React.FC = () => {
       </main>
 
 
-      {/* Library Drawer Modal */}
+      {/* Library Drawer Modal - Completely Flat */}
       <AnimatePresence>
         {isLibraryOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs">
@@ -1279,9 +1310,9 @@ export const Chat: React.FC = () => {
               initial={{ opacity: 0, scale: 0.96 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.96 }}
-              className="w-full max-w-lg bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh] text-zinc-900 dark:text-zinc-100"
+              className="w-full max-w-lg bg-zinc-100 dark:bg-zinc-900 rounded-2xl overflow-hidden flex flex-col max-h-[80vh] text-zinc-900 dark:text-zinc-100"
             >
-              <div className="flex items-center justify-between p-4 border-b border-zinc-200 dark:border-zinc-800">
+              <div className="flex items-center justify-between p-4 bg-zinc-200/50 dark:bg-zinc-800/60">
                 <div className="flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-zinc-100">
                   <FileText className="w-4 h-4 text-zinc-500 dark:text-zinc-400" />
                   <span>Conversation Archives</span>
@@ -1300,10 +1331,10 @@ export const Chat: React.FC = () => {
                   <div
                     key={session.id}
                     onClick={() => handleSelectSession(session.id)}
-                    className={`p-3 rounded-xl border flex items-center justify-between cursor-pointer transition ${
+                    className={`p-3 rounded-xl flex items-center justify-between cursor-pointer transition ${
                       currentSessionId === session.id
-                        ? 'bg-zinc-100 dark:bg-zinc-900 border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-white'
-                        : 'bg-zinc-50/50 dark:bg-zinc-900/40 border-zinc-200 dark:border-zinc-800/80 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-900 hover:text-zinc-900 dark:hover:text-zinc-200'
+                        ? 'bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-white'
+                        : 'bg-white/80 dark:bg-zinc-950/60 text-zinc-600 dark:text-zinc-400 hover:bg-white dark:hover:bg-zinc-950 hover:text-zinc-900 dark:hover:text-zinc-200'
                     }`}
                   >
                     <div className="flex flex-col gap-0.5 overflow-hidden">
@@ -1330,11 +1361,11 @@ export const Chat: React.FC = () => {
                 ))}
               </div>
 
-              <div className="p-4 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-[#0c0c0c] flex justify-between items-center">
+              <div className="p-4 bg-zinc-200/50 dark:bg-[#0c0c0c] flex justify-between items-center">
                 <button
                   id="modal-new-chat-btn"
                   onClick={handleNewChat}
-                  className="px-3.5 py-1.5 rounded-lg bg-zinc-900 hover:bg-black dark:bg-zinc-100 dark:hover:bg-white text-xs font-medium text-white dark:text-black flex items-center gap-1.5 transition shadow-xs"
+                  className="px-3.5 py-1.5 rounded-lg bg-zinc-900 hover:bg-black dark:bg-zinc-100 dark:hover:bg-white text-xs font-medium text-white dark:text-black flex items-center gap-1.5 transition"
                 >
                   <Plus className="w-3.5 h-3.5" /> New Interaction
                 </button>
@@ -1351,7 +1382,7 @@ export const Chat: React.FC = () => {
         )}
       </AnimatePresence>
 
-      {/* Search Dialog Modal */}
+      {/* Search Dialog Modal - Completely Flat */}
       <AnimatePresence>
         {isSearchOpen && (
           <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 p-4 bg-black/70 backdrop-blur-xs">
@@ -1359,9 +1390,9 @@ export const Chat: React.FC = () => {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="w-full max-w-lg bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col text-zinc-900 dark:text-zinc-100"
+              className="w-full max-w-lg bg-zinc-100 dark:bg-zinc-900 rounded-2xl overflow-hidden flex flex-col text-zinc-900 dark:text-zinc-100"
             >
-              <div className="flex items-center gap-2 p-3.5 border-b border-zinc-200 dark:border-zinc-800">
+              <div className="flex items-center gap-2 p-3.5 bg-zinc-200/50 dark:bg-zinc-800/60">
                 <Search className="w-4 h-4 text-zinc-400 ml-1" />
                 <input
                   id="sophisticated-search-input"
@@ -1398,7 +1429,7 @@ export const Chat: React.FC = () => {
                       <div
                         key={idx}
                         onClick={() => handleSelectSession(item.sessionId)}
-                        className="p-2.5 rounded-lg bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-900/50 dark:hover:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 cursor-pointer transition"
+                        className="p-2.5 rounded-lg bg-white hover:bg-zinc-50 dark:bg-zinc-950/60 dark:hover:bg-zinc-950 cursor-pointer transition"
                       >
                         <div className="font-medium text-zinc-900 dark:text-zinc-200 mb-1">{item.sessionTitle}</div>
                         <div className="text-zinc-500 dark:text-zinc-400 line-clamp-2">{item.message.content}</div>
@@ -1415,7 +1446,7 @@ export const Chat: React.FC = () => {
         )}
       </AnimatePresence>
 
-      {/* Projects Modal */}
+      {/* Projects Modal - Completely Flat */}
       <AnimatePresence>
         {isProjectsOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs">
@@ -1423,9 +1454,9 @@ export const Chat: React.FC = () => {
               initial={{ opacity: 0, scale: 0.96 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.96 }}
-              className="w-full max-w-xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col text-zinc-900 dark:text-zinc-100"
+              className="w-full max-w-xl bg-zinc-100 dark:bg-zinc-900 rounded-2xl overflow-hidden flex flex-col text-zinc-900 dark:text-zinc-100"
             >
-              <div className="flex items-center justify-between p-4 border-b border-zinc-200 dark:border-zinc-800">
+              <div className="flex items-center justify-between p-4 bg-zinc-200/50 dark:bg-zinc-800/60">
                 <div className="flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-zinc-100">
                   <FolderKanban className="w-4 h-4 text-zinc-500 dark:text-zinc-400" />
                   <span>Architecture Templates & Specs</span>
@@ -1449,7 +1480,7 @@ export const Chat: React.FC = () => {
                         setIsProjectsOpen(false);
                         handleSendMessage(item.prompt, item.mode);
                       }}
-                      className="p-3.5 rounded-xl bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-900/50 dark:hover:bg-zinc-900 border border-zinc-200 dark:border-zinc-800/80 hover:border-zinc-300 dark:hover:border-zinc-700 cursor-pointer transition flex flex-col gap-1.5 group"
+                      className="p-3.5 rounded-xl bg-white hover:bg-zinc-50 dark:bg-zinc-950/60 dark:hover:bg-zinc-950 cursor-pointer transition flex flex-col gap-1.5 group"
                     >
                       <div className="flex items-center gap-2 text-zinc-900 dark:text-zinc-200 font-medium text-sm">
                         <Icon className="w-4 h-4 text-zinc-500 group-hover:text-zinc-900 dark:group-hover:text-white transition" />
@@ -1461,7 +1492,7 @@ export const Chat: React.FC = () => {
                 })}
               </div>
 
-              <div className="p-4 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-[#0c0c0c] flex justify-end">
+              <div className="p-4 bg-zinc-200/50 dark:bg-[#0c0c0c] flex justify-end">
                 <button
                   id="specs-close-btn"
                   onClick={() => setIsProjectsOpen(false)}
@@ -1475,7 +1506,7 @@ export const Chat: React.FC = () => {
         )}
       </AnimatePresence>
 
-      {/* Auth / Tier Modal */}
+      {/* Auth / Tier Modal - Completely Flat */}
       <AnimatePresence>
         {isAuthModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs">
@@ -1483,7 +1514,7 @@ export const Chat: React.FC = () => {
               initial={{ opacity: 0, scale: 0.96 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.96 }}
-              className="w-full max-w-sm bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-2xl p-6 relative text-zinc-900 dark:text-zinc-100"
+              className="w-full max-w-sm bg-zinc-100 dark:bg-zinc-900 rounded-2xl p-6 relative text-zinc-900 dark:text-zinc-100"
             >
               <button
                 id="close-tier-modal-btn"
@@ -1494,7 +1525,7 @@ export const Chat: React.FC = () => {
               </button>
 
               <div className="text-center mb-6">
-                <div className="w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 mx-auto flex items-center justify-center mb-3">
+                <div className="w-10 h-10 rounded-full bg-zinc-200 dark:bg-zinc-800 mx-auto flex items-center justify-center mb-3">
                   <Bot className="w-5 h-5 text-zinc-900 dark:text-zinc-100" />
                 </div>
                 <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
@@ -1520,7 +1551,7 @@ export const Chat: React.FC = () => {
                     type="email"
                     required
                     placeholder="dev@autoflow.ai"
-                    className="w-full px-3 py-2 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 focus:outline-none focus:border-zinc-400 dark:focus:border-zinc-500"
+                    className="w-full px-3 py-2 rounded-lg bg-white dark:bg-zinc-950 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 focus:outline-none"
                   />
                 </div>
                 <div>
@@ -1530,13 +1561,13 @@ export const Chat: React.FC = () => {
                     type="password"
                     required
                     placeholder="••••••••"
-                    className="w-full px-3 py-2 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 focus:outline-none focus:border-zinc-400 dark:focus:border-zinc-500"
+                    className="w-full px-3 py-2 rounded-lg bg-white dark:bg-zinc-950 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 focus:outline-none"
                   />
                 </div>
                 <button
                   id="tier-submit-btn"
                   type="submit"
-                  className="w-full py-2.5 rounded-lg bg-zinc-900 text-white hover:bg-black dark:bg-zinc-100 dark:text-black font-medium text-sm dark:hover:bg-white transition mt-2 cursor-pointer shadow-xs"
+                  className="w-full py-2.5 rounded-lg bg-zinc-900 text-white hover:bg-black dark:bg-zinc-100 dark:text-black font-medium text-sm dark:hover:bg-white transition mt-2 cursor-pointer"
                 >
                   {authMode === 'login' ? 'Authenticate Session' : 'Activate Pro Tier'}
                 </button>
@@ -1572,7 +1603,7 @@ export const Chat: React.FC = () => {
         )}
       </AnimatePresence>
 
-      {/* Model & Provider Configuration Modal */}
+      {/* Model & Provider Configuration Modal - Completely Flat */}
       <AnimatePresence>
         {isModelModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs">
@@ -1580,11 +1611,11 @@ export const Chat: React.FC = () => {
               initial={{ opacity: 0, scale: 0.96, y: 8 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.96, y: 8 }}
-              className="w-full max-w-xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-2xl p-6 sm:p-7 relative overflow-hidden text-zinc-900 dark:text-zinc-100"
+              className="w-full max-w-xl bg-zinc-100 dark:bg-zinc-900 rounded-2xl p-6 sm:p-7 relative overflow-hidden text-zinc-900 dark:text-zinc-100"
             >
-              <div className="flex items-center justify-between pb-4 border-b border-zinc-200 dark:border-zinc-800 relative z-10">
+              <div className="flex items-center justify-between pb-4 relative z-10">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-xl bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center text-zinc-800 dark:text-zinc-200">
+                  <div className="w-8 h-8 rounded-xl bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center text-zinc-800 dark:text-zinc-200">
                     <Sliders className="w-4 h-4" />
                   </div>
                   <div>
@@ -1599,13 +1630,13 @@ export const Chat: React.FC = () => {
                 <button
                   id="close-model-modal-btn"
                   onClick={() => setIsModelModalOpen(false)}
-                  className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 transition"
+                  className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-200 dark:hover:bg-zinc-800 transition"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
-              {/* Provider Selection Tabs */}
+              {/* Provider Selection Tabs - Flat */}
               <div className="mt-5 relative z-10">
                 <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-2">
                   Active Provider
@@ -1647,24 +1678,24 @@ export const Chat: React.FC = () => {
                           setModelConfig(updated);
                           localStorage.setItem('chatbot_model_config', JSON.stringify(updated));
                         }}
-                        className={`p-2.5 rounded-xl border flex flex-col items-start gap-1 transition cursor-pointer text-left ${
+                        className={`p-2.5 rounded-xl flex flex-col items-start gap-1 transition cursor-pointer text-left ${
                           isSelected
-                            ? 'bg-zinc-200/80 dark:bg-zinc-800 border-zinc-300 dark:border-zinc-700 text-zinc-950 dark:text-white shadow-xs'
-                            : 'bg-zinc-50 dark:bg-zinc-900/60 border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
+                            ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-black'
+                            : 'bg-white/80 dark:bg-zinc-950/60 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-white dark:hover:bg-zinc-950'
                         }`}
                       >
                         <div className="flex items-center gap-1.5 font-medium text-xs">
                           <Icon className="w-3.5 h-3.5" />
                           <span>{p.label}</span>
                         </div>
-                        <span className="text-[10px] text-zinc-400 dark:text-zinc-500">{p.desc}</span>
+                        <span className="text-[10px] opacity-75">{p.desc}</span>
                       </button>
                     );
                   })}
                 </div>
               </div>
 
-              {/* Model Presets & Name Input */}
+              {/* Model Presets & Name Input - Flat */}
               <div className="mt-5 space-y-4 relative z-10">
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
@@ -1676,7 +1707,7 @@ export const Chat: React.FC = () => {
                     </span>
                   </div>
 
-                  {/* Preset Pills */}
+                  {/* Preset Pills - Flat */}
                   <div className="flex flex-wrap gap-1.5 mb-2">
                     {modelConfig.provider === 'groq' &&
                       [
@@ -1694,10 +1725,10 @@ export const Chat: React.FC = () => {
                             setModelConfig(updated);
                             localStorage.setItem('chatbot_model_config', JSON.stringify(updated));
                           }}
-                          className={`text-xs px-2.5 py-1 rounded-full border transition font-mono ${
+                          className={`text-xs px-2.5 py-1 rounded-full transition font-mono ${
                             modelConfig.model === m
-                              ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-black border-zinc-900 dark:border-zinc-100'
-                              : 'bg-zinc-100 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:border-zinc-300 dark:hover:border-zinc-700'
+                              ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-black'
+                              : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
                           }`}
                         >
                           {m}
@@ -1714,10 +1745,10 @@ export const Chat: React.FC = () => {
                             setModelConfig(updated);
                             localStorage.setItem('chatbot_model_config', JSON.stringify(updated));
                           }}
-                          className={`text-xs px-2.5 py-1 rounded-full border transition font-mono ${
+                          className={`text-xs px-2.5 py-1 rounded-full transition font-mono ${
                             modelConfig.model === m
-                              ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-black border-zinc-900 dark:border-zinc-100'
-                              : 'bg-zinc-100 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:border-zinc-300 dark:hover:border-zinc-700'
+                              ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-black'
+                              : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
                           }`}
                         >
                           {m}
@@ -1734,10 +1765,10 @@ export const Chat: React.FC = () => {
                             setModelConfig(updated);
                             localStorage.setItem('chatbot_model_config', JSON.stringify(updated));
                           }}
-                          className={`text-xs px-2.5 py-1 rounded-full border transition font-mono ${
+                          className={`text-xs px-2.5 py-1 rounded-full transition font-mono ${
                             modelConfig.model === m
-                              ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-black border-zinc-900 dark:border-zinc-100'
-                              : 'bg-zinc-100 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:border-zinc-300 dark:hover:border-zinc-700'
+                              ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-black'
+                              : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
                           }`}
                         >
                           {m}
@@ -1755,7 +1786,7 @@ export const Chat: React.FC = () => {
                       localStorage.setItem('chatbot_model_config', JSON.stringify(updated));
                     }}
                     placeholder="e.g. openai/gpt-oss-120b or custom model name"
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-900/80 border border-zinc-200 dark:border-zinc-700/80 text-sm font-mono text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 focus:outline-none focus:border-zinc-400 dark:focus:border-zinc-500 transition"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-zinc-950 text-sm font-mono text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 focus:outline-none transition"
                   />
                 </div>
 
@@ -1780,7 +1811,7 @@ export const Chat: React.FC = () => {
                             ? 'gsk_... (or leave blank to use server environment key)'
                             : 'sk-... (or leave blank for local server)'
                         }
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-900/80 border border-zinc-200 dark:border-zinc-700/80 text-sm font-mono text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 focus:outline-none focus:border-zinc-400 dark:focus:border-zinc-500 transition"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-zinc-950 text-sm font-mono text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 focus:outline-none transition"
                       />
                       <Key className="w-4 h-4 text-zinc-400 dark:text-zinc-500 absolute right-3 top-3 pointer-events-none" />
                     </div>
@@ -1820,11 +1851,11 @@ export const Chat: React.FC = () => {
                         localStorage.setItem('chatbot_model_config', JSON.stringify(updated));
                       }}
                       placeholder={modelConfig.provider === 'ollama' ? 'http://localhost:11434' : 'http://localhost:1234/v1'}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-900/80 border border-zinc-200 dark:border-zinc-700/80 text-sm font-mono text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 focus:outline-none focus:border-zinc-400 dark:focus:border-zinc-500 transition"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-zinc-950 text-sm font-mono text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 focus:outline-none transition"
                     />
 
                     {/* Direct browser connection toggle for local models */}
-                    <div className="mt-2.5 p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800/80 flex items-start gap-3">
+                    <div className="mt-2.5 p-3 rounded-xl bg-white/70 dark:bg-zinc-950/70 flex items-start gap-3">
                       <input
                         id="direct-browser-toggle"
                         type="checkbox"
@@ -1834,7 +1865,7 @@ export const Chat: React.FC = () => {
                           setModelConfig(updated);
                           localStorage.setItem('chatbot_model_config', JSON.stringify(updated));
                         }}
-                        className="mt-0.5 rounded bg-zinc-100 dark:bg-zinc-800 border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 focus:ring-zinc-500 cursor-pointer"
+                        className="mt-0.5 rounded bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:ring-0 cursor-pointer"
                       />
                       <label htmlFor="direct-browser-toggle" className="text-xs text-zinc-600 dark:text-zinc-300 cursor-pointer select-none">
                         <span className="font-semibold text-zinc-900 dark:text-zinc-100 block">Direct Browser Connection</span>
@@ -1848,14 +1879,14 @@ export const Chat: React.FC = () => {
               </div>
 
               {/* Action Buttons */}
-              <div className="mt-6 pt-4 border-t border-zinc-200 dark:border-zinc-800/80 flex items-center justify-between relative z-10">
+              <div className="mt-6 pt-4 flex items-center justify-between relative z-10">
                 <div className="text-[11px] text-zinc-400 dark:text-zinc-500">
                   Settings are automatically saved to your browser.
                 </div>
                 <button
                   id="save-model-config-btn"
                   onClick={() => setIsModelModalOpen(false)}
-                  className="px-5 py-2 rounded-xl bg-zinc-900 text-white hover:bg-black dark:bg-zinc-100 dark:text-black dark:hover:bg-white font-medium text-xs transition cursor-pointer shadow-xs"
+                  className="px-5 py-2 rounded-xl bg-zinc-900 text-white hover:bg-black dark:bg-zinc-100 dark:text-black dark:hover:bg-white font-medium text-xs transition cursor-pointer"
                 >
                   Apply & Close
                 </button>

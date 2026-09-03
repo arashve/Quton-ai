@@ -124,30 +124,26 @@ export const ReactBitsAIInput: React.FC<ReactBitsAIInputProps> = ({
       onMouseMove={handleMouseMove}
       className={`relative w-full max-w-3xl mx-auto group ${className}`}
     >
-      {/* Main Container with Minimalist Hairline Border */}
+      {/* Main Container - Completely Flat */}
       <div
-        className={`relative z-10 rounded-2xl bg-white dark:bg-zinc-950/90 backdrop-blur-xl border transition-all duration-200 overflow-hidden shadow-sm dark:shadow-2xl flex flex-col ${
-          isFocused
-            ? 'border-zinc-400 dark:border-zinc-600 shadow-md'
-            : 'border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700'
-        }`}
+        className="relative z-10 rounded-2xl bg-zinc-100 dark:bg-zinc-900 transition-all duration-200 overflow-hidden flex flex-col"
       >
         {/* Top Control Bar: Active Model Badge & Mode Controls */}
-        <div className="flex items-center justify-between px-3.5 pt-2.5 pb-1 text-xs border-b border-zinc-100 dark:border-zinc-800/80 bg-zinc-50/50 dark:bg-zinc-900/30">
+        <div className="flex items-center justify-between px-3.5 pt-2.5 pb-1 text-xs bg-zinc-200/50 dark:bg-zinc-800/40">
           <div className="flex items-center gap-1.5 flex-wrap">
             {/* Model Pill Trigger */}
             <button
               id="reactbits-input-model-btn"
               type="button"
               onClick={onOpenModelModal}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-900 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-200 transition text-[11px] font-mono group cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-200/80 hover:bg-zinc-300 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 transition text-[11px] font-mono group cursor-pointer"
               title="Change active model & provider"
             >
               <span className="w-1.5 h-1.5 rounded-full bg-zinc-900 dark:bg-zinc-100" />
               <span className="max-w-[130px] sm:max-w-[170px] truncate font-medium">
                 {modelConfig.model}
               </span>
-              <span className="text-[9px] px-1 py-0.2 rounded bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 font-semibold uppercase">
+              <span className="text-[9px] px-1 py-0.2 rounded bg-zinc-300 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300 font-semibold uppercase">
                 {modelConfig.provider}
               </span>
               <ChevronDown className="w-3 h-3 text-zinc-400 group-hover:text-zinc-600 dark:group-hover:text-zinc-200" />
@@ -158,10 +154,10 @@ export const ReactBitsAIInput: React.FC<ReactBitsAIInputProps> = ({
               id="reactbits-deep-think-toggle"
               type="button"
               onClick={() => setDeepThinkEnabled(!deepThinkEnabled)}
-              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full border text-[11px] font-medium transition cursor-pointer ${
+              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium transition cursor-pointer ${
                 deepThinkEnabled
-                  ? 'bg-zinc-900 text-white dark:bg-white dark:text-black border-zinc-900 dark:border-white shadow-xs'
-                  : 'bg-zinc-100/80 dark:bg-zinc-900/60 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
+                  ? 'bg-zinc-900 text-white dark:bg-white dark:text-black'
+                  : 'bg-zinc-200/70 dark:bg-zinc-800/60 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
               }`}
               title="Enable Deep Architectural Reasoning"
             >
@@ -174,10 +170,10 @@ export const ReactBitsAIInput: React.FC<ReactBitsAIInputProps> = ({
               id="reactbits-web-search-toggle"
               type="button"
               onClick={() => setWebSearchEnabled(!webSearchEnabled)}
-              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full border text-[11px] font-medium transition cursor-pointer ${
+              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium transition cursor-pointer ${
                 webSearchEnabled
-                  ? 'bg-zinc-900 text-white dark:bg-white dark:text-black border-zinc-900 dark:border-white shadow-xs'
-                  : 'bg-zinc-100/80 dark:bg-zinc-900/60 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
+                  ? 'bg-zinc-900 text-white dark:bg-white dark:text-black'
+                  : 'bg-zinc-200/70 dark:bg-zinc-800/60 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
               }`}
               title="Ground prompt with web sources & real-time docs"
             >
@@ -190,10 +186,10 @@ export const ReactBitsAIInput: React.FC<ReactBitsAIInputProps> = ({
               id="reactbits-mode-wireframe-toggle"
               type="button"
               onClick={() => setActiveMode(activeMode === 'wireframes' ? 'default' : 'wireframes')}
-              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full border text-[11px] font-medium transition cursor-pointer ${
+              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium transition cursor-pointer ${
                 activeMode === 'wireframes'
-                  ? 'bg-zinc-900 text-white dark:bg-white dark:text-black border-zinc-900 dark:border-white shadow-xs'
-                  : 'bg-zinc-100/80 dark:bg-zinc-900/60 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
+                  ? 'bg-zinc-900 text-white dark:bg-white dark:text-black'
+                  : 'bg-zinc-200/70 dark:bg-zinc-800/60 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
               }`}
               title="Toggle Wireframe & Component Generation Mode"
             >
@@ -204,7 +200,7 @@ export const ReactBitsAIInput: React.FC<ReactBitsAIInputProps> = ({
 
           <div className="hidden sm:flex items-center gap-2 text-zinc-400 dark:text-zinc-500 text-[10px] font-mono">
             {inputPrompt.length > 0 && (
-              <span className="px-2 py-0.5 rounded bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400">
+              <span className="px-2 py-0.5 rounded bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400">
                 {wordCount} words · ~{approxTokens} tokens
               </span>
             )}
@@ -228,7 +224,7 @@ export const ReactBitsAIInput: React.FC<ReactBitsAIInputProps> = ({
         </div>
 
         {/* Bottom Actions Row */}
-        <div className="flex items-center justify-between px-3.5 pb-2.5 pt-1 border-t border-zinc-100 dark:border-zinc-800/80">
+        <div className="flex items-center justify-between px-3.5 pb-2.5 pt-1">
           <div className="flex items-center gap-1.5 relative">
             {/* Quick Templates Popover Trigger */}
             <div className="relative">
@@ -236,7 +232,7 @@ export const ReactBitsAIInput: React.FC<ReactBitsAIInputProps> = ({
                 id="reactbits-templates-btn"
                 type="button"
                 onClick={() => setIsPlusMenuOpen(!isPlusMenuOpen)}
-                className="p-2 rounded-lg text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/80 border border-transparent transition cursor-pointer"
+                className="p-2 rounded-lg text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition cursor-pointer"
                 title="Architecture & prompt templates"
               >
                 <Plus className="w-4 h-4" />
@@ -248,7 +244,7 @@ export const ReactBitsAIInput: React.FC<ReactBitsAIInputProps> = ({
                     initial={{ opacity: 0, scale: 0.95, y: 10 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                    className="absolute bottom-12 left-0 w-64 p-1.5 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xl z-50 flex flex-col gap-1 text-xs text-zinc-700 dark:text-zinc-300"
+                    className="absolute bottom-12 left-0 w-64 p-1.5 rounded-xl bg-white dark:bg-zinc-900 shadow-xl z-50 flex flex-col gap-1 text-xs text-zinc-700 dark:text-zinc-300"
                   >
                     <div className="px-2.5 py-1 text-[10px] uppercase font-semibold text-zinc-400 dark:text-zinc-500 tracking-wider">
                       Ready Specs & Templates
@@ -313,7 +309,7 @@ export const ReactBitsAIInput: React.FC<ReactBitsAIInputProps> = ({
                 id="reactbits-enhance-btn"
                 onClick={handleEnhancePrompt}
                 disabled={isEnhancing}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-900 hover:bg-zinc-200 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-200 text-xs transition cursor-pointer active:scale-95"
+                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-zinc-200 dark:bg-zinc-800 hover:bg-zinc-300 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 text-xs transition cursor-pointer active:scale-95"
                 title="Automatically enrich and structure this prompt"
               >
                 <Wand2 className={`w-3.5 h-3.5 ${isEnhancing ? 'animate-spin' : ''}`} />
@@ -328,8 +324,8 @@ export const ReactBitsAIInput: React.FC<ReactBitsAIInputProps> = ({
               onClick={onToggleVoice}
               className={`p-2 rounded-lg transition cursor-pointer ${
                 isListening
-                  ? 'bg-red-500/15 text-red-500 border border-red-500/30 animate-pulse'
-                  : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/80 border border-transparent'
+                  ? 'bg-red-500/20 text-red-500 animate-pulse'
+                  : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-zinc-800'
               }`}
               title={isListening ? 'Listening... click to stop' : 'Voice input'}
             >
@@ -346,7 +342,7 @@ export const ReactBitsAIInput: React.FC<ReactBitsAIInputProps> = ({
 
           <div className="flex items-center gap-2">
             <span className="hidden sm:inline-block text-[11px] text-zinc-400 dark:text-zinc-500 font-mono">
-              Press <kbd className="px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 font-mono text-[10px]">Enter ↵</kbd>
+              Press <kbd className="px-1.5 py-0.5 rounded bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 font-mono text-[10px]">Enter ↵</kbd>
             </span>
 
             {/* Send or Stop Action Button */}
@@ -372,8 +368,8 @@ export const ReactBitsAIInput: React.FC<ReactBitsAIInputProps> = ({
                 disabled={!inputPrompt.trim() && !isListening}
                 className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all cursor-pointer ${
                   inputPrompt.trim() || isListening
-                    ? 'bg-black text-white hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200 shadow-sm'
-                    : 'bg-zinc-100 text-zinc-300 dark:bg-zinc-900 dark:text-zinc-700 cursor-not-allowed'
+                    ? 'bg-black text-white hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200'
+                    : 'bg-zinc-200 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-600 cursor-not-allowed'
                 }`}
                 title="Send message"
               >
