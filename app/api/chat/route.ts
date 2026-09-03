@@ -23,6 +23,27 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // استخراج یکپارچه متن پیام‌ها از هر دو فرمت content و parts
+    const normalizedMessages = messages
+      .map((m: any) => {
+        let text = '';
+        if (typeof m.content === 'string') {
+          text = m.content;
+        } else if (Array.isArray(m.parts)) {
+          text = m.parts.map((p: any) => (typeof p === 'string' ? p : p.text || '')).join('');
+        }
+        const role = m.role === 'assistant' || m.role === 'model' ? 'assistant' : 'user';
+        return { role, text: text.trim() };
+      })
+      .filter((m) => m.text.length > 0);
+
+    if (normalizedMessages.length === 0) {
+      return NextResponse.json(
+        { error: 'No valid message text found in payload.' },
+        { status: 400 }
+      );
+    }
+
     // تشخیص کلید Groq یا Gemini
     const rawKey = process.env.GROQ_API_KEY || process.env.GEMINI_API_KEY || '';
     const useGroq = isGroqKey(rawKey);
@@ -52,12 +73,10 @@ export async function POST(req: NextRequest) {
       process.env.GROQ_API_KEY = rawKey;
       const modelName = 'llama-3.3-70b-versatile';
 
-      const formattedMessages = messages
-        .filter((m: any) => m.content && m.content.trim() !== '')
-        .map((m: any) => ({
-          role: (m.role === 'assistant' || m.role === 'model' ? 'assistant' : 'user') as 'assistant' | 'user',
-          content: m.content,
-        }));
+      const formattedMessages = normalizedMessages.map((m) => ({
+        role: m.role as 'assistant' | 'user',
+        content: m.text,
+      }));
 
       const result = streamText({
         model: groq(modelName),
@@ -79,7 +98,7 @@ export async function POST(req: NextRequest) {
             controller.close();
           } catch (err: any) {
             console.error('Groq streaming error:', err);
-            const errData = `data: ${JSON.stringify({ error: err?.message || 'Streaming error' })}\n\n`;
+            const errData = `data: ${JSON.stringify({ chunk: `\n[Error: ${err?.message || 'Streaming failed'}]`, done: true })}\n\n`;
             controller.enqueue(encoder.encode(errData));
             controller.close();
           }
@@ -98,9 +117,9 @@ export async function POST(req: NextRequest) {
 
     // مسیر ۲: پردازش با موتور Gemini
     const ai = getGeminiClient(rawKey);
-    const contents = messages.map((m: { role: string; content: string }) => ({
+    const contents = normalizedMessages.map((m) => ({
       role: m.role === 'assistant' ? 'model' : 'user',
-      parts: [{ text: m.content }],
+      parts: [{ text: m.text }],
     }));
 
     const responseStream = await ai.models.generateContentStream({
@@ -126,7 +145,7 @@ export async function POST(req: NextRequest) {
           controller.close();
         } catch (error: any) {
           console.error('Gemini streaming error:', error);
-          const errData = `data: ${JSON.stringify({ error: error?.message || 'Streaming error' })}\n\n`;
+          const errData = `data: ${JSON.stringify({ chunk: `\n[Error: ${error?.message || 'Streaming failed'}]`, done: true })}\n\n`;
           controller.enqueue(encoder.encode(errData));
           controller.close();
         }
