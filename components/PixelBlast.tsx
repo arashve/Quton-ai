@@ -266,8 +266,11 @@ void main(){
   vec2 uv = (cellCoord / uResolution - 0.5) * vec2(aspectRatio, 1.0);
 
   float base = fbm2(uv, uTime * 0.05);
-  float feed = (base - 0.5) * 0.85 + (uDensity - 0.5) * 0.4 + 0.35;
-
+// خط فعلی:
+// فرمول مطابق دموی اصلی:
+float dist = length(uv);
+float falloff = smoothstep(1.1, 0.15, dist);
+float feed = (base * 0.85 + (uDensity - 0.5) * 0.3) * falloff; 
   float speed     = uRippleSpeed;
   float thickness = uRippleThickness;
   const float dampT = 1.0;

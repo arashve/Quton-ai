@@ -1085,26 +1085,30 @@ export const Chat: React.FC = () => {
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col relative h-full overflow-hidden bg-white dark:bg-black transition-colors duration-200">
         {/* PixelBlast interactive background - FULL SCREEN for entire chat screen */}
-        {isMounted && (
-          <div
-            id="chat-pixel-blast-background"
-            className="absolute inset-0 w-full h-full z-0 overflow-hidden pointer-events-auto"
-          >
-            <PixelBlast
-  variant="square"
-  pixelSize={4}
-  color="#b497cf"
-  patternScale={2}
-  patternDensity={1}
-  pixelSizeJitter={0}
-  speed={0.5}
-  edgeFade={0.25}
-  enableRipples={false}
-  liquid={false}
-  transparent={true}
-/>
-          </div>
-        )}
+       {isMounted && (
+  <div
+    id="chat-pixel-blast-background"
+    className="absolute inset-0 w-full h-full z-0 overflow-hidden pointer-events-auto bg-black"
+    style={{
+      maskImage: 'radial-gradient(ellipse 70% 60% at 50% 45%, black 40%, transparent 85%)',
+      WebkitMaskImage: 'radial-gradient(ellipse 70% 60% at 50% 45%, black 40%, transparent 85%)',
+    }}
+  >
+    <PixelBlast
+      variant="square"
+      pixelSize={4}
+      color="#b497cf"
+      patternScale={2}
+      patternDensity={0.75}
+      pixelSizeJitter={0}
+      speed={0.4}
+      edgeFade={0.3}
+      enableRipples={false}
+      liquid={false}
+      transparent={true}
+    />
+  </div>
+)}
 
         {/* Top Header - Translucent / Flat */}
         <header className={`h-14 flex items-center justify-between px-4 sm:px-6 z-20 flex-shrink-0 transition-colors duration-200 ${
