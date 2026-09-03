@@ -1228,8 +1228,8 @@ export const Chat: React.FC = () => {
                 </p>
               </div>
 
-              {/* Starter Suggestions Grid - Completely Flat */}
-              <div className="w-full max-w-2xl grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 mb-3 pointer-events-auto">
+              {/* Starter Suggestions Grid - Hidden on mobile to keep the screen cleaner */}
+              <div className="hidden sm:grid w-full max-w-2xl grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 mb-3 pointer-events-auto">
                 {STARTER_PROMPTS.slice(0, 4).map((item) => {
                   const Icon = item.icon;
                   return (
@@ -1254,8 +1254,8 @@ export const Chat: React.FC = () => {
                 })}
               </div>
 
-              {/* Quick tags row - Completely Flat */}
-              <div className="flex flex-wrap justify-center items-center gap-2 mt-2 pointer-events-auto">
+              {/* Quick tags row - Hidden on mobile to reduce clutter */}
+              <div className="hidden sm:flex flex-wrap justify-center items-center gap-2 mt-2 pointer-events-auto">
                 {STARTER_PROMPTS.slice(4).map((item) => {
                   const Icon = item.icon;
                   return (
