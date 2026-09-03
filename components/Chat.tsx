@@ -49,10 +49,10 @@ import { ShinyText, SpotlightCard, ReactBitsAIInput } from './reactbits';
 import { BorderBeam, AnimatedGradientText, ShimmerButton, TextAnimate } from './magicui';
 import dynamic from 'next/dynamic';
 
-const PixelBlast = dynamic(() => import('./PixelBlast'), {
-  ssr: false,
-});
-
+const PixelBlast = dynamic(
+  () => import('./PixelBlast').then((mod) => mod.PixelBlast),
+  { ssr: false }
+);
 export interface ChatMessage {
   id: string;
   role: 'user' | 'assistant';
