@@ -1,6 +1,6 @@
 {
   "name": "Chatbot - Ultra-Low Latency AI Assistant",
-  "description": "Real-time AI Chatbot powered by Node.js Express and Gemini 3.7 Flash streaming over Server-Sent Events (SSE) with ultra-low latency and modern glassmorphic UI.",
+  "description": "Real-time AI Chatbot streaming over Server-Sent Events (SSE) with ultra-low latency, supporting custom system models, Groq, local Ollama, and Gemini.",
   "requestFramePermissions": ["microphone"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

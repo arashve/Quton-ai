@@ -3,23 +3,26 @@ import './globals.css'; // Global styles
 
 export const metadata: Metadata = {
   title: 'Chatbot - Ultra-Low Latency AI Assistant',
-  description: 'Real-time AI Chatbot powered by Node.js Express and Gemini 3.7 Flash streaming over Server-Sent Events (SSE) with ultra-low latency and modern glassmorphic UI.',
+  description: 'Real-time AI Chatbot streaming over Server-Sent Events (SSE) with ultra-low latency, supporting custom system models, Groq, local Ollama, and Gemini.',
   openGraph: {
     title: 'Chatbot - Ultra-Low Latency AI Assistant',
-    description: 'Real-time AI Chatbot powered by Node.js Express and Gemini 3.7 Flash streaming over Server-Sent Events (SSE) with ultra-low latency and modern glassmorphic UI.',
+    description: 'Real-time AI Chatbot streaming over Server-Sent Events (SSE) with ultra-low latency, supporting custom system models, Groq, local Ollama, and Gemini.',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Chatbot - Ultra-Low Latency AI Assistant',
-    description: 'Real-time AI Chatbot powered by Node.js Express and Gemini 3.7 Flash streaming over Server-Sent Events (SSE) with ultra-low latency and modern glassmorphic UI.',
+    description: 'Real-time AI Chatbot streaming over Server-Sent Events (SSE) with ultra-low latency, supporting custom system models, Groq, local Ollama, and Gemini.',
   },
 };
 
 export default function RootLayout({children}: {children: React.ReactNode}) {
   return (
-    <html lang="en" className="dark bg-[#0d0d0d] text-zinc-300 antialiased selection:bg-zinc-800 selection:text-zinc-100">
-      <body suppressHydrationWarning className="min-h-screen bg-[#0d0d0d] text-zinc-300 overflow-x-hidden">{children}</body>
+    <html lang="en" className="dark" suppressHydrationWarning>
+      <body suppressHydrationWarning className="min-h-screen bg-white dark:bg-black text-zinc-900 dark:text-zinc-100 antialiased selection:bg-zinc-800 selection:text-white dark:selection:bg-zinc-200 dark:selection:text-black transition-colors duration-200 overflow-x-hidden">
+        {children}
+      </body>
     </html>
   );
 }
+
