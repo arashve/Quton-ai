@@ -696,5 +696,4 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
     />
   );
 };
-
-export default PixelBlast;
+export { PixelBlast }; a
