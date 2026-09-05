@@ -45,7 +45,7 @@ import {
   Moon,
 } from 'lucide-react';
 import { CodeBlock } from './CodeBlock';
-import { ShinyText, SpotlightCard, ReactBitsAIInput } from './reactbits';
+import { ShinyText, SpotlightCard, ReactBitsAIInput, AppSidebar, AIChatFlat } from './reactbits';
 import { BorderBeam, AnimatedGradientText, ShimmerButton, TextAnimate } from './magicui';
 import dynamic from 'next/dynamic';
 
@@ -413,6 +413,8 @@ export const Chat: React.FC = () => {
   const [isProjectsOpen, setIsProjectsOpen] = useState<boolean>(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
   const [isModelModalOpen, setIsModelModalOpen] = useState<boolean>(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState<boolean>(false);
   const [modelConfig, setModelConfig] = useState<ModelConfig>(DEFAULT_MODEL_CONFIG);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [isPlusMenuOpen, setIsPlusMenuOpen] = useState<boolean>(false);
@@ -969,123 +971,30 @@ export const Chat: React.FC = () => {
 
   return (
     <div className="flex h-screen w-full bg-[var(--page-bg)] text-[var(--text-primary)] font-sans overflow-hidden transition-colors duration-200">
-      {/* Sidebar for Desktop / Tablet - Completely Flat */}
-      <aside className="hidden md:flex w-[270px] bg-[var(--panel-bg)] flex-col flex-shrink-0 z-10 transition-colors duration-200">
-        {/* New Interaction Button */}
-        <div className="p-3.5 sm:p-4">
-          <button
-            id="sidebar-new-chat-btn"
-            onClick={handleNewChat}
-            className="w-full py-2.5 px-4 rounded-xl bg-zinc-200/80 hover:bg-zinc-300 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-sm font-medium text-zinc-900 dark:text-zinc-100 flex items-center justify-center gap-2 transition-colors cursor-pointer"
-          >
-            <Plus className="w-4 h-4 text-zinc-700 dark:text-zinc-300" />
-            <span>New Interaction</span>
-          </button>
-        </div>
-
-        {/* Archives / Recent Sessions List */}
-        <nav className="flex-1 px-3 space-y-1 overflow-y-auto">
-          <div className="flex items-center justify-between px-3 mb-2">
-            <span className="text-[10px] uppercase tracking-widest text-zinc-400 dark:text-zinc-500 font-bold">
-              Recent Archives
-            </span>
-            <button
-              id="sidebar-search-btn"
-              onClick={() => setIsSearchOpen(true)}
-              className="p-1 text-zinc-400 hover:text-zinc-900 dark:text-zinc-500 dark:hover:text-zinc-200 transition"
-              title="Search chats"
-            >
-              <Search className="w-3.5 h-3.5" />
-            </button>
-          </div>
-
-          <div className="space-y-1">
-            {sessions.map((s) => {
-              const isSelected = s.id === currentSessionId;
-              return (
-                <div
-                  key={s.id}
-                  id={`archive-item-${s.id}`}
-                  onClick={() => handleSelectSession(s.id)}
-                  className={`p-2.5 rounded-lg flex flex-col gap-0.5 transition-colors group cursor-pointer relative ${
-                    isSelected
-                      ? 'bg-zinc-200 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100'
-                      : 'hover:bg-zinc-200/50 dark:hover:bg-zinc-900/50 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
-                  }`}
-                >
-                  <div className="flex items-center justify-between gap-1">
-                    <span className="text-sm font-normal truncate flex-1">
-                      {s.title || 'New Interaction'}
-                    </span>
-                    <button
-                      id={`delete-archive-${s.id}`}
-                      onClick={(e) => handleDeleteSession(s.id, e)}
-                      className="opacity-0 group-hover:opacity-100 p-1 text-zinc-400 hover:text-red-500 transition"
-                      title="Delete interaction"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                  <div className="flex items-center gap-2 text-[11px] text-zinc-400 dark:text-zinc-500">
-                    <Clock className="w-3 h-3 text-zinc-400 dark:text-zinc-600" />
-                    <span>
-                      {isMounted && s.updatedAt > 0
-                        ? new Date(s.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                        : 'Recent'}
-                    </span>
-                    <span>•</span>
-                    <span>{s.messages.length} msgs</span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </nav>
-
-        {/* Quick Tools Nav */}
-        <div className="px-3 py-2 space-y-1 text-xs">
-          <button
-            id="sidebar-projects-btn"
-            onClick={() => setIsProjectsOpen(true)}
-            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-200/50 dark:hover:bg-zinc-900 transition"
-          >
-            <FolderKanban className="w-4 h-4 text-zinc-400 dark:text-zinc-500" />
-            <span>Templates & Specs</span>
-          </button>
-          <button
-            id="sidebar-library-btn"
-            onClick={() => setIsLibraryOpen(true)}
-            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-200/50 dark:hover:bg-zinc-900 transition"
-          >
-            <FileText className="w-4 h-4 text-zinc-400 dark:text-zinc-500" />
-            <span>All Archives ({sessions.length})</span>
-          </button>
-        </div>
-
-        {/* User Profile / Tier Footer */}
-        <div className="p-3 mt-auto bg-zinc-200/40 dark:bg-[#070707]">
-          <div
-            id="user-profile-badge"
-            onClick={() => {
-              setAuthMode('login');
-              setIsAuthModalOpen(true);
-            }}
-            className="flex items-center gap-3 px-2.5 py-2 rounded-lg hover:bg-zinc-200/70 dark:hover:bg-zinc-800/50 transition-colors cursor-pointer group"
-          >
-            <div className="w-8 h-8 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-black flex items-center justify-center text-xs font-serif font-bold">
-              E
-            </div>
-            <div className="flex flex-col overflow-hidden">
-              <span className="text-xs font-medium text-zinc-800 dark:text-zinc-200 group-hover:text-zinc-950 dark:group-hover:text-white transition-colors truncate">
-                Elite Developer
-              </span>
-              <span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-mono">
-                Pro Tier Active
-              </span>
-            </div>
-          </div>
-        </div>
-      </aside>
+      {/* React Bits Pro App Sidebar */}
+      <AppSidebar
+        sessions={sessions}
+        currentSessionId={currentSessionId}
+        onSelectSession={handleSelectSession}
+        onNewChat={handleNewChat}
+        onDeleteSession={handleDeleteSession}
+        setIsSearchOpen={setIsSearchOpen}
+        setIsLibraryOpen={setIsLibraryOpen}
+        onOpenModelModal={() => setIsModelModalOpen(true)}
+        onOpenAuthModal={() => {
+          setAuthMode('login');
+          setIsAuthModalOpen(true);
+        }}
+        onOpenProjectsModal={() => setIsProjectsOpen(true)}
+        theme={theme}
+        toggleTheme={toggleTheme}
+        isCollapsed={isSidebarCollapsed}
+        setIsCollapsed={setIsSidebarCollapsed}
+        isMobileOpen={isMobileSidebarOpen}
+        setIsMobileOpen={setIsMobileSidebarOpen}
+        onExportChat={handleExportChat}
+        activeModel={modelConfig.model}
+      />
 
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col relative h-full overflow-hidden bg-[var(--page-bg)] transition-colors duration-200">
@@ -1133,9 +1042,10 @@ export const Chat: React.FC = () => {
             {/* Mobile Sidebar Button */}
             <button
               id="mobile-drawer-toggle"
-              onClick={() => setIsLibraryOpen(true)}
-              className="md:hidden p-2 text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition"
-              title="Open Archives"
+              type="button"
+              onClick={() => setIsMobileSidebarOpen(true)}
+              className="md:hidden p-2 text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition cursor-pointer"
+              title="Open Navigation"
             >
               <LayoutGrid className="w-4 h-4" />
             </button>
@@ -1143,6 +1053,7 @@ export const Chat: React.FC = () => {
             {/* Interactive Model Selector Button - Flat */}
             <button
               id="header-model-selector-btn"
+              type="button"
               onClick={() => setIsModelModalOpen(true)}
               className="flex items-center gap-1.5 sm:gap-2.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-zinc-100/90 hover:bg-zinc-200/90 dark:bg-zinc-900/90 dark:hover:bg-zinc-800/90 backdrop-blur-xs transition-all text-left cursor-pointer group min-w-0"
               title="Click to switch model, provider, or API key"
@@ -1173,6 +1084,7 @@ export const Chat: React.FC = () => {
             {/* Light / Dark Mode Toggle Button */}
             <button
               id="header-theme-toggle-btn"
+              type="button"
               onClick={toggleTheme}
               className="p-1.5 sm:p-2 text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 cursor-pointer"
               title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
@@ -1187,6 +1099,7 @@ export const Chat: React.FC = () => {
 
             <button
               id="header-model-settings-btn"
+              type="button"
               onClick={() => setIsModelModalOpen(true)}
               className="hidden sm:flex p-2 text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 cursor-pointer"
               title="Model & Provider Settings"
@@ -1196,6 +1109,7 @@ export const Chat: React.FC = () => {
 
             <button
               id="header-export-btn"
+              type="button"
               onClick={() => handleExportChat('md')}
               className="hidden sm:flex p-2 text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 cursor-pointer"
               title="Export Markdown"
@@ -1204,6 +1118,7 @@ export const Chat: React.FC = () => {
             </button>
             <button
               id="header-search-btn"
+              type="button"
               onClick={() => setIsSearchOpen(true)}
               className="hidden sm:flex p-2 text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 cursor-pointer"
               title="Search Chats"
@@ -1212,6 +1127,7 @@ export const Chat: React.FC = () => {
             </button>
             <button
               id="header-new-chat-btn"
+              type="button"
               onClick={handleNewChat}
               className="hidden sm:flex p-2 text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 cursor-pointer"
               title="New Interaction"
@@ -1221,134 +1137,23 @@ export const Chat: React.FC = () => {
           </div>
         </header>
 
-        {/* Scrollable Center Body: Empty State OR Messages Feed */}
-        <div className={`flex-1 overflow-y-auto p-3 sm:p-8 space-y-4 sm:space-y-6 relative z-10 ${!hasMessages ? 'pointer-events-none' : ''}`}>
-          {!hasMessages ? (
-            /* Minimalist Monochrome Empty State - Flat */
-            <div className="h-full min-h-[360px] sm:min-h-[440px] flex flex-col items-center justify-center max-w-3xl mx-auto py-4 sm:py-6">
-              <div className="text-center mb-6 sm:mb-8 select-none relative px-4 py-2">
-                <div className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full bg-zinc-100/90 dark:bg-zinc-900/90 backdrop-blur-xs text-[10px] sm:text-[11px] font-mono text-zinc-600 dark:text-zinc-400 mb-4 shadow-xs">
-                  <span className="w-1.5 h-1.5 rounded-full bg-zinc-900 dark:bg-zinc-100" />
-                  <span>Minimalist Intelligence • SSE Streaming</span>
-                </div>
-
-                <h1
-                  ref={headingRef}
-                  className="font-pixel text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-3.5 leading-tight select-none pointer-events-none opacity-0"
-                  aria-label="What can I build for you?"
-                >
-                  What can I build for you?
-                </h1>
-                <p className="text-[11px] sm:text-sm text-zinc-500 dark:text-zinc-400 max-w-md mx-auto leading-relaxed">
-                  Real-time streaming agent with sub-50ms chunk latency. Select a template below or type a query.
-                </p>
-              </div>
-
-              {/* Starter Suggestions Grid - Hidden on mobile to keep the screen cleaner */}
-              <div className="hidden sm:grid w-full max-w-2xl grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 mb-3 pointer-events-auto">
-                {STARTER_PROMPTS.slice(0, 4).map((item) => {
-                  const Icon = item.icon;
-                  return (
-                    <div
-                      key={item.title}
-                      onClick={() => handleSendMessage(item.prompt, item.mode)}
-                      className="p-3.5 rounded-xl bg-zinc-100/90 hover:bg-zinc-200/90 dark:bg-zinc-900/80 dark:hover:bg-zinc-800/90 backdrop-blur-xs transition-all cursor-pointer group"
-                    >
-                      <div className="flex items-center gap-2.5 mb-1.5">
-                        <div className="w-7 h-7 rounded-lg bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center text-zinc-700 dark:text-zinc-300 group-hover:text-black dark:group-hover:text-white transition-colors">
-                          <Icon className="w-3.5 h-3.5" />
-                        </div>
-                        <span className="text-xs sm:text-sm font-medium text-zinc-900 dark:text-zinc-200 group-hover:text-black dark:group-hover:text-white transition-colors">
-                          {item.title}
-                        </span>
-                      </div>
-                      <p className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2 leading-relaxed group-hover:text-zinc-700 dark:group-hover:text-zinc-300 transition-colors">
-                        {item.prompt}
-                      </p>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Quick tags row - Hidden on mobile to reduce clutter */}
-              <div className="hidden sm:flex flex-wrap justify-center items-center gap-2 mt-2 pointer-events-auto">
-                {STARTER_PROMPTS.slice(4).map((item) => {
-                  const Icon = item.icon;
-                  return (
-                    <button
-                      key={item.title}
-                      id={`starter-pill-${item.title.toLowerCase().replace(/\s+/g, '-')}`}
-                      onClick={() => handleSendMessage(item.prompt, item.mode)}
-                      className="group flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-100/90 hover:bg-zinc-200/90 dark:bg-zinc-900/80 dark:hover:bg-zinc-800/90 backdrop-blur-xs text-xs text-zinc-700 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition cursor-pointer"
-                    >
-                      <Icon className="w-3 h-3 text-zinc-500 group-hover:text-zinc-900 dark:group-hover:text-zinc-200 transition-colors" />
-                      <span>{item.title}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          ) : (
-
-            /* Active Messages List - Stable, Flat, No typing re-animations */
-            <div className="max-w-3xl mx-auto space-y-7 pb-36">
-              {messages.map((message, index) => {
-                const isAssistant = message.role === 'assistant';
-                const isLatest = index === messages.length - 1;
-                const isStreamingThis = isLoading && isLatest && isAssistant;
-
-                return (
-                  <ChatMessageItem
-                    key={message.id}
-                    message={message}
-                    index={index}
-                    isStreamingThis={isStreamingThis}
-                    isLatestAssistant={isAssistant && isLatest}
-                    copiedId={copiedId}
-                    onCopy={handleCopyMessage}
-                    onSpeak={toggleSpeak}
-                    speakingMessageId={speakingMessageId}
-                    onRegenerate={handleRegenerate}
-                    onFeedback={handleFeedback}
-                    feedback={feedback}
-                  />
-                );
-              })}
-              <div ref={messagesEndRef} />
-            </div>
-          )}
-        </div>
-
-        {/* Floating Bottom Input Bar - Full-bleed transparency, NO solid cutoff */}
-        <footer className="p-3 sm:p-6 pt-0 mt-auto flex-shrink-0 relative z-20 bg-transparent">
-          <div className="max-w-3xl mx-auto relative">
-            <ReactBitsAIInput
-              inputPrompt={inputPrompt}
-              setInputPrompt={setInputPrompt}
-              onSend={(customPrompt, modeOverride) => handleSendMessage(customPrompt, modeOverride)}
-              onAbort={abortStream}
-              isLoading={isLoading}
-              isListening={isListening}
-              onToggleVoice={toggleSpeechRecognition}
-              modelConfig={modelConfig}
-              onOpenModelModal={() => setIsModelModalOpen(true)}
-              activeMode={activeMode}
-              setActiveMode={(mode) => setActiveMode(mode as any)}
-            />
-
-            {/* Bottom Status Information */}
-            <div className="flex justify-center items-center mt-2.5 gap-4 sm:gap-6 text-[10px] text-zinc-400 dark:text-zinc-500 font-mono tracking-wider select-none">
-              <span className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-zinc-900 dark:bg-zinc-100 animate-pulse" />
-                Stream: SSE Active
-              </span>
-              <span>•</span>
-              <span>Engine: {modelConfig.provider.toUpperCase()}</span>
-              <span>•</span>
-              <span className="hidden sm:inline">Model: {modelConfig.model}</span>
-            </div>
-          </div>
-        </footer>
+        {/* React Bits Pro Flat AI Chat */}
+        <AIChatFlat
+          messages={messages}
+          isLoading={isLoading}
+          onSendMessage={handleSendMessage}
+          onAbort={abortStream}
+          onRegenerate={handleRegenerate}
+          modelConfig={modelConfig}
+          onOpenModelModal={() => setIsModelModalOpen(true)}
+          lastMetrics={lastMetrics}
+          activeMode={activeMode}
+          setActiveMode={(mode) => setActiveMode(mode as any)}
+          isListening={isListening}
+          onToggleVoice={toggleSpeechRecognition}
+          headingRef={headingRef}
+          starterPrompts={STARTER_PROMPTS}
+        />
       </main>
 
 
