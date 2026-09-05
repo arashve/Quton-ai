@@ -54,6 +54,8 @@ type PixelBlastProps = {
   dissolve?: number;
   fadeOut?: boolean;
   dissolveSpeed?: number;
+  excludeRect?: { minX: number; minY: number; maxX: number; maxY: number } | null;
+  bgColor?: string;
 };
 
 const createTouchTexture = (): TouchTexture => {
@@ -200,6 +202,8 @@ uniform float uRippleThickness;
 uniform float uRippleIntensity;
 uniform float uEdgeFade;
 uniform float uDissolve;
+uniform vec4  uExcludeRect;
+uniform vec3  uBgColor;
 
 uniform int   uShapeType;
 const int SHAPE_SQUARE   = 0;
@@ -337,30 +341,27 @@ void main(){
   float jitterScale = 1.0 + (h - 0.5) * uPixelJitter;
   float coverage = bw * jitterScale;
 
-  // Per-pixel staggered dissolution animation
+  // Discrete one-by-one pixel disappearance (instant binary snap off per pixel, no gradual fading)
   if (uDissolve > 0.0001) {
     vec2 pId = floor(fragCoord / uPixelSize);
-    float pSeed1 = fract(sin(dot(pId, vec2(127.1, 311.7))) * 43758.5453);
-    float pSeed2 = fract(sin(dot(pId, vec2(269.5, 183.3))) * 43758.5453);
+    vec3 p3 = fract(vec3(pId.xyx) * 0.1031);
+    p3 += dot(p3, p3.yzx + 33.33);
+    float pSeed = fract((p3.x + p3.y) * p3.z);
     
-    // Wave flow: gentle diagonal propagation across the screen
-    vec2 norm = gl_FragCoord.xy / uResolution;
-    float wave = (norm.x * 0.12 + (1.0 - norm.y) * 0.16);
-    
-    // Staggered trigger for each individual pixel across [0.0, 0.78]
-    float trigger = clamp(pSeed1 * 0.62 + wave * 0.32 + pSeed2 * 0.06, 0.0, 0.78);
-    
-    // Local dissolution progress: 0.0 = untouched, 1.0 = completely vanished
-    float localProgress = clamp((uDissolve - trigger) / 0.22, 0.0, 1.0);
-    
-    if (localProgress > 0.0) {
-      float shrink = 1.0 - localProgress;
-      // Slight lively pop / bounce as each pixel dissolves away
-      float pop = 1.0 + sin(localProgress * 3.14159265) * 0.3;
-      coverage *= (shrink * shrink * pop);
+    // Each individual pixel snaps off completely at its unique random point
+    if (uDissolve >= pSeed) {
+      coverage = 0.0;
     }
-    
-    if (uDissolve >= 0.999) {
+  }
+
+  // Text zone exclusion: if background pixels are under the text area,
+  // their color becomes the background color and coverage drops to zero so text is crystal clear
+  vec2 normCoord = gl_FragCoord.xy / uResolution;
+  bool inTextZone = false;
+  if (uExcludeRect.z > uExcludeRect.x) {
+    if (normCoord.x >= uExcludeRect.x && normCoord.x <= uExcludeRect.z &&
+        normCoord.y >= uExcludeRect.y && normCoord.y <= uExcludeRect.w) {
+      inTextZone = true;
       coverage = 0.0;
     }
   }
@@ -371,6 +372,10 @@ void main(){
   else if (uShapeType == SHAPE_DIAMOND)  M = maskDiamond(pixelUV, coverage);
   else                                   M = maskSquare (pixelUV, coverage);
 
+  if (inTextZone) {
+    M = 0.0;
+  }
+
   if (uEdgeFade > 0.0) {
     vec2 norm = gl_FragCoord.xy / uResolution;
     float edge = min(min(norm.x, norm.y), min(1.0 - norm.x, 1.0 - norm.y));
@@ -378,7 +383,7 @@ void main(){
     M *= fade;
   }
 
-  vec3 color = uColor;
+  vec3 color = inTextZone ? uBgColor : uColor;
 
   // sRGB gamma correction - convert linear to sRGB for accurate color output
   vec3 srgbColor = mix(
@@ -418,7 +423,9 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
   noiseAmount = 0,
   dissolve,
   fadeOut = false,
-  dissolveSpeed = 1.2
+  dissolveSpeed = 1.2,
+  excludeRect,
+  bgColor
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const visibilityRef = useRef({ visible: true });
@@ -458,6 +465,8 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
       uRippleIntensity: { value: number };
       uEdgeFade: { value: number };
       uDissolve: { value: number };
+      uExcludeRect: { value: THREE.Vector4 };
+      uBgColor: { value: THREE.Color };
     };
     resizeObserver?: ResizeObserver;
     raf?: number;
@@ -532,7 +541,15 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
         uRippleThickness: { value: rippleThickness },
         uRippleIntensity: { value: rippleIntensityScale },
         uEdgeFade: { value: edgeFade },
-        uDissolve: { value: fadeOut ? 1.0 : (dissolve ?? 0.0) }
+        uDissolve: { value: fadeOut ? 1.0 : (dissolve ?? 0.0) },
+        uExcludeRect: {
+          value: excludeRect
+            ? new THREE.Vector4(excludeRect.minX, excludeRect.minY, excludeRect.maxX, excludeRect.maxY)
+            : new THREE.Vector4(-1, -1, -1, -1)
+        },
+        uBgColor: {
+          value: new THREE.Color(bgColor || (color === '#f5f5f5' ? '#020202' : '#f3f0ee'))
+        }
       };
       const scene = new THREE.Scene();
       const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
@@ -721,6 +738,14 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
       t.uniforms.uRippleThickness.value = rippleThickness;
       t.uniforms.uRippleSpeed.value = rippleSpeed;
       t.uniforms.uEdgeFade.value = edgeFade;
+      if (excludeRect) {
+        t.uniforms.uExcludeRect.value.set(excludeRect.minX, excludeRect.minY, excludeRect.maxX, excludeRect.maxY);
+      } else {
+        t.uniforms.uExcludeRect.value.set(-1, -1, -1, -1);
+      }
+      if (bgColor) {
+        t.uniforms.uBgColor.value.set(bgColor);
+      }
       if (transparent) {
         t.renderer.setClearAlpha(0);
         t.renderer.setClearColor(0x000000, 0);
@@ -774,7 +799,9 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
     speed,
     fadeOut,
     dissolve,
-    dissolveSpeed
+    dissolveSpeed,
+    excludeRect,
+    bgColor
   ]);
 
   return (

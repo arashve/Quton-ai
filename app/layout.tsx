@@ -1,5 +1,13 @@
 import type {Metadata} from 'next';
+import { Pixelify_Sans } from 'next/font/google';
 import './globals.css'; // Global styles
+
+const pixelFont = Pixelify_Sans({
+  subsets: ['latin'],
+  weight: ['400', '600', '700'],
+  variable: '--font-pixel',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: 'Chatbot - Ultra-Low Latency AI Assistant',
@@ -19,7 +27,7 @@ export const metadata: Metadata = {
 export default function RootLayout({children}: {children: React.ReactNode}) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body suppressHydrationWarning className="min-h-screen bg-[var(--page-bg)] text-[var(--text-primary)] antialiased selection:bg-zinc-800 selection:text-white dark:selection:bg-zinc-200 dark:selection:text-black transition-colors duration-200 overflow-x-hidden">
+      <body suppressHydrationWarning className={`${pixelFont.variable} min-h-screen bg-[var(--page-bg)] text-[var(--text-primary)] antialiased selection:bg-zinc-800 selection:text-white dark:selection:bg-zinc-200 dark:selection:text-black transition-colors duration-200 overflow-x-hidden`}>
         {children}
       </body>
     </html>
