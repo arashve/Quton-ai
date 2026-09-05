@@ -5,6 +5,7 @@ export { SpotlightCard } from './SpotlightCard';
 export { StarBorder } from './StarBorder';
 export { ReactBitsAIInput, PromptInput } from './PromptInput';
 export type { PromptInputProps, PromptAttachment, SlashCommand, PromptInputHandle } from './PromptInput';
-export { AppSidebar } from './AppSidebar';
+export { AppSidebar, AppShell9 } from './AppShell9';
+export type { AppShell9Props, WorkspaceMember, ShellNotification } from './AppShell9';
 export { AIChatFlat } from './AIChatFlat';
 export { PixelBlast } from '../PixelBlast';

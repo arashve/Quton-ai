@@ -1033,6 +1033,8 @@ export const Chat: React.FC = () => {
     URL.revokeObjectURL(url);
   }, [messages]);
 
+  const currentSession = sessions.find((s) => s.id === currentSessionId);
+
   return (
     <div className="flex h-screen w-full bg-[var(--page-bg)] text-[var(--text-primary)] font-sans overflow-hidden transition-colors duration-200">
       {/* React Bits Pro App Sidebar */}
@@ -1113,6 +1115,17 @@ export const Chat: React.FC = () => {
             >
               <LayoutGrid className="w-4 h-4" />
             </button>
+
+            {/* Breadcrumb Trail (React Bits Pro App Shell 9) */}
+            <div className="hidden lg:flex items-center gap-1.5 text-xs text-zinc-400 dark:text-zinc-500 font-medium">
+              <span className="text-zinc-700 dark:text-zinc-300">AutoFlow</span>
+              <span>/</span>
+              <span className="text-zinc-900 dark:text-zinc-100 font-semibold max-w-[150px] truncate">
+                {currentSession?.title || 'Interaction'}
+              </span>
+            </div>
+
+            <div className="hidden lg:block w-[1px] h-3.5 bg-zinc-200 dark:bg-zinc-800 mx-1" />
 
             {/* Interactive Model Selector Button - Flat */}
             <button
