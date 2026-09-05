@@ -1013,7 +1013,7 @@ export const Chat: React.FC = () => {
               bgColor={theme === 'dark' ? '#0b0b0b' : '#f3f0ee'}
               textColor={theme === 'dark' ? '#ffffff' : '#111111'}
               headingRef={headingRef}
-              showText={!hasMessages}
+              showText={false}
               patternScale={2}
               patternDensity={1}
               pixelSizeJitter={0}
@@ -1154,7 +1154,7 @@ export const Chat: React.FC = () => {
 
                 <h1
                   ref={headingRef}
-                  className="font-pixel text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-3.5 leading-tight select-none pointer-events-none opacity-0"
+                  className="font-pixel text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-3.5 leading-tight select-none pointer-events-none text-zinc-950 dark:text-white opacity-100 drop-shadow-[0_0_18px_rgba(255,255,255,0.08)]"
                   aria-label="What can I build for you?"
                 >
                   What can I build for you?
