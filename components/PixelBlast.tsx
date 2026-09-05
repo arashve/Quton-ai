@@ -51,6 +51,9 @@ type PixelBlastProps = {
   transparent?: boolean;
   edgeFade?: number;
   noiseAmount?: number;
+  dissolve?: number;
+  fadeOut?: boolean;
+  dissolveSpeed?: number;
 };
 
 const createTouchTexture = (): TouchTexture => {
@@ -196,6 +199,7 @@ uniform float uRippleSpeed;
 uniform float uRippleThickness;
 uniform float uRippleIntensity;
 uniform float uEdgeFade;
+uniform float uDissolve;
 
 uniform int   uShapeType;
 const int SHAPE_SQUARE   = 0;
@@ -255,6 +259,16 @@ float fbm2(vec2 uv, float t){
     amp  *= FBM_GAIN;
   }
   return sum * 0.5 + 0.5;
+}
+
+float maskSquare(vec2 p, float cov){
+  if (cov <= 0.0) return 0.0;
+  if (cov >= 0.999) return 1.0;
+  float halfSize = sqrt(clamp(cov, 0.0, 1.0)) * 0.5;
+  vec2 d = abs(p - 0.5);
+  float edge = max(d.x, d.y);
+  float aa = max(0.5 * fwidth(edge), 0.005);
+  return clamp((halfSize - edge) / aa, 0.0, 1.0);
 }
 
 float maskCircle(vec2 p, float cov){
@@ -322,11 +336,40 @@ void main(){
   float h = fract(sin(dot(floor(fragCoord / uPixelSize), vec2(127.1, 311.7))) * 43758.5453);
   float jitterScale = 1.0 + (h - 0.5) * uPixelJitter;
   float coverage = bw * jitterScale;
+
+  // Per-pixel staggered dissolution animation
+  if (uDissolve > 0.0001) {
+    vec2 pId = floor(fragCoord / uPixelSize);
+    float pSeed1 = fract(sin(dot(pId, vec2(127.1, 311.7))) * 43758.5453);
+    float pSeed2 = fract(sin(dot(pId, vec2(269.5, 183.3))) * 43758.5453);
+    
+    // Wave flow: gentle diagonal propagation across the screen
+    vec2 norm = gl_FragCoord.xy / uResolution;
+    float wave = (norm.x * 0.12 + (1.0 - norm.y) * 0.16);
+    
+    // Staggered trigger for each individual pixel across [0.0, 0.78]
+    float trigger = clamp(pSeed1 * 0.62 + wave * 0.32 + pSeed2 * 0.06, 0.0, 0.78);
+    
+    // Local dissolution progress: 0.0 = untouched, 1.0 = completely vanished
+    float localProgress = clamp((uDissolve - trigger) / 0.22, 0.0, 1.0);
+    
+    if (localProgress > 0.0) {
+      float shrink = 1.0 - localProgress;
+      // Slight lively pop / bounce as each pixel dissolves away
+      float pop = 1.0 + sin(localProgress * 3.14159265) * 0.3;
+      coverage *= (shrink * shrink * pop);
+    }
+    
+    if (uDissolve >= 0.999) {
+      coverage = 0.0;
+    }
+  }
+
   float M;
   if      (uShapeType == SHAPE_CIRCLE)   M = maskCircle (pixelUV, coverage);
   else if (uShapeType == SHAPE_TRIANGLE) M = maskTriangle(pixelUV, pixelId, coverage);
   else if (uShapeType == SHAPE_DIAMOND)  M = maskDiamond(pixelUV, coverage);
-  else                                   M = coverage;
+  else                                   M = maskSquare (pixelUV, coverage);
 
   if (uEdgeFade > 0.0) {
     vec2 norm = gl_FragCoord.xy / uResolution;
@@ -372,11 +415,24 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
   speed = 0.5,
   transparent = true,
   edgeFade = 0.5,
-  noiseAmount = 0
+  noiseAmount = 0,
+  dissolve,
+  fadeOut = false,
+  dissolveSpeed = 1.2
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const visibilityRef = useRef({ visible: true });
   const speedRef = useRef(speed);
+  const lastTimeRef = useRef(0);
+  const fadeOutRef = useRef(fadeOut);
+  const dissolveRef = useRef(dissolve);
+  const dissolveSpeedRef = useRef(dissolveSpeed);
+
+  useEffect(() => {
+    fadeOutRef.current = fadeOut;
+    dissolveRef.current = dissolve;
+    dissolveSpeedRef.current = dissolveSpeed;
+  }, [fadeOut, dissolve, dissolveSpeed]);
 
   const threeRef = useRef<{
     renderer: THREE.WebGLRenderer;
@@ -401,6 +457,7 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
       uRippleThickness: { value: number };
       uRippleIntensity: { value: number };
       uEdgeFade: { value: number };
+      uDissolve: { value: number };
     };
     resizeObserver?: ResizeObserver;
     raf?: number;
@@ -474,7 +531,8 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
         uRippleSpeed: { value: rippleSpeed },
         uRippleThickness: { value: rippleThickness },
         uRippleIntensity: { value: rippleIntensityScale },
-        uEdgeFade: { value: edgeFade }
+        uEdgeFade: { value: edgeFade },
+        uDissolve: { value: fadeOut ? 1.0 : (dissolve ?? 0.0) }
       };
       const scene = new THREE.Scene();
       const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
@@ -593,6 +651,26 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
           return;
         }
         uniforms.uTime.value = timeOffset + clock.getElapsedTime() * speedRef.current;
+
+        // Smoothly animate per-pixel dissolve
+        const targetDissolve = fadeOutRef.current ? 1.0 : (dissolveRef.current ?? 0.0);
+        const curDissolve = uniforms.uDissolve.value;
+        if (Math.abs(curDissolve - targetDissolve) > 0.0005) {
+          const now = performance.now();
+          const dt = Math.min((now - lastTimeRef.current) / 1000, 0.1);
+          lastTimeRef.current = now;
+          const spd = dissolveSpeedRef.current || 1.2;
+          const step = dt * spd;
+          if (curDissolve < targetDissolve) {
+            uniforms.uDissolve.value = Math.min(targetDissolve, curDissolve + step);
+          } else {
+            uniforms.uDissolve.value = Math.max(targetDissolve, curDissolve - step);
+          }
+        } else {
+          uniforms.uDissolve.value = targetDissolve;
+          lastTimeRef.current = performance.now();
+        }
+
         if (liquidEffect) {
           const liqEffect = liquidEffect as Effect & { uniforms: Map<string, THREE.Uniform> };
           const timeUniform = liqEffect.uniforms.get('uTime');
@@ -693,7 +771,10 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
     autoPauseOffscreen,
     variant,
     color,
-    speed
+    speed,
+    fadeOut,
+    dissolve,
+    dissolveSpeed
   ]);
 
   return (

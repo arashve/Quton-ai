@@ -421,7 +421,19 @@ export const Chat: React.FC = () => {
   const [feedback, setFeedback] = useState<Record<string, 'up' | 'down'>>({});
 
   // Theme state: default to 'dark' ("رنگ سیاه و مشکی میخوام رنگای اصلی باشه و با تم روشن و تاریک عوض بشه")
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const savedTheme = localStorage.getItem('chatbot_theme') as 'dark' | 'light' | null;
+        if (savedTheme === 'dark' || savedTheme === 'light') {
+          return savedTheme;
+        }
+      } catch {
+        // Ignore localStorage error
+      }
+    }
+    return 'dark';
+  });
 
   const applyThemeVars = useCallback((nextTheme: 'dark' | 'light') => {
     const isDark = nextTheme === 'dark';
@@ -440,15 +452,8 @@ export const Chat: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    try {
-      const savedTheme = localStorage.getItem('chatbot_theme') as 'dark' | 'light' | null;
-      const initialTheme = savedTheme || 'dark';
-      setTheme(initialTheme);
-      applyThemeVars(initialTheme);
-    } catch (e) {
-      console.error('Failed to read theme from localStorage:', e);
-    }
-  }, [applyThemeVars]);
+    applyThemeVars(theme);
+  }, [theme, applyThemeVars]);
 
   const toggleTheme = useCallback(() => {
     setTheme((prev) => {
@@ -1085,33 +1090,37 @@ export const Chat: React.FC = () => {
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col relative h-full overflow-hidden bg-[var(--page-bg)] transition-colors duration-200">
         {/* PixelBlast interactive background - FULL SCREEN for entire chat screen */}
-{/* PixelBlast interactive background - FULL SCREEN matching reactbits edgeFade=0 */}
-{isMounted && (
-  <div
-    id="chat-pixel-blast-background"
-    className="absolute inset-0 w-full h-full z-0 overflow-hidden pointer-events-auto bg-[var(--pixel-bg)]"
-  >
- <PixelBlast
-    variant="square"
-    pixelSize={4}
-    color={theme === 'dark' ? '#f5f5f5' : '#1a1a1a'}
-    patternScale={2}
-    patternDensity={1}
-    pixelSizeJitter={0}
-    enableRipples
-    rippleSpeed={0.4}
-    rippleThickness={0.12}
-    rippleIntensityScale={1.5}
-    liquid={false}
-    liquidStrength={0.12}
-    liquidRadius={1.2}
-    liquidWobbleSpeed={5}
-    speed={0.5}
-    edgeFade={0.3}
-    transparent
-  />
-  </div>
-)}
+        {/* PixelBlast interactive background - FULL SCREEN matching reactbits */}
+        {isMounted && (
+          <div
+            id="chat-pixel-blast-background"
+            className={`absolute inset-0 w-full h-full z-0 overflow-hidden transition-colors duration-1000 ${
+              hasMessages ? 'pointer-events-none bg-transparent' : 'pointer-events-auto bg-[var(--pixel-bg)]'
+            }`}
+          >
+            <PixelBlast
+              variant="square"
+              pixelSize={4}
+              color={theme === 'dark' ? '#f5f5f5' : '#1a1a1a'}
+              patternScale={2}
+              patternDensity={1}
+              pixelSizeJitter={0}
+              enableRipples
+              rippleSpeed={0.4}
+              rippleThickness={0.12}
+              rippleIntensityScale={1.5}
+              liquid={false}
+              liquidStrength={0.12}
+              liquidRadius={1.2}
+              liquidWobbleSpeed={5}
+              speed={0.5}
+              edgeFade={0.1}
+              transparent
+              fadeOut={hasMessages}
+              dissolveSpeed={1.0}
+            />
+          </div>
+        )}
 
         {/* Top Header - Translucent / Flat */}
         <header className={`h-12 sm:h-14 flex items-center justify-between px-2.5 sm:px-6 z-20 flex-shrink-0 transition-colors duration-200 ${
