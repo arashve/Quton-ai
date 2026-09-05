@@ -48,12 +48,26 @@ import {
   Pencil,
   AlertCircle,
   Share2,
+  Trophy,
+  Columns,
+  Smile,
+  Mic,
 } from 'lucide-react';
 import { CodeBlock } from './CodeBlock';
 import { ShinyText, SpotlightCard, ReactBitsAIInput, PromptInput, AppSidebar } from './reactbits';
 import type { PromptAttachment } from './reactbits';
 import { BorderBeam, AnimatedGradientText, ShimmerButton, TextAnimate } from './magicui';
 import dynamic from 'next/dynamic';
+import {
+  ProviderBadge,
+  ReasoningBox,
+  CitationsBar,
+  EmojiReactions,
+  DateDivider,
+  DockedVoicePanel,
+  DualModelComparisonCard,
+} from './AIChatComponents';
+import type { ComparisonSlotData } from './AIChatComponents';
 
 const PixelBlast = dynamic(
   () => import('./PixelBlast').then((mod) => mod.PixelBlast),
@@ -79,6 +93,13 @@ export interface ChatMessage {
   reasoning?: string;
   citations?: ChatCitation[];
   isError?: boolean;
+  reactions?: Record<string, number>;
+  userReactions?: string[];
+  comparison?: {
+    modelA: ComparisonSlotData;
+    modelB: ComparisonSlotData;
+    winnerId?: 'modelA' | 'modelB' | null;
+  };
 }
 
 export interface ModelConfig {
@@ -179,6 +200,8 @@ interface ChatMessageItemProps {
   onFeedback: (id: string, type: 'up' | 'down') => void;
   feedback: Record<string, 'up' | 'down'>;
   onEditPrompt?: (text: string) => void;
+  onToggleReaction?: (messageId: string, emoji: string) => void;
+  onVoteWinner?: (messageId: string, winner: 'modelA' | 'modelB' | null) => void;
 }
 
 function formatMessageTime(ts: number): string {
@@ -251,26 +274,28 @@ const ChatMessageItem = React.memo(function ChatMessageItem({
   onFeedback,
   feedback,
   onEditPrompt,
+  onToggleReaction,
+  onVoteWinner,
 }: ChatMessageItemProps) {
   const isUser = message.role === 'user';
-  const [isReasoningExpanded, setIsReasoningExpanded] = useState(true);
   const [selectedPreviewImage, setSelectedPreviewImage] = useState<string | null>(null);
 
-  // Parse reasoning / thinking blocks
+  // Parse reasoning / thinking blocks (AI Chat 7 & 9)
   const { reasoning, displayContent, isStreamingReasoning } = useMemo(() => {
-    if (isUser) {
+    if (isUser || message.comparison) {
       return { reasoning: null, displayContent: message.content, isStreamingReasoning: false };
     }
     if (message.reasoning) {
       return { reasoning: message.reasoning, displayContent: message.content, isStreamingReasoning: false };
     }
     return parseThinkingAndContent(message.content);
-  }, [isUser, message.content, message.reasoning]);
+  }, [isUser, message.content, message.reasoning, message.comparison]);
 
   // Extract grounding citations if present
   const citations = useMemo(() => {
+    if (message.comparison) return [];
     return extractCitations(message.content, message.citations);
-  }, [message.content, message.citations]);
+  }, [message.content, message.citations, message.comparison]);
 
   // Word count & token estimation
   const wordCount = useMemo(() => {
@@ -281,6 +306,27 @@ const ChatMessageItem = React.memo(function ChatMessageItem({
   const estimatedTokens = useMemo(() => {
     return Math.round(wordCount * 1.3);
   }, [wordCount]);
+
+  // 1. AI Chat 7 Split Pane Comparison Mode (returned after hooks to respect Rules of Hooks)
+  if (message.comparison) {
+    return (
+      <div key={message.id} className="w-full my-3">
+        <DualModelComparisonCard
+          messageId={message.id}
+          modelA={message.comparison.modelA}
+          modelB={message.comparison.modelB}
+          winnerId={message.comparison.winnerId}
+          onVoteWinner={onVoteWinner}
+          onCopy={onCopy}
+          copiedId={copiedId}
+          onSpeak={onSpeak}
+          speakingMessageId={speakingMessageId}
+          onFeedback={onFeedback}
+          feedback={feedback}
+        />
+      </div>
+    );
+  }
 
   const isFailedMessage = message.isError || (message.content && message.content.startsWith('⚠️ **Failed'));
 
@@ -302,19 +348,19 @@ const ChatMessageItem = React.memo(function ChatMessageItem({
 
       {/* Message Body */}
       <div className="flex-1 flex flex-col gap-1 min-w-0">
-        {/* Header Metadata Bar */}
+        {/* Header Metadata Bar (AI Chat 7 Style) */}
         <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
           <div className="flex items-center gap-2">
             <span className="text-xs font-semibold text-zinc-900 dark:text-zinc-100">
               {isUser ? 'You' : 'AutoFlow Assistant'}
             </span>
 
-            {/* Model Tag */}
-            {!isUser && message.modelUsed && (
-              <span className="inline-flex items-center gap-1 text-[10px] text-zinc-600 dark:text-zinc-400 font-mono px-2 py-0.5 rounded-full bg-zinc-200/60 dark:bg-zinc-800/60 border border-zinc-200/50 dark:border-zinc-700/50">
-                <Cpu className="w-2.5 h-2.5 text-zinc-400" />
-                <span>{message.modelUsed}</span>
-              </span>
+            {/* Provider & Model Tag (AI Chat 7 Style) */}
+            {!isUser && (
+              <ProviderBadge
+                modelName={message.modelUsed}
+                isStreaming={isStreamingThis}
+              />
             )}
 
             {/* Mode Tag */}
@@ -406,6 +452,16 @@ const ChatMessageItem = React.memo(function ChatMessageItem({
             )}
             {message.content}
 
+            {/* AI Chat 8 Emoji Reactions on User Message */}
+            <div className="mt-2.5 pt-1.5 border-t border-zinc-200/40 dark:border-zinc-800/40">
+              <EmojiReactions
+                messageId={message.id}
+                reactions={message.reactions}
+                userReactions={message.userReactions}
+                onToggleReaction={onToggleReaction}
+              />
+            </div>
+
             {/* Lightbox for attachment preview */}
             {selectedPreviewImage && (
               <div
@@ -422,71 +478,22 @@ const ChatMessageItem = React.memo(function ChatMessageItem({
             )}
           </div>
         ) : (
-          /* Assistant Card - React Bits Pro AI Chat Architecture */
+          /* Assistant Card - React Bits Pro AI Chat 7 & 8 Architecture */
           <div className="relative rounded-2xl bg-zinc-100/70 dark:bg-zinc-900/60 border border-zinc-200/60 dark:border-zinc-800/60 p-4 sm:p-5 text-[15px] leading-relaxed text-zinc-900 dark:text-zinc-100 font-sans space-y-4 shadow-xs">
-            {/* 1. Deep Thought / Reasoning Accordion (AI Chat 7 & 9 Pattern) */}
+            {/* 1. Deep Thought / Reasoning Box (AI Chat 7 Style) */}
             {reasoning && (
-              <div className="rounded-xl border border-zinc-200/80 dark:border-zinc-800/80 bg-zinc-200/30 dark:bg-zinc-950/50 overflow-hidden transition-colors">
-                <button
-                  type="button"
-                  onClick={() => setIsReasoningExpanded((prev) => !prev)}
-                  className="w-full px-3.5 py-2 flex items-center justify-between text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition cursor-pointer"
-                >
-                  <div className="flex items-center gap-2">
-                    <Brain
-                      className={`w-3.5 h-3.5 ${
-                        isStreamingReasoning ? 'text-amber-500 animate-pulse' : 'text-zinc-500'
-                      }`}
-                    />
-                    <span>
-                      {isStreamingReasoning ? 'Thinking & Synthesizing...' : 'Reasoning Process'}
-                    </span>
-                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-200 dark:bg-zinc-800 text-zinc-500">
-                      {isStreamingReasoning ? 'Active' : `${reasoning.split(/\s+/).length} thoughts`}
-                    </span>
-                  </div>
-                  <ChevronDown
-                    className={`w-3.5 h-3.5 text-zinc-400 transition-transform ${
-                      isReasoningExpanded ? 'rotate-180' : ''
-                    }`}
-                  />
-                </button>
-
-                {isReasoningExpanded && (
-                  <div className="px-3.5 pb-3 text-xs font-mono text-zinc-600 dark:text-zinc-400 border-t border-zinc-200/60 dark:border-zinc-800/60 pt-2 whitespace-pre-wrap leading-relaxed max-h-56 overflow-y-auto">
-                    {reasoning}
-                    {isStreamingReasoning && (
-                      <span className="inline-block w-1.5 h-3.5 ml-1 bg-amber-500 animate-pulse align-middle" />
-                    )}
-                  </div>
-                )}
-              </div>
+              <ReasoningBox
+                reasoning={reasoning}
+                isStreaming={isStreamingReasoning}
+              />
             )}
 
-            {/* 2. Web Grounding Evidence Citations (AI Chat 7 Pattern) */}
+            {/* 2. Web Grounding Citations (AI Chat 7 Style) */}
             {citations.length > 0 && (
-              <div className="flex flex-wrap items-center gap-1.5 pb-2 border-b border-zinc-200/60 dark:border-zinc-800/60">
-                <span className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400 flex items-center gap-1 mr-1">
-                  <Globe className="w-3 h-3 text-cyan-500" />
-                  Sources:
-                </span>
-                {citations.map((cite, idx) => (
-                  <a
-                    key={idx}
-                    href={cite.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-zinc-200/60 hover:bg-zinc-200 dark:bg-zinc-800/60 dark:hover:bg-zinc-800 text-[11px] text-zinc-700 dark:text-zinc-300 transition"
-                    title={cite.url}
-                  >
-                    <span className="truncate max-w-[130px]">{cite.title || cite.domain}</span>
-                    <ExternalLink className="w-2.5 h-2.5 text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-100" />
-                  </a>
-                ))}
-              </div>
+              <CitationsBar citations={citations} />
             )}
 
-            {/* 3. Wireframe / Spec Badge (When Mode === 'wireframes') */}
+            {/* 3. Wireframe / Spec Badge */}
             {message.mode === 'wireframes' && (
               <div className="flex items-center justify-between px-3 py-1.5 rounded-xl bg-purple-500/10 border border-purple-500/20 text-xs text-purple-700 dark:text-purple-300">
                 <div className="flex items-center gap-2">
@@ -597,10 +604,10 @@ const ChatMessageItem = React.memo(function ChatMessageItem({
               </div>
             )}
 
-            {/* 5. Assistant Action Toolbar (React Bits Pro AI Chat 7 & 9) */}
+            {/* 5. Assistant Action Toolbar (AI Chat 7 & 8 Pattern) */}
             {displayContent && !isStreamingThis && (
               <div className="pt-2 border-t border-zinc-200/50 dark:border-zinc-800/50 flex flex-wrap items-center justify-between gap-2 text-xs text-zinc-500 dark:text-zinc-400">
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1.5 flex-wrap">
                   {/* Copy Response */}
                   <button
                     id={`copy-btn-${message.id}`}
@@ -645,6 +652,14 @@ const ChatMessageItem = React.memo(function ChatMessageItem({
                   >
                     <RotateCcw className="w-3.5 h-3.5" />
                   </button>
+
+                  {/* AI Chat 8 Emoji Reactions */}
+                  <EmojiReactions
+                    messageId={message.id}
+                    reactions={message.reactions}
+                    userReactions={message.userReactions}
+                    onToggleReaction={onToggleReaction}
+                  />
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -747,6 +762,15 @@ export const Chat: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<Record<string, 'up' | 'down'>>({});
+
+  // AI Chat 7: Split-Pane Model Comparison Arena
+  const [isCompareMode, setIsCompareMode] = useState<boolean>(false);
+  const [compareModelB, setCompareModelB] = useState<string>('gemini-2.5-flash');
+
+  // AI Chat 8: Docked Voice-First Assistant & Audio Automation
+  const [isVoicePanelOpen, setIsVoicePanelOpen] = useState<boolean>(false);
+  const [isVoiceMinimized, setIsVoiceMinimized] = useState<boolean>(false);
+  const [autoSpeak, setAutoSpeak] = useState<boolean>(false);
 
   // Recent prompts list for quick recall & arrow navigation in PromptInput
   const [recentPrompts, setRecentPrompts] = useState<string[]>(() => {
@@ -996,6 +1020,50 @@ export const Chat: React.FC = () => {
     window.speechSynthesis.speak(utterance);
   }, [speakingMessageId]);
 
+  // AI Chat 8: Toggle Emoji Reaction on a message
+  const handleToggleReaction = useCallback((messageId: string, emoji: string) => {
+    setMessages((prev) =>
+      prev.map((msg) => {
+        if (msg.id !== messageId) return msg;
+        const currentReactions = { ...(msg.reactions || {}) };
+        const currentUsers = [...(msg.userReactions || [])];
+        const isUserActive = currentUsers.includes(emoji);
+
+        if (isUserActive) {
+          const idx = currentUsers.indexOf(emoji);
+          if (idx > -1) currentUsers.splice(idx, 1);
+          currentReactions[emoji] = Math.max(0, (currentReactions[emoji] || 1) - 1);
+          if (currentReactions[emoji] === 0) delete currentReactions[emoji];
+        } else {
+          currentUsers.push(emoji);
+          currentReactions[emoji] = (currentReactions[emoji] || 0) + 1;
+        }
+
+        return {
+          ...msg,
+          reactions: currentReactions,
+          userReactions: currentUsers,
+        };
+      })
+    );
+  }, []);
+
+  // AI Chat 7: Vote Winner in Dual Model Comparison Arena
+  const handleVoteWinner = useCallback((messageId: string, winner: 'modelA' | 'modelB' | null) => {
+    setMessages((prev) =>
+      prev.map((msg) => {
+        if (msg.id !== messageId || !msg.comparison) return msg;
+        return {
+          ...msg,
+          comparison: {
+            ...msg.comparison,
+            winnerId: winner,
+          },
+        };
+      })
+    );
+  }, []);
+
   // Abort active stream
   const abortStream = useCallback(() => {
     if (abortControllerRef.current) {
@@ -1102,6 +1170,230 @@ export const Chat: React.FC = () => {
       mode: currentMode,
       attachments: attachments && attachments.length > 0 ? attachments : undefined,
     };
+
+    // AI Chat 7 Split Pane Comparison Mode
+    if (isCompareMode) {
+      const assistantMessageId = createId('msg_assistant');
+      const initialAssistantMessage: ChatMessage = {
+        id: assistantMessageId,
+        role: 'assistant',
+        content: '',
+        timestamp: nowTime + 1,
+        modelUsed: `${modelConfig.model} vs ${compareModelB}`,
+        mode: currentMode,
+        comparison: {
+          modelA: {
+            id: 'slot_a',
+            provider: modelConfig.provider,
+            modelName: modelConfig.model,
+            content: '',
+            isStreaming: true,
+          },
+          modelB: {
+            id: 'slot_b',
+            provider: 'gemini',
+            modelName: compareModelB,
+            content: '',
+            isStreaming: true,
+          },
+          winnerId: null,
+        },
+      };
+
+      const updatedMessages = [...messages, userMessage];
+      setMessages([...updatedMessages, initialAssistantMessage]);
+      setIsLoading(true);
+
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
+
+      // Stream Model A
+      const streamA = async () => {
+        const t0 = Date.now();
+        let textA = '';
+        let firstTokA: number | null = null;
+        try {
+          const res = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              messages: updatedMessages.map((m) => ({ role: m.role, content: m.content })),
+              mode: currentMode,
+              model: modelConfig.model,
+              provider: modelConfig.provider,
+              apiKey: modelConfig.apiKey || undefined,
+              baseUrl: modelConfig.baseUrl || undefined,
+            }),
+            signal: controller.signal,
+          });
+          if (!res.ok) throw new Error(`Status ${res.status}`);
+          const reader = res.body?.getReader();
+          if (reader) {
+            const decoder = new TextDecoder('utf-8');
+            let buf = '';
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
+              buf += decoder.decode(value, { stream: true });
+              const lines = buf.split('\n');
+              buf = lines.pop() || '';
+              for (const line of lines) {
+                const tr = line.trim();
+                if (tr.startsWith('data: ')) {
+                  const dataStr = tr.substring(6).trim();
+                  if (!dataStr || dataStr === '[DONE]') continue;
+                  try {
+                    const data = JSON.parse(dataStr);
+                    const chunk = data.chunk || data.choices?.[0]?.delta?.content || '';
+                    if (chunk) {
+                      if (firstTokA === null) firstTokA = Date.now() - t0;
+                      textA += chunk;
+                      setMessages((prev) =>
+                        prev.map((msg) =>
+                          msg.id === assistantMessageId && msg.comparison
+                            ? {
+                                ...msg,
+                                comparison: {
+                                  ...msg.comparison,
+                                  modelA: {
+                                    ...msg.comparison.modelA,
+                                    content: textA,
+                                    ttftMs: firstTokA || undefined,
+                                  },
+                                },
+                              }
+                            : msg
+                        )
+                      );
+                    }
+                  } catch {}
+                }
+              }
+            }
+          }
+        } catch (e: any) {
+          textA = textA || `⚠️ ${modelConfig.model} error: ${e.message}`;
+        } finally {
+          const elapsed = Date.now() - t0;
+          const words = textA.split(/\s+/).length;
+          const tps = Math.round((words * 1.3) / Math.max(0.1, elapsed / 1000));
+          setMessages((prev) =>
+            prev.map((msg) =>
+              msg.id === assistantMessageId && msg.comparison
+                ? {
+                    ...msg,
+                    comparison: {
+                      ...msg.comparison,
+                      modelA: {
+                        ...msg.comparison.modelA,
+                        content: textA,
+                        isStreaming: false,
+                        ttftMs: firstTokA || elapsed,
+                        tokensPerSec: tps,
+                      },
+                    },
+                  }
+                : msg
+            )
+          );
+        }
+      };
+
+      // Stream Model B in parallel
+      const streamB = async () => {
+        const t0 = Date.now();
+        let textB = '';
+        let firstTokB: number | null = null;
+        try {
+          const res = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              messages: updatedMessages.map((m) => ({ role: m.role, content: m.content })),
+              mode: currentMode,
+              model: compareModelB,
+              provider: 'gemini',
+            }),
+            signal: controller.signal,
+          });
+          if (!res.ok) throw new Error(`Status ${res.status}`);
+          const reader = res.body?.getReader();
+          if (reader) {
+            const decoder = new TextDecoder('utf-8');
+            let buf = '';
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
+              buf += decoder.decode(value, { stream: true });
+              const lines = buf.split('\n');
+              buf = lines.pop() || '';
+              for (const line of lines) {
+                const tr = line.trim();
+                if (tr.startsWith('data: ')) {
+                  const dataStr = tr.substring(6).trim();
+                  if (!dataStr || dataStr === '[DONE]') continue;
+                  try {
+                    const data = JSON.parse(dataStr);
+                    const chunk = data.chunk || data.choices?.[0]?.delta?.content || '';
+                    if (chunk) {
+                      if (firstTokB === null) firstTokB = Date.now() - t0;
+                      textB += chunk;
+                      setMessages((prev) =>
+                        prev.map((msg) =>
+                          msg.id === assistantMessageId && msg.comparison
+                            ? {
+                                ...msg,
+                                comparison: {
+                                  ...msg.comparison,
+                                  modelB: {
+                                    ...msg.comparison.modelB,
+                                    content: textB,
+                                    ttftMs: firstTokB || undefined,
+                                  },
+                                },
+                              }
+                            : msg
+                        )
+                      );
+                    }
+                  } catch {}
+                }
+              }
+            }
+          }
+        } catch (e: any) {
+          textB = textB || `⚠️ ${compareModelB} error: ${e.message}`;
+        } finally {
+          const elapsed = Date.now() - t0;
+          const words = textB.split(/\s+/).length;
+          const tps = Math.round((words * 1.3) / Math.max(0.1, elapsed / 1000));
+          setMessages((prev) =>
+            prev.map((msg) =>
+              msg.id === assistantMessageId && msg.comparison
+                ? {
+                    ...msg,
+                    comparison: {
+                      ...msg.comparison,
+                      modelB: {
+                        ...msg.comparison.modelB,
+                        content: textB,
+                        isStreaming: false,
+                        ttftMs: firstTokB || elapsed,
+                        tokensPerSec: tps,
+                      },
+                    },
+                  }
+                : msg
+            )
+          );
+        }
+      };
+
+      await Promise.allSettled([streamA(), streamB()]);
+      setIsLoading(false);
+      abortControllerRef.current = null;
+      return;
+    }
 
     const assistantMessageId = createId('msg_assistant');
     const initialAssistantMessage: ChatMessage = {
@@ -1261,6 +1553,11 @@ export const Chat: React.FC = () => {
             : msg
         )
       );
+
+      // AI Chat 8 Auto-TTS speech
+      if (autoSpeak && fullStreamText) {
+        toggleSpeak(assistantMessageId, fullStreamText);
+      }
     } catch (err: any) {
       if (err.name === 'AbortError') {
         console.log('Chat generation was cancelled by user.');
@@ -1281,7 +1578,7 @@ export const Chat: React.FC = () => {
       setIsLoading(false);
       abortControllerRef.current = null;
     }
-  }, [inputPrompt, isLoading, activeMode, messages, modelConfig]);
+  }, [inputPrompt, isLoading, activeMode, messages, modelConfig, isCompareMode, compareModelB, autoSpeak, toggleSpeak]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -1453,6 +1750,44 @@ export const Chat: React.FC = () => {
                 <ChevronDown className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-zinc-400 group-hover:text-zinc-700 dark:group-hover:text-zinc-200 transition" />
               </div>
             </button>
+
+            {/* AI Chat 7 Split Pane Comparison Toggle */}
+            <button
+              id="header-compare-mode-btn"
+              type="button"
+              onClick={() => setIsCompareMode((prev) => !prev)}
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border transition cursor-pointer ${
+                isCompareMode
+                  ? 'bg-purple-500/15 border-purple-500/40 text-purple-700 dark:text-purple-300 font-semibold shadow-xs'
+                  : 'bg-zinc-100/80 dark:bg-zinc-900/80 border-zinc-200/70 dark:border-zinc-800/70 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100'
+              }`}
+              title={isCompareMode ? 'Disable Split Comparison' : 'Enable AI Chat 7 Split Pane Comparison'}
+            >
+              <Columns className="w-3.5 h-3.5 text-purple-500" />
+              <span className="hidden md:inline font-mono text-[11px]">Compare</span>
+              {isCompareMode && (
+                <span className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse" />
+              )}
+            </button>
+
+            {/* AI Chat 8 Voice Assistant Panel Toggle */}
+            <button
+              id="header-voice-panel-btn"
+              type="button"
+              onClick={() => setIsVoicePanelOpen((prev) => !prev)}
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border transition cursor-pointer ${
+                isVoicePanelOpen || isListening
+                  ? 'bg-rose-500/15 border-rose-500/40 text-rose-600 dark:text-rose-400 font-semibold shadow-xs'
+                  : 'bg-zinc-100/80 dark:bg-zinc-900/80 border-zinc-200/70 dark:border-zinc-800/70 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100'
+              }`}
+              title="Toggle AI Chat 8 Voice Assistant"
+            >
+              <Mic className="w-3.5 h-3.5 text-rose-500" />
+              <span className="hidden md:inline font-mono text-[11px]">Voice</span>
+              {(isListening || speakingMessageId) && (
+                <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping" />
+              )}
+            </button>
           </div>
 
           <div className="flex items-center gap-1 sm:gap-2">
@@ -1602,28 +1937,44 @@ export const Chat: React.FC = () => {
                 const isLatest = index === messages.length - 1;
                 const isStreamingThis = isLoading && isLatest && isAssistant;
 
+                // Date separator divider (AI Chat 8 style)
+                const prevMessage = index > 0 ? messages[index - 1] : null;
+                const showDateDivider =
+                  message.timestamp &&
+                  (!prevMessage ||
+                    !prevMessage.timestamp ||
+                    new Date(message.timestamp).toDateString() !==
+                      new Date(prevMessage.timestamp).toDateString());
+
                 return (
-                  <ChatMessageItem
-                    key={message.id}
-                    message={message}
-                    index={index}
-                    isStreamingThis={isStreamingThis}
-                    isLatestAssistant={isAssistant && isLatest}
-                    copiedId={copiedId}
-                    onCopy={handleCopyMessage}
-                    onSpeak={toggleSpeak}
-                    speakingMessageId={speakingMessageId}
-                    onRegenerate={handleRegenerate}
-                    onFeedback={handleFeedback}
-                    feedback={feedback}
-                    onEditPrompt={(text) => {
-                      setInputPrompt(text);
-                      if (textareaRef.current) {
-                        textareaRef.current.focus();
-                        textareaRef.current.setSelectionRange(text.length, text.length);
-                      }
-                    }}
-                  />
+                  <React.Fragment key={message.id}>
+                    {showDateDivider && message.timestamp && (
+                      <DateDivider timestamp={message.timestamp} />
+                    )}
+                    <ChatMessageItem
+                      key={message.id}
+                      message={message}
+                      index={index}
+                      isStreamingThis={isStreamingThis}
+                      isLatestAssistant={isAssistant && isLatest}
+                      copiedId={copiedId}
+                      onCopy={handleCopyMessage}
+                      onSpeak={toggleSpeak}
+                      speakingMessageId={speakingMessageId}
+                      onRegenerate={handleRegenerate}
+                      onFeedback={handleFeedback}
+                      feedback={feedback}
+                      onToggleReaction={handleToggleReaction}
+                      onVoteWinner={handleVoteWinner}
+                      onEditPrompt={(text) => {
+                        setInputPrompt(text);
+                        if (textareaRef.current) {
+                          textareaRef.current.focus();
+                          textareaRef.current.setSelectionRange(text.length, text.length);
+                        }
+                      }}
+                    />
+                  </React.Fragment>
                 );
               })}
               <div ref={messagesEndRef} />
@@ -1631,9 +1982,65 @@ export const Chat: React.FC = () => {
           )}
         </div>
 
+        {/* AI Chat 8 Docked Floating Voice Panel */}
+        {isVoicePanelOpen && (
+          <div className="fixed bottom-24 right-4 sm:right-8 z-40 max-w-sm w-full">
+            <DockedVoicePanel
+              isListening={isListening}
+              onToggleListening={toggleSpeechRecognition}
+              isSpeaking={!!speakingMessageId}
+              onStopSpeaking={() => {
+                if (speakingMessageId) {
+                  toggleSpeak(speakingMessageId, '');
+                }
+              }}
+              autoSpeak={autoSpeak}
+              onToggleAutoSpeak={() => setAutoSpeak((prev) => !prev)}
+              isMinimized={isVoiceMinimized}
+              onToggleMinimize={() => setIsVoiceMinimized((prev) => !prev)}
+              onClose={() => setIsVoicePanelOpen(false)}
+            />
+          </div>
+        )}
+
         {/* Floating Bottom Input Bar - Full-bleed transparency, NO solid cutoff */}
         <footer className="p-3 sm:p-6 pt-0 mt-auto flex-shrink-0 relative z-20 bg-transparent">
           <div className="max-w-3xl mx-auto relative">
+            {/* AI Chat 7 Split Pane Comparison Mode Active Banner */}
+            {isCompareMode && (
+              <div className="mb-2 px-3.5 py-2 rounded-2xl bg-purple-500/10 dark:bg-purple-500/15 border border-purple-500/25 backdrop-blur-md flex flex-wrap items-center justify-between gap-2 text-xs text-purple-900 dark:text-purple-200 shadow-xs animate-in fade-in slide-in-from-bottom-2 duration-200">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-lg bg-purple-500/20 flex items-center justify-center text-purple-600 dark:text-purple-300">
+                    <Columns className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <span className="font-semibold">Side-by-Side Arena:</span>{' '}
+                    <span className="font-mono text-purple-700 dark:text-purple-300">
+                      {modelConfig.model}
+                    </span>{' '}
+                    vs{' '}
+                    <select
+                      value={compareModelB}
+                      onChange={(e) => setCompareModelB(e.target.value)}
+                      className="bg-white/80 dark:bg-zinc-900/80 border border-purple-500/30 rounded-lg px-2 py-0.5 font-mono text-[11px] text-zinc-900 dark:text-zinc-100 cursor-pointer focus:outline-hidden"
+                    >
+                      <option value="gemini-2.5-flash">gemini-2.5-flash</option>
+                      <option value="gemini-2.5-pro">gemini-2.5-pro</option>
+                      <option value="gemini-1.5-flash">gemini-1.5-flash</option>
+                      <option value="gemini-1.5-pro">gemini-1.5-pro</option>
+                    </select>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsCompareMode(false)}
+                  className="text-[11px] hover:underline text-purple-600 dark:text-purple-300 cursor-pointer"
+                >
+                  Exit Arena
+                </button>
+              </div>
+            )}
+
             <PromptInput
               inputPrompt={inputPrompt}
               setInputPrompt={setInputPrompt}
