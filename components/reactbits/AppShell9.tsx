@@ -177,10 +177,8 @@ export const AppShell9: React.FC<AppShell9Props> = ({
   const [pinnedSessionIds, setPinnedSessionIds] = useState<string[]>([]);
   const [notifications, setNotifications] = useState<ShellNotification[]>(INITIAL_NOTIFICATIONS);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-  const [selectedMember, setSelectedMember] = useState<WorkspaceMember | null>(null);
 
   const notificationsRef = useRef<HTMLDivElement>(null);
-  const memberPopoverRef = useRef<HTMLDivElement>(null);
 
   // Close popovers on click outside
   useEffect(() => {
@@ -190,12 +188,6 @@ export const AppShell9: React.FC<AppShell9Props> = ({
         !notificationsRef.current.contains(e.target as Node)
       ) {
         setIsNotificationsOpen(false);
-      }
-      if (
-        memberPopoverRef.current &&
-        !memberPopoverRef.current.contains(e.target as Node)
-      ) {
-        setSelectedMember(null);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -311,66 +303,49 @@ export const AppShell9: React.FC<AppShell9Props> = ({
         </button>
       </div>
 
-      {/* Middle Section: Member Presence Rail (React Bits Pro App Shell 9 Feature) */}
-      <div className="flex flex-col items-center gap-2.5 my-auto w-full py-3 border-y border-zinc-200/80 dark:border-zinc-800/80">
-        <span className="text-[9px] uppercase font-bold tracking-wider text-zinc-400 dark:text-zinc-500">
-          Agents
-        </span>
+      {/* Middle Section: Active Inference Engine Indicator & Quick Navigation */}
+      <div className="flex flex-col items-center gap-3 my-auto w-full py-3">
+        {/* Pinned / Starred Quick Shortcut */}
+        {pinnedSessions.length > 0 && (
+          <button
+            type="button"
+            onClick={() => {
+              if (isCollapsed) setIsCollapsed(false);
+            }}
+            className="w-10 h-10 rounded-xl text-amber-500 hover:bg-amber-500/10 flex items-center justify-center transition cursor-pointer group relative"
+            title={`${pinnedSessions.length} Pinned Sessions`}
+          >
+            <Pin className="w-4 h-4 fill-amber-500/20" />
+            <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-amber-500 text-black font-bold text-[9px] flex items-center justify-center">
+              {pinnedSessions.length}
+            </span>
+            <span className="absolute left-14 px-2 py-1 rounded-lg bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-950 text-[11px] whitespace-nowrap font-medium opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50 shadow-md">
+              Pinned ({pinnedSessions.length})
+            </span>
+          </button>
+        )}
 
-        {DEFAULT_MEMBERS.map((member) => {
-          const isSelected = selectedMember?.id === member.id;
-          return (
-            <div key={member.id} className="relative group">
-              <button
-                type="button"
-                onClick={() => setSelectedMember(isSelected ? null : member)}
-                className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs transition-all cursor-pointer relative ${
-                  member.isAiAgent
-                    ? 'bg-zinc-200 dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 hover:ring-2 hover:ring-zinc-400 dark:hover:ring-zinc-600'
-                    : 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-950'
-                }`}
-                title={`${member.name} (${member.role})`}
-              >
-                {member.isAiAgent ? (
-                  <Bot className="w-4 h-4" />
-                ) : (
-                  <span>{member.avatar}</span>
-                )}
+        {/* Real-time SSE Connection Status Capsule */}
+        <div
+          className="flex flex-col items-center gap-1.5 py-2 px-1 rounded-2xl bg-zinc-200/50 dark:bg-zinc-900/60 border border-zinc-200/60 dark:border-zinc-800/60 group cursor-default relative"
+          title="SSE Stream Connection: Ultra-Low Latency Active"
+        >
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
+          <span className="text-[9px] font-mono uppercase font-bold tracking-tighter text-zinc-400 dark:text-zinc-500 rotate-90 my-2">
+            LIVE
+          </span>
 
-                {/* Status Dot */}
-                <span
-                  className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-zinc-100 dark:border-zinc-950 ${
-                    member.status === 'online'
-                      ? 'bg-emerald-500 animate-pulse'
-                      : member.status === 'busy'
-                      ? 'bg-amber-500'
-                      : 'bg-zinc-400'
-                  }`}
-                />
-              </button>
-
-              {/* Hover Tooltip */}
-              <div className="absolute left-14 top-1 px-2.5 py-1.5 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xl opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50 min-w-[160px] text-left">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-xs font-semibold text-zinc-900 dark:text-zinc-100">
-                    {member.name}
-                  </span>
-                  {member.modelBadge && (
-                    <span className="text-[9px] px-1 rounded bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 font-mono">
-                      {member.modelBadge}
-                    </span>
-                  )}
-                </div>
-                <div className="text-[10px] text-zinc-500 dark:text-zinc-400 line-clamp-1">
-                  {member.role}
-                </div>
-                <div className="text-[9px] text-emerald-600 dark:text-emerald-400 font-mono mt-0.5">
-                  ● {member.currentActivity}
-                </div>
-              </div>
+          {/* Tooltip */}
+          <div className="absolute left-14 top-2 px-2.5 py-1.5 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xl opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50 min-w-[150px] text-left">
+            <div className="flex items-center gap-1.5 text-xs font-semibold text-zinc-900 dark:text-zinc-100">
+              <span className="w-2 h-2 rounded-full bg-emerald-500" />
+              <span>SSE Pipeline Live</span>
             </div>
-          );
-        })}
+            <div className="text-[10px] text-zinc-500 dark:text-zinc-400 font-mono mt-0.5">
+              Sub-50ms chunk delivery ready
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Bottom Section: Notifications Feed, Theme & User Account */}

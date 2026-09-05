@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect, useCallback, useSyncExternalStore } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useSyncExternalStore, useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { motion, AnimatePresence } from 'motion/react';
@@ -44,6 +44,10 @@ import {
   Sun,
   Moon,
   Paperclip,
+  Brain,
+  Pencil,
+  AlertCircle,
+  Share2,
 } from 'lucide-react';
 import { CodeBlock } from './CodeBlock';
 import { ShinyText, SpotlightCard, ReactBitsAIInput, PromptInput, AppSidebar } from './reactbits';
@@ -55,6 +59,13 @@ const PixelBlast = dynamic(
   () => import('./PixelBlast').then((mod) => mod.PixelBlast),
   { ssr: false }
 );
+export interface ChatCitation {
+  title: string;
+  url: string;
+  domain?: string;
+  snippet?: string;
+}
+
 export interface ChatMessage {
   id: string;
   role: 'user' | 'assistant';
@@ -63,7 +74,11 @@ export interface ChatMessage {
   ttftMs?: number;
   tokensPerSec?: number;
   modelUsed?: string;
+  mode?: string;
   attachments?: PromptAttachment[];
+  reasoning?: string;
+  citations?: ChatCitation[];
+  isError?: boolean;
 }
 
 export interface ModelConfig {
@@ -163,6 +178,64 @@ interface ChatMessageItemProps {
   onRegenerate: (index: number) => void;
   onFeedback: (id: string, type: 'up' | 'down') => void;
   feedback: Record<string, 'up' | 'down'>;
+  onEditPrompt?: (text: string) => void;
+}
+
+function formatMessageTime(ts: number): string {
+  if (!ts) return '';
+  const d = new Date(ts);
+  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+function parseThinkingAndContent(raw: string): {
+  reasoning: string | null;
+  displayContent: string;
+  isStreamingReasoning: boolean;
+} {
+  if (!raw) return { reasoning: null, displayContent: '', isStreamingReasoning: false };
+  const thinkOpenIndex = raw.indexOf('<think>');
+  if (thinkOpenIndex === -1) {
+    return { reasoning: null, displayContent: raw, isStreamingReasoning: false };
+  }
+  const thinkCloseIndex = raw.indexOf('</think>');
+  if (thinkCloseIndex === -1) {
+    return {
+      reasoning: raw.slice(thinkOpenIndex + 7).trim(),
+      displayContent: '',
+      isStreamingReasoning: true,
+    };
+  }
+  const reasoning = raw.slice(thinkOpenIndex + 7, thinkCloseIndex).trim();
+  const displayContent = (raw.slice(0, thinkOpenIndex) + raw.slice(thinkCloseIndex + 8)).trim();
+  return {
+    reasoning,
+    displayContent,
+    isStreamingReasoning: false,
+  };
+}
+
+function extractCitations(content: string, explicitCitations?: ChatCitation[]): ChatCitation[] {
+  if (explicitCitations && explicitCitations.length > 0) return explicitCitations;
+  if (!content) return [];
+  const linkRegex = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g;
+  const results: ChatCitation[] = [];
+  let match;
+  while ((match = linkRegex.exec(content)) !== null) {
+    try {
+      const url = new URL(match[2]);
+      if (!results.some((c) => c.url === match![2])) {
+        results.push({
+          title: match[1],
+          url: match[2],
+          domain: url.hostname.replace('www.', ''),
+        });
+      }
+    } catch {
+      // ignore
+    }
+    if (results.length >= 4) break;
+  }
+  return results;
 }
 
 const ChatMessageItem = React.memo(function ChatMessageItem({
@@ -177,65 +250,255 @@ const ChatMessageItem = React.memo(function ChatMessageItem({
   onRegenerate,
   onFeedback,
   feedback,
+  onEditPrompt,
 }: ChatMessageItemProps) {
   const isUser = message.role === 'user';
+  const [isReasoningExpanded, setIsReasoningExpanded] = useState(true);
+  const [selectedPreviewImage, setSelectedPreviewImage] = useState<string | null>(null);
+
+  // Parse reasoning / thinking blocks
+  const { reasoning, displayContent, isStreamingReasoning } = useMemo(() => {
+    if (isUser) {
+      return { reasoning: null, displayContent: message.content, isStreamingReasoning: false };
+    }
+    if (message.reasoning) {
+      return { reasoning: message.reasoning, displayContent: message.content, isStreamingReasoning: false };
+    }
+    return parseThinkingAndContent(message.content);
+  }, [isUser, message.content, message.reasoning]);
+
+  // Extract grounding citations if present
+  const citations = useMemo(() => {
+    return extractCitations(message.content, message.citations);
+  }, [message.content, message.citations]);
+
+  // Word count & token estimation
+  const wordCount = useMemo(() => {
+    if (!displayContent) return 0;
+    return displayContent.trim().split(/\s+/).filter(Boolean).length;
+  }, [displayContent]);
+
+  const estimatedTokens = useMemo(() => {
+    return Math.round(wordCount * 1.3);
+  }, [wordCount]);
+
+  const isFailedMessage = message.isError || (message.content && message.content.startsWith('⚠️ **Failed'));
 
   const content = (
-    <div className="flex gap-3 sm:gap-4">
-      {/* Role Avatar - Completely Flat */}
+    <div className="group/msg flex gap-3 sm:gap-4 transition-all">
+      {/* Role Avatar */}
       {isUser ? (
-        <div className="w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-800 flex-shrink-0 flex items-center justify-center text-xs text-zinc-700 dark:text-zinc-300 font-semibold">
+        <div className="w-8 h-8 rounded-2xl bg-zinc-200 dark:bg-zinc-800 flex-shrink-0 flex items-center justify-center text-xs text-zinc-700 dark:text-zinc-300 font-semibold shadow-xs">
           U
         </div>
       ) : (
-        <div className="w-8 h-8 rounded-full bg-zinc-950 text-white dark:bg-white dark:text-black flex-shrink-0 flex items-center justify-center">
+        <div className="w-8 h-8 rounded-2xl bg-zinc-950 text-white dark:bg-white dark:text-black flex-shrink-0 flex items-center justify-center relative shadow-xs group-hover/msg:scale-105 transition-transform">
           <Bot className="w-4.5 h-4.5" />
+          {isStreamingThis && (
+            <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
+          )}
         </div>
       )}
 
-      {/* Message Body - Completely Flat */}
+      {/* Message Body */}
       <div className="flex-1 flex flex-col gap-1 min-w-0">
-        <div className="flex items-center gap-2 mb-0.5">
-          <span className="text-[11px] text-zinc-500 dark:text-zinc-400 font-medium">
-            {isUser ? 'You' : 'Assistant'}
-          </span>
-          {!isUser && message.modelUsed && (
-            <span className="text-[10px] text-zinc-600 dark:text-zinc-400 font-mono px-1.5 py-0.2 rounded bg-zinc-100 dark:bg-zinc-900">
-              {message.modelUsed}
+        {/* Header Metadata Bar */}
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-zinc-900 dark:text-zinc-100">
+              {isUser ? 'You' : 'AutoFlow Assistant'}
             </span>
-          )}
-          {!isUser && message.ttftMs && (
-            <span className="text-[10px] text-zinc-400 dark:text-zinc-600 font-mono">
-              • TTFT {message.ttftMs}ms
-            </span>
-          )}
+
+            {/* Model Tag */}
+            {!isUser && message.modelUsed && (
+              <span className="inline-flex items-center gap-1 text-[10px] text-zinc-600 dark:text-zinc-400 font-mono px-2 py-0.5 rounded-full bg-zinc-200/60 dark:bg-zinc-800/60 border border-zinc-200/50 dark:border-zinc-700/50">
+                <Cpu className="w-2.5 h-2.5 text-zinc-400" />
+                <span>{message.modelUsed}</span>
+              </span>
+            )}
+
+            {/* Mode Tag */}
+            {!isUser && message.mode && message.mode !== 'default' && (
+              <span className="inline-flex items-center gap-1 text-[10px] text-zinc-600 dark:text-zinc-400 font-medium px-2 py-0.5 rounded-full bg-zinc-200/40 dark:bg-zinc-800/40">
+                {message.mode === 'think' && <Brain className="w-2.5 h-2.5 text-amber-500" />}
+                {message.mode === 'search' && <Globe className="w-2.5 h-2.5 text-cyan-500" />}
+                {message.mode === 'wireframes' && <LayoutGrid className="w-2.5 h-2.5 text-purple-500" />}
+                {message.mode === 'prototype' && <Rocket className="w-2.5 h-2.5 text-emerald-500" />}
+                <span className="capitalize">{message.mode}</span>
+              </span>
+            )}
+
+            {/* Performance Stats */}
+            {!isUser && message.ttftMs !== undefined && (
+              <span className="hidden sm:inline text-[10px] text-zinc-400 dark:text-zinc-500 font-mono">
+                {message.ttftMs}ms TTFT {message.tokensPerSec ? `• ${message.tokensPerSec} tok/s` : ''}
+              </span>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2">
+            {message.timestamp && (
+              <span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-mono">
+                {formatMessageTime(message.timestamp)}
+              </span>
+            )}
+
+            {/* User Message Action Buttons (Hover) */}
+            {isUser && (
+              <div className="opacity-0 group-hover/msg:opacity-100 transition-opacity flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => onCopy(message.id, message.content)}
+                  className="p-1 rounded-md text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-200/60 dark:hover:bg-zinc-800 transition cursor-pointer"
+                  title="Copy message"
+                >
+                  {copiedId === message.id ? (
+                    <Check className="w-3 h-3 text-emerald-500" />
+                  ) : (
+                    <Copy className="w-3 h-3" />
+                  )}
+                </button>
+                {onEditPrompt && (
+                  <button
+                    type="button"
+                    onClick={() => onEditPrompt(message.content)}
+                    className="p-1 rounded-md text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-200/60 dark:hover:bg-zinc-800 transition cursor-pointer"
+                    title="Edit and refine prompt"
+                  >
+                    <Pencil className="w-3 h-3" />
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
+        {/* User Bubble Card */}
         {isUser ? (
-          <div className="text-sm leading-relaxed text-zinc-900 dark:text-zinc-100 whitespace-pre-wrap bg-zinc-100 dark:bg-zinc-900 rounded-2xl px-4 py-3">
+          <div className="text-sm leading-relaxed text-zinc-900 dark:text-zinc-100 whitespace-pre-wrap bg-zinc-100/90 dark:bg-zinc-900/90 border border-zinc-200/60 dark:border-zinc-800/60 rounded-2xl px-4 py-3 shadow-xs">
             {message.attachments && message.attachments.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-2 pb-2 border-b border-zinc-200/40 dark:border-zinc-800/40">
+              <div className="flex flex-wrap gap-2 mb-2 pb-2.5 border-b border-zinc-200/60 dark:border-zinc-800/60">
                 {message.attachments.map((att) => (
                   <div
                     key={att.id}
-                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-zinc-200/70 dark:bg-zinc-800/70 text-xs text-zinc-800 dark:text-zinc-200"
+                    onClick={() => att.previewUrl && setSelectedPreviewImage(att.previewUrl)}
+                    className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-zinc-200/70 dark:bg-zinc-800/70 text-xs text-zinc-800 dark:text-zinc-200 ${
+                      att.previewUrl ? 'cursor-pointer hover:ring-1 hover:ring-zinc-400' : ''
+                    }`}
                   >
                     {att.previewUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={att.previewUrl} alt={att.name} className="w-5 h-5 rounded object-cover" />
+                      <img src={att.previewUrl} alt={att.name} className="w-6 h-6 rounded-md object-cover" />
                     ) : (
                       <Paperclip className="w-3.5 h-3.5 text-zinc-500" />
                     )}
-                    <span className="font-mono text-[11px] truncate max-w-[150px]">{att.name}</span>
+                    <div className="flex flex-col">
+                      <span className="font-mono text-[11px] truncate max-w-[140px] font-medium">{att.name}</span>
+                      {att.size && (
+                        <span className="text-[9px] text-zinc-500 font-mono">
+                          {Math.round(att.size / 1024)} KB
+                        </span>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
             )}
             {message.content}
+
+            {/* Lightbox for attachment preview */}
+            {selectedPreviewImage && (
+              <div
+                className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+                onClick={() => setSelectedPreviewImage(null)}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={selectedPreviewImage}
+                  alt="Attachment Preview"
+                  className="max-w-full max-h-[85vh] rounded-2xl shadow-2xl object-contain"
+                />
+              </div>
+            )}
           </div>
         ) : (
-          <div className="relative rounded-2xl bg-zinc-100/70 dark:bg-zinc-900/60 p-4 sm:p-5 text-[15px] leading-relaxed text-zinc-900 dark:text-zinc-100 font-sans space-y-4 overflow-hidden">
-            {message.content ? (
+          /* Assistant Card - React Bits Pro AI Chat Architecture */
+          <div className="relative rounded-2xl bg-zinc-100/70 dark:bg-zinc-900/60 border border-zinc-200/60 dark:border-zinc-800/60 p-4 sm:p-5 text-[15px] leading-relaxed text-zinc-900 dark:text-zinc-100 font-sans space-y-4 shadow-xs">
+            {/* 1. Deep Thought / Reasoning Accordion (AI Chat 7 & 9 Pattern) */}
+            {reasoning && (
+              <div className="rounded-xl border border-zinc-200/80 dark:border-zinc-800/80 bg-zinc-200/30 dark:bg-zinc-950/50 overflow-hidden transition-colors">
+                <button
+                  type="button"
+                  onClick={() => setIsReasoningExpanded((prev) => !prev)}
+                  className="w-full px-3.5 py-2 flex items-center justify-between text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition cursor-pointer"
+                >
+                  <div className="flex items-center gap-2">
+                    <Brain
+                      className={`w-3.5 h-3.5 ${
+                        isStreamingReasoning ? 'text-amber-500 animate-pulse' : 'text-zinc-500'
+                      }`}
+                    />
+                    <span>
+                      {isStreamingReasoning ? 'Thinking & Synthesizing...' : 'Reasoning Process'}
+                    </span>
+                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-200 dark:bg-zinc-800 text-zinc-500">
+                      {isStreamingReasoning ? 'Active' : `${reasoning.split(/\s+/).length} thoughts`}
+                    </span>
+                  </div>
+                  <ChevronDown
+                    className={`w-3.5 h-3.5 text-zinc-400 transition-transform ${
+                      isReasoningExpanded ? 'rotate-180' : ''
+                    }`}
+                  />
+                </button>
+
+                {isReasoningExpanded && (
+                  <div className="px-3.5 pb-3 text-xs font-mono text-zinc-600 dark:text-zinc-400 border-t border-zinc-200/60 dark:border-zinc-800/60 pt-2 whitespace-pre-wrap leading-relaxed max-h-56 overflow-y-auto">
+                    {reasoning}
+                    {isStreamingReasoning && (
+                      <span className="inline-block w-1.5 h-3.5 ml-1 bg-amber-500 animate-pulse align-middle" />
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* 2. Web Grounding Evidence Citations (AI Chat 7 Pattern) */}
+            {citations.length > 0 && (
+              <div className="flex flex-wrap items-center gap-1.5 pb-2 border-b border-zinc-200/60 dark:border-zinc-800/60">
+                <span className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400 flex items-center gap-1 mr-1">
+                  <Globe className="w-3 h-3 text-cyan-500" />
+                  Sources:
+                </span>
+                {citations.map((cite, idx) => (
+                  <a
+                    key={idx}
+                    href={cite.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-zinc-200/60 hover:bg-zinc-200 dark:bg-zinc-800/60 dark:hover:bg-zinc-800 text-[11px] text-zinc-700 dark:text-zinc-300 transition"
+                    title={cite.url}
+                  >
+                    <span className="truncate max-w-[130px]">{cite.title || cite.domain}</span>
+                    <ExternalLink className="w-2.5 h-2.5 text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-100" />
+                  </a>
+                ))}
+              </div>
+            )}
+
+            {/* 3. Wireframe / Spec Badge (When Mode === 'wireframes') */}
+            {message.mode === 'wireframes' && (
+              <div className="flex items-center justify-between px-3 py-1.5 rounded-xl bg-purple-500/10 border border-purple-500/20 text-xs text-purple-700 dark:text-purple-300">
+                <div className="flex items-center gap-2">
+                  <LayoutGrid className="w-3.5 h-3.5" />
+                  <span className="font-semibold">Interactive UI Architecture & Wireframe Spec</span>
+                </div>
+                <span className="font-mono text-[10px] uppercase">Ready</span>
+              </div>
+            )}
+
+            {/* 4. Main Markdown Content or Loading State */}
+            {displayContent ? (
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 components={{
@@ -296,87 +559,129 @@ const ChatMessageItem = React.memo(function ChatMessageItem({
                   },
                 }}
               >
-                {message.content}
+                {displayContent}
               </ReactMarkdown>
-            ) : isStreamingThis ? (
-              <div className="flex items-center gap-2 py-1 text-zinc-600 dark:text-zinc-400 font-mono text-xs">
-                <span className="w-2 h-2 rounded-full bg-zinc-900 dark:bg-zinc-100 animate-pulse" />
-                <span>Generating response...</span>
+            ) : isStreamingThis && !reasoning ? (
+              /* High-End Pulsing State Before First Token */
+              <div className="flex items-center gap-3 py-2 text-zinc-600 dark:text-zinc-400 text-xs">
+                <div className="flex gap-1.5 items-center">
+                  <span className="w-2 h-2 rounded-full bg-zinc-400 dark:bg-zinc-500 animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <span className="w-2 h-2 rounded-full bg-zinc-400 dark:bg-zinc-500 animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <span className="w-2 h-2 rounded-full bg-zinc-400 dark:bg-zinc-500 animate-bounce" style={{ animationDelay: '300ms' }} />
+                </div>
+                <span className="font-mono text-[11px]">
+                  Synthesizing stream with {message.modelUsed || 'Inference Engine'}...
+                </span>
               </div>
             ) : null}
 
             {/* Blinking cursor while active streaming */}
-            {isStreamingThis && message.content && (
+            {isStreamingThis && displayContent && (
               <span className="inline-block w-1.5 h-4 ml-1 align-middle bg-zinc-900 dark:bg-zinc-100 animate-pulse" />
             )}
 
-            {/* Assistant Action Toolbar - Flat */}
-            {message.content && !isStreamingThis && (
-              <div className="pt-2 flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400">
+            {/* Error Message Card */}
+            {isFailedMessage && (
+              <div className="mt-3 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-xs text-red-600 dark:text-red-400 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                  <span>Streaming halted or failed. You can retry with an alternate model.</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => onRegenerate(index)}
+                  className="px-2.5 py-1 rounded-lg bg-red-500 text-white font-medium hover:bg-red-600 transition cursor-pointer flex-shrink-0"
+                >
+                  Retry
+                </button>
+              </div>
+            )}
+
+            {/* 5. Assistant Action Toolbar (React Bits Pro AI Chat 7 & 9) */}
+            {displayContent && !isStreamingThis && (
+              <div className="pt-2 border-t border-zinc-200/50 dark:border-zinc-800/50 flex flex-wrap items-center justify-between gap-2 text-xs text-zinc-500 dark:text-zinc-400">
                 <div className="flex items-center gap-1">
+                  {/* Copy Response */}
                   <button
                     id={`copy-btn-${message.id}`}
-                    onClick={() => onCopy(message.id, message.content)}
-                    className="p-1.5 rounded hover:bg-zinc-200 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100 transition cursor-pointer"
-                    title="Copy content"
+                    onClick={() => onCopy(message.id, displayContent)}
+                    className="p-1.5 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100 transition cursor-pointer"
+                    title="Copy full response"
                   >
                     {copiedId === message.id ? (
-                      <Check className="w-3.5 h-3.5 text-zinc-900 dark:text-white" />
+                      <Check className="w-3.5 h-3.5 text-emerald-500" />
                     ) : (
                       <Copy className="w-3.5 h-3.5" />
                     )}
                   </button>
+
+                  {/* Read Aloud / TTS */}
                   <button
                     id={`tts-btn-${message.id}`}
-                    onClick={() => onSpeak(message.id, message.content)}
-                    className={`p-1.5 rounded transition cursor-pointer ${
+                    onClick={() => onSpeak(message.id, displayContent)}
+                    className={`p-1.5 rounded-lg transition cursor-pointer ${
                       speakingMessageId === message.id
-                        ? 'text-zinc-950 dark:text-white bg-zinc-200 dark:bg-zinc-800'
+                        ? 'text-zinc-950 dark:text-white bg-zinc-200 dark:bg-zinc-800 ring-1 ring-zinc-400'
                         : 'hover:bg-zinc-200 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100'
                     }`}
-                    title={speakingMessageId === message.id ? 'Stop audio' : 'Read aloud'}
+                    title={speakingMessageId === message.id ? 'Stop audio' : 'Read response aloud'}
                   >
                     {speakingMessageId === message.id ? (
-                      <VolumeX className="w-3.5 h-3.5" />
+                      <div className="flex items-center gap-1">
+                        <VolumeX className="w-3.5 h-3.5 text-rose-500" />
+                        <span className="text-[10px] font-mono">Stop</span>
+                      </div>
                     ) : (
                       <Volume2 className="w-3.5 h-3.5" />
                     )}
                   </button>
+
+                  {/* Regenerate / Retry Response */}
                   <button
                     id={`regen-btn-${message.id}`}
                     onClick={() => onRegenerate(index)}
-                    className="p-1.5 rounded hover:bg-zinc-200 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100 transition cursor-pointer"
-                    title="Regenerate"
+                    className="p-1.5 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100 transition cursor-pointer"
+                    title="Regenerate this response"
                   >
                     <RotateCcw className="w-3.5 h-3.5" />
                   </button>
                 </div>
 
-                <div className="flex items-center gap-1">
-                  <button
-                    id={`thumb-up-btn-${message.id}`}
-                    onClick={() => onFeedback(message.id, 'up')}
-                    className={`p-1.5 rounded transition cursor-pointer ${
-                      feedback[message.id] === 'up'
-                        ? 'text-zinc-950 dark:text-white bg-zinc-200 dark:bg-zinc-800'
-                        : 'hover:bg-zinc-200 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100'
-                    }`}
-                    title="Helpful"
-                  >
-                    <ThumbsUp className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    id={`thumb-down-btn-${message.id}`}
-                    onClick={() => onFeedback(message.id, 'down')}
-                    className={`p-1.5 rounded transition cursor-pointer ${
-                      feedback[message.id] === 'down'
-                        ? 'text-zinc-950 dark:text-white bg-zinc-200 dark:bg-zinc-800'
-                        : 'hover:bg-zinc-200 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100'
-                    }`}
-                    title="Unhelpful"
-                  >
-                    <ThumbsDown className="w-3.5 h-3.5" />
-                  </button>
+                <div className="flex items-center gap-2">
+                  {/* Word & token summary */}
+                  {wordCount > 0 && (
+                    <span className="hidden sm:inline text-[10px] font-mono text-zinc-400 dark:text-zinc-500">
+                      {wordCount} words • ~{estimatedTokens} tok
+                    </span>
+                  )}
+
+                  {/* Feedback Thumbs */}
+                  <div className="flex items-center gap-0.5">
+                    <button
+                      id={`thumb-up-btn-${message.id}`}
+                      onClick={() => onFeedback(message.id, 'up')}
+                      className={`p-1.5 rounded-lg transition cursor-pointer ${
+                        feedback[message.id] === 'up'
+                          ? 'text-emerald-500 bg-emerald-500/10'
+                          : 'hover:bg-zinc-200 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100'
+                      }`}
+                      title="Helpful response"
+                    >
+                      <ThumbsUp className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      id={`thumb-down-btn-${message.id}`}
+                      onClick={() => onFeedback(message.id, 'down')}
+                      className={`p-1.5 rounded-lg transition cursor-pointer ${
+                        feedback[message.id] === 'down'
+                          ? 'text-rose-500 bg-rose-500/10'
+                          : 'hover:bg-zinc-200 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100'
+                      }`}
+                      title="Unhelpful response"
+                    >
+                      <ThumbsDown className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
@@ -794,6 +1099,7 @@ export const Chat: React.FC = () => {
       role: 'user',
       content: textToSend,
       timestamp: nowTime,
+      mode: currentMode,
       attachments: attachments && attachments.length > 0 ? attachments : undefined,
     };
 
@@ -804,6 +1110,7 @@ export const Chat: React.FC = () => {
       content: '',
       timestamp: nowTime + 1,
       modelUsed: modelConfig.model,
+      mode: currentMode,
     };
 
     const updatedMessages = [...messages, userMessage];
@@ -920,7 +1227,7 @@ export const Chat: React.FC = () => {
                 setMessages((prev) =>
                   prev.map((msg) =>
                     msg.id === assistantMessageId
-                      ? { ...msg, content: nextContent, modelUsed: resolvedModel }
+                      ? { ...msg, content: nextContent, modelUsed: resolvedModel, mode: currentMode }
                       : msg
                   )
                 );
@@ -950,7 +1257,7 @@ export const Chat: React.FC = () => {
       setMessages((prev) =>
         prev.map((msg) =>
           msg.id === assistantMessageId
-            ? { ...msg, ttftMs: finalTtft, tokensPerSec: calculatedTps, modelUsed: msg.modelUsed || modelConfig.model }
+            ? { ...msg, ttftMs: finalTtft, tokensPerSec: calculatedTps, modelUsed: msg.modelUsed || modelConfig.model, mode: currentMode }
             : msg
         )
       );
@@ -1309,6 +1616,13 @@ export const Chat: React.FC = () => {
                     onRegenerate={handleRegenerate}
                     onFeedback={handleFeedback}
                     feedback={feedback}
+                    onEditPrompt={(text) => {
+                      setInputPrompt(text);
+                      if (textareaRef.current) {
+                        textareaRef.current.focus();
+                        textareaRef.current.setSelectionRange(text.length, text.length);
+                      }
+                    }}
                   />
                 );
               })}
