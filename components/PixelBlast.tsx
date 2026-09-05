@@ -209,6 +209,8 @@ uniform sampler2D uTextTexture;
 uniform int       uHasText;
 uniform vec3      uBgColor;
 uniform vec3      uTextColor;
+uniform vec4      uCharBox[32];
+uniform int       uCharCount;
 
 uniform int   uShapeType;
 const int SHAPE_SQUARE   = 0;
@@ -301,17 +303,11 @@ float maskDiamond(vec2 p, float cov){
   return step(abs(p.x - 0.49) + abs(p.y - 0.49), r);
 }
 
-void main(){
-  float pixelSize = uPixelSize;
-  vec2 fragCoord = gl_FragCoord.xy - uResolution * .5;
-  float aspectRatio = uResolution.x / uResolution.y;
-
-  vec2 pixelId = floor(fragCoord / pixelSize);
-  vec2 pixelUV = fract(fragCoord / pixelSize);
-
-  float cellPixelSize = 8.0 * pixelSize;
-  vec2 cellId = floor(fragCoord / cellPixelSize);
+float evalFeed(vec2 pCoord) {
+  float cellPixelSize = 8.0 * uPixelSize;
+  vec2 cellId = floor(pCoord / cellPixelSize);
   vec2 cellCoord = cellId * cellPixelSize;
+  float aspectRatio = uResolution.x / uResolution.y;
   vec2 uv = cellCoord / uResolution * vec2(aspectRatio, 1.0);
 
   float base = fbm2(uv, uTime * 0.05);
@@ -319,25 +315,35 @@ void main(){
 
   float feed = base + (uDensity - 0.5) * 0.3;
 
-  float speed     = uRippleSpeed;
-  float thickness = uRippleThickness;
-  const float dampT     = 1.0;
-  const float dampR     = 10.0;
-
   if (uEnableRipples == 1) {
     for (int i = 0; i < MAX_CLICKS; ++i){
       vec2 pos = uClickPos[i];
       if (pos.x < 0.0) continue;
-      float cellPixelSize = 8.0 * pixelSize;
       vec2 cuv = (((pos - uResolution * .5 - cellPixelSize * .5) / (uResolution))) * vec2(aspectRatio, 1.0);
       float t = max(uTime - uClickTimes[i], 0.0);
       float r = distance(uv, cuv);
-      float waveR = speed * t;
-      float ring  = exp(-pow((r - waveR) / thickness, 2.0));
-      float atten = exp(-dampT * t) * exp(-dampR * r);
+      float waveR = uRippleSpeed * t;
+      float ring  = exp(-pow((r - waveR) / uRippleThickness, 2.0));
+      float atten = exp(-1.0 * t) * exp(-10.0 * r);
       feed = max(feed, ring * atten * uRippleIntensity);
     }
   }
+
+  if (uDissolve > 0.0001) {
+    feed *= max(0.0, 1.0 - uDissolve * 1.5);
+  }
+
+  return feed;
+}
+
+void main(){
+  float pixelSize = uPixelSize;
+  vec2 fragCoord = gl_FragCoord.xy - uResolution * .5;
+
+  vec2 pixelId = floor(fragCoord / pixelSize);
+  vec2 pixelUV = fract(fragCoord / pixelSize);
+
+  float feed = evalFeed(fragCoord);
 
   float bayer = Bayer8(fragCoord / uPixelSize) - 0.5;
   float bw = step(0.5, feed + bayer);
@@ -379,14 +385,65 @@ void main(){
     vec2 textUV = gl_FragCoord.xy / uResolution;
     vec4 textSample = texture(uTextTexture, textUV);
     if (textSample.a > 0.05) {
-      // Dual-tone high contrast:
-      // If a pixel particle is underneath (M > 0.25):
-      // The text adopts the background color (uBgColor, black in dark mode)
-      // so it is crisp and inverted against the white pixel cloud.
-      // If no pixel particle is underneath (M <= 0.25):
-      // The text adopts the text color (uTextColor, white in dark mode)
-      // so it is crisp against the black canvas background.
-      vec3 targetTextColor = (M > 0.25) ? uBgColor : uTextColor;
+      // Determine which character glyph this fragment belongs to
+      int bestChar = -1;
+      float minDist = 999999.0;
+      for (int i = 0; i < 32; ++i) {
+        if (i >= uCharCount) break;
+        vec4 b = uCharBox[i];
+        if (abs(fragCoord.x - b.x) <= b.z * 1.3 && abs(fragCoord.y - b.y) <= b.w * 1.3) {
+          float d = length(fragCoord - b.xy);
+          if (d < minDist) {
+            minDist = d;
+            bestChar = i;
+          }
+        }
+      }
+
+      if (bestChar == -1) {
+        for (int i = 0; i < 32; ++i) {
+          if (i >= uCharCount) break;
+          float d = length(fragCoord - uCharBox[i].xy);
+          if (d < minDist) {
+            minDist = d;
+            bestChar = i;
+          }
+        }
+      }
+
+      // Check if more than 50% of this entire letter is covered by the pixel swarm
+      bool letterCovered = false;
+      if (bestChar >= 0) {
+        vec4 box = uCharBox[bestChar];
+        vec2 cCenter = box.xy;
+        vec2 cHalf = box.zw;
+
+        // Sample 8 points distributed across the letter's bounding area
+        float activePoints = 0.0;
+        for (int row = -1; row <= 1; row += 2) {
+          float sy = cCenter.y + float(row) * cHalf.y * 0.5;
+          for (int col = 0; col < 4; col++) {
+            float sx = cCenter.x + (float(col) - 1.5) * cHalf.x * 0.45;
+            if (evalFeed(vec2(sx, sy)) > 0.025) {
+              activePoints += 1.0;
+            }
+          }
+        }
+        // If 4 or more points out of 8 are in the swarm (>= 50%), the whole letter flips color!
+        letterCovered = (activePoints >= 4.0);
+      }
+
+      // Whole-character color inversion:
+      // If >50% is covered by pixels, the ENTIRE letter takes uBgColor.
+      // Otherwise, the ENTIRE letter remains uTextColor. No single-pixel speckling!
+      vec3 targetTextColor = letterCovered ? uBgColor : uTextColor;
+
+      // Subtle edge halo on inverted letters so any edge on empty dark background stays sharp & legible
+      if (letterCovered) {
+        float edgeAlpha = smoothstep(0.05, 0.35, textSample.a) * (1.0 - smoothstep(0.35, 0.95, textSample.a));
+        targetTextColor = mix(targetTextColor, uTextColor, edgeAlpha * 0.35);
+      }
+
       color = mix(color, targetTextColor, textSample.a);
       alpha = max(alpha, textSample.a);
     }
@@ -484,6 +541,8 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
       uHasText: { value: number };
       uBgColor: { value: THREE.Color };
       uTextColor: { value: THREE.Color };
+      uCharBox: { value: THREE.Vector4[] };
+      uCharCount: { value: number };
     };
     resizeObserver?: ResizeObserver;
     raf?: number;
@@ -550,6 +609,8 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
       textTexture.minFilter = THREE.LinearFilter;
       textTexture.magFilter = THREE.LinearFilter;
 
+      const charBoxesArray = Array.from({ length: 32 }, () => new THREE.Vector4(0, 0, 0, 0));
+
       const updateTextTexture = () => {
         if (!textCtx || !container) return;
         const heading = headingRef?.current;
@@ -565,6 +626,7 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
         if (!showTextRef.current || !heading) {
           if (threeRef.current?.uniforms) {
             threeRef.current.uniforms.uHasText.value = 0;
+            threeRef.current.uniforms.uCharCount.value = 0;
           }
           textTexture.needsUpdate = true;
           return;
@@ -586,7 +648,7 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
         const fontFamily = computed.fontFamily || "'Pixelify Sans', 'Press Start 2P', monospace";
 
         textCtx.font = `${fontWeight} ${fontSize}px ${fontFamily}`;
-        textCtx.textAlign = 'center';
+        textCtx.textAlign = 'left';
         textCtx.textBaseline = 'middle';
         textCtx.fillStyle = '#ffffff';
 
@@ -618,15 +680,45 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
         const totalTextHeight = lines.length * lineHeight;
         const startY = centerY - totalTextHeight / 2 + lineHeight / 2;
 
+        let charIdx = 0;
+
         lines.forEach((line, idx) => {
-          textCtx.fillText(line, centerX, startY + idx * lineHeight);
+          const lineWidth = textCtx.measureText(line).width;
+          const lineStartX = centerX - lineWidth / 2;
+          const lineY = startY + idx * lineHeight;
+
+          let curX = lineStartX;
+          for (let c = 0; c < line.length; c++) {
+            const ch = line[c];
+            const chMetrics = textCtx.measureText(ch);
+            const chWidth = chMetrics.width;
+
+            if (ch !== ' ') {
+              textCtx.fillText(ch, curX, lineY);
+
+              if (charIdx < 32) {
+                const charCenterX = curX + chWidth / 2;
+                const charCenterY = lineY;
+
+                const boxCenterX = (charCenterX - w * 0.5) * dpr;
+                const boxCenterY = (h * 0.5 - charCenterY) * dpr;
+                const boxHalfW = Math.max(chWidth * 0.55 * dpr, 6 * dpr);
+                const boxHalfH = Math.max(fontSize * 0.45 * dpr, 8 * dpr);
+
+                charBoxesArray[charIdx].set(boxCenterX, boxCenterY, boxHalfW, boxHalfH);
+                charIdx++;
+              }
+            }
+            curX += chWidth;
+          }
         });
 
         textCtx.restore();
 
         textTexture.needsUpdate = true;
         if (threeRef.current?.uniforms) {
-          threeRef.current.uniforms.uHasText.value = 1;
+          threeRef.current.uniforms.uCharCount.value = charIdx;
+          threeRef.current.uniforms.uHasText.value = charIdx > 0 ? 1 : 0;
         }
       };
 
@@ -652,7 +744,9 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
         uTextTexture: { value: textTexture },
         uHasText: { value: showText ? 1 : 0 },
         uBgColor: { value: new THREE.Color(bgColor) },
-        uTextColor: { value: new THREE.Color(textColor) }
+        uTextColor: { value: new THREE.Color(textColor) },
+        uCharBox: { value: charBoxesArray },
+        uCharCount: { value: 0 }
       };
       const scene = new THREE.Scene();
       const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
