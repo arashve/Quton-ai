@@ -43,9 +43,11 @@ import {
   ExternalLink,
   Sun,
   Moon,
+  Paperclip,
 } from 'lucide-react';
 import { CodeBlock } from './CodeBlock';
-import { ShinyText, SpotlightCard, ReactBitsAIInput, AppSidebar } from './reactbits';
+import { ShinyText, SpotlightCard, ReactBitsAIInput, PromptInput, AppSidebar } from './reactbits';
+import type { PromptAttachment } from './reactbits';
 import { BorderBeam, AnimatedGradientText, ShimmerButton, TextAnimate } from './magicui';
 import dynamic from 'next/dynamic';
 
@@ -61,6 +63,7 @@ export interface ChatMessage {
   ttftMs?: number;
   tokensPerSec?: number;
   modelUsed?: string;
+  attachments?: PromptAttachment[];
 }
 
 export interface ModelConfig {
@@ -210,6 +213,24 @@ const ChatMessageItem = React.memo(function ChatMessageItem({
 
         {isUser ? (
           <div className="text-sm leading-relaxed text-zinc-900 dark:text-zinc-100 whitespace-pre-wrap bg-zinc-100 dark:bg-zinc-900 rounded-2xl px-4 py-3">
+            {message.attachments && message.attachments.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-2 pb-2 border-b border-zinc-200/40 dark:border-zinc-800/40">
+                {message.attachments.map((att) => (
+                  <div
+                    key={att.id}
+                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-zinc-200/70 dark:bg-zinc-800/70 text-xs text-zinc-800 dark:text-zinc-200"
+                  >
+                    {att.previewUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={att.previewUrl} alt={att.name} className="w-5 h-5 rounded object-cover" />
+                    ) : (
+                      <Paperclip className="w-3.5 h-3.5 text-zinc-500" />
+                    )}
+                    <span className="font-mono text-[11px] truncate max-w-[150px]">{att.name}</span>
+                  </div>
+                ))}
+              </div>
+            )}
             {message.content}
           </div>
         ) : (
@@ -421,6 +442,35 @@ export const Chat: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<Record<string, 'up' | 'down'>>({});
+
+  // Recent prompts list for quick recall & arrow navigation in PromptInput
+  const [recentPrompts, setRecentPrompts] = useState<string[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('chatbot_recent_prompts');
+        if (saved) return JSON.parse(saved);
+      } catch {}
+    }
+    return [
+      'Architect an ultra-low latency SSE streaming API with Node.js Express and TypeScript',
+      'Generate a production React component with Tailwind CSS and clean minimalist design',
+      'Analyze latency bottlenecks and memory usage in this code',
+    ];
+  });
+
+  const handleSelectQuickModel = useCallback((modelName: string, provider?: ModelConfig['provider']) => {
+    setModelConfig((prev) => {
+      const updated: ModelConfig = {
+        ...prev,
+        model: modelName,
+        provider: provider || prev.provider,
+      };
+      try {
+        localStorage.setItem('chatbot_model_config', JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+  }, []);
 
   // Theme state: default to 'dark' ("رنگ سیاه و مشکی میخوام رنگای اصلی باشه و با تم روشن و تاریک عوض بشه")
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
@@ -714,9 +764,22 @@ export const Chat: React.FC = () => {
   }, [currentSessionId]);
 
   // Send message and stream response via SSE
-  const handleSendMessage = useCallback(async (customPrompt?: string, modeOverride?: string) => {
+  const handleSendMessage = useCallback(async (
+    customPrompt?: string,
+    modeOverride?: string,
+    attachments?: PromptAttachment[]
+  ) => {
     const textToSend = (customPrompt || inputPrompt).trim();
     if (!textToSend || isLoading) return;
+
+    // Record into recent prompts for quick recall
+    setRecentPrompts((prev) => {
+      const next = [textToSend, ...prev.filter((p) => p !== textToSend)].slice(0, 15);
+      try {
+        localStorage.setItem('chatbot_recent_prompts', JSON.stringify(next));
+      } catch {}
+      return next;
+    });
 
     setInputPrompt('');
     if (textareaRef.current) {
@@ -731,6 +794,7 @@ export const Chat: React.FC = () => {
       role: 'user',
       content: textToSend,
       timestamp: nowTime,
+      attachments: attachments && attachments.length > 0 ? attachments : undefined,
     };
 
     const assistantMessageId = createId('msg_assistant');
@@ -1243,18 +1307,29 @@ export const Chat: React.FC = () => {
         {/* Floating Bottom Input Bar - Full-bleed transparency, NO solid cutoff */}
         <footer className="p-3 sm:p-6 pt-0 mt-auto flex-shrink-0 relative z-20 bg-transparent">
           <div className="max-w-3xl mx-auto relative">
-            <ReactBitsAIInput
+            <PromptInput
               inputPrompt={inputPrompt}
               setInputPrompt={setInputPrompt}
-              onSend={(customPrompt, modeOverride) => handleSendMessage(customPrompt, modeOverride)}
+              onSend={(customPrompt, modeOverride, attachments) =>
+                handleSendMessage(customPrompt, modeOverride, attachments)
+              }
               onAbort={abortStream}
               isLoading={isLoading}
               isListening={isListening}
               onToggleVoice={toggleSpeechRecognition}
               modelConfig={modelConfig}
               onOpenModelModal={() => setIsModelModalOpen(true)}
+              onSelectModel={handleSelectQuickModel}
               activeMode={activeMode}
               setActiveMode={(mode) => setActiveMode(mode as any)}
+              recentPrompts={recentPrompts}
+              onClearHistory={() => {
+                setRecentPrompts([]);
+                try {
+                  localStorage.removeItem('chatbot_recent_prompts');
+                } catch {}
+              }}
+              variant="borderless-flat"
             />
 
             {/* Bottom Status Information */}

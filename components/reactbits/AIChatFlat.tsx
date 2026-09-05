@@ -31,6 +31,7 @@ import {
   Zap,
 } from 'lucide-react';
 import { CodeBlock } from '../CodeBlock';
+import { PromptInput } from './PromptInput';
 import type { ChatMessage, ModelConfig } from '../Chat';
 
 interface AIChatFlatProps {
@@ -481,150 +482,23 @@ export const AIChatFlat: React.FC<AIChatFlatProps> = ({
         )}
       </div>
 
-      {/* Floating Bottom Composer Bar - React Bits Pro Flat */}
+      {/* Floating Bottom Composer Bar - React Bits Pro Flat & Borderless */}
       <footer className="p-3 sm:p-6 pt-0 mt-auto flex-shrink-0 relative z-20 bg-transparent">
         <div className="max-w-3xl mx-auto relative">
-          {/* Main Flat Input Container */}
-          <div className="rounded-2xl bg-zinc-100/95 dark:bg-zinc-900/95 border border-zinc-200 dark:border-zinc-800 shadow-sm flex flex-col overflow-hidden transition-all duration-150">
-            {/* Top Toolbar: Model Selector & Quick Capabilities */}
-            <div className="flex items-center justify-between px-3 pt-2.5 pb-1 text-xs border-b border-zinc-200/50 dark:border-zinc-800/50">
-              <div className="flex items-center gap-1.5 flex-wrap">
-                {/* Model Pill */}
-                <button
-                  id="flat-input-model-selector"
-                  type="button"
-                  onClick={onOpenModelModal}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-200/80 hover:bg-zinc-300/80 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 transition text-[11px] font-mono cursor-pointer"
-                  title="Switch Model / Provider"
-                >
-                  <span className="w-1.5 h-1.5 rounded-full bg-zinc-900 dark:bg-zinc-100" />
-                  <span className="max-w-[140px] truncate font-medium">{modelConfig.model}</span>
-                  <span className="text-[9px] px-1 py-0.2 rounded bg-zinc-300 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300 font-semibold uppercase">
-                    {modelConfig.provider}
-                  </span>
-                  <ChevronDown className="w-3 h-3 text-zinc-400" />
-                </button>
-
-                {/* Deep Think Pill */}
-                <button
-                  id="flat-input-deep-think-toggle"
-                  type="button"
-                  onClick={() => setIsDeepThinkActive(!isDeepThinkActive)}
-                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium transition cursor-pointer ${
-                    isDeepThinkActive
-                      ? 'bg-zinc-900 text-white dark:bg-white dark:text-black'
-                      : 'bg-zinc-200/70 dark:bg-zinc-800/60 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
-                  }`}
-                  title="Toggle Step-by-Step Reasoning"
-                >
-                  <Brain className="w-3 h-3" />
-                  <span>Deep Think</span>
-                </button>
-
-                {/* Web Search Pill */}
-                <button
-                  id="flat-input-web-search-toggle"
-                  type="button"
-                  onClick={() => setIsWebSearchActive(!isWebSearchActive)}
-                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium transition cursor-pointer ${
-                    isWebSearchActive
-                      ? 'bg-zinc-900 text-white dark:bg-white dark:text-black'
-                      : 'bg-zinc-200/70 dark:bg-zinc-800/60 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
-                  }`}
-                  title="Toggle Web Grounding"
-                >
-                  <Globe className="w-3 h-3" />
-                  <span>Web</span>
-                </button>
-
-                {/* Wireframes Pill */}
-                <button
-                  id="flat-input-wireframes-toggle"
-                  type="button"
-                  onClick={() => setActiveMode(activeMode === 'wireframes' ? 'default' : 'wireframes')}
-                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium transition cursor-pointer ${
-                    activeMode === 'wireframes'
-                      ? 'bg-zinc-900 text-white dark:bg-white dark:text-black'
-                      : 'bg-zinc-200/70 dark:bg-zinc-800/60 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
-                  }`}
-                  title="Generate React Specs & Wireframe Code"
-                >
-                  <Code2 className="w-3 h-3" />
-                  <span>Wireframes</span>
-                </button>
-              </div>
-
-              {/* Counter */}
-              {inputPrompt.length > 0 && (
-                <div className="hidden sm:block text-[10px] font-mono text-zinc-400 dark:text-zinc-500">
-                  {wordCount} words · ~{approxTokens} tokens
-                </div>
-              )}
-            </div>
-
-            {/* Input Textarea */}
-            <div className="px-3.5 py-2">
-              <textarea
-                ref={textareaRef}
-                id="flat-chat-prompt-input"
-                value={inputPrompt}
-                onChange={(e) => setInputPrompt(e.target.value)}
-                onKeyDown={handleKeyDown}
-                rows={1}
-                placeholder="Ask anything, generate code, or explore specs..."
-                className="w-full bg-transparent text-sm sm:text-base text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 resize-none outline-none focus:outline-none focus:ring-0 leading-relaxed"
-              />
-            </div>
-
-            {/* Bottom Actions */}
-            <div className="flex items-center justify-between px-3 pb-2.5 pt-0.5">
-              <div className="flex items-center gap-1">
-                {/* Voice Input Button */}
-                <button
-                  id="flat-input-voice-btn"
-                  type="button"
-                  onClick={onToggleVoice}
-                  className={`p-1.5 rounded-lg transition cursor-pointer ${
-                    isListening
-                      ? 'bg-red-500 text-white animate-pulse'
-                      : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-200 dark:hover:bg-zinc-800'
-                  }`}
-                  title={isListening ? 'Stop listening' : 'Voice Dictation'}
-                >
-                  {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
-                </button>
-              </div>
-
-              <div className="flex items-center gap-2">
-                {isLoading ? (
-                  <button
-                    id="flat-abort-stream-btn"
-                    type="button"
-                    onClick={onAbort}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-800 text-white dark:bg-zinc-200 dark:text-black text-xs font-medium hover:opacity-90 transition cursor-pointer"
-                  >
-                    <Square className="w-3 h-3 fill-current" />
-                    <span>Stop</span>
-                  </button>
-                ) : (
-                  <button
-                    id="flat-send-prompt-btn"
-                    type="button"
-                    onClick={handleTriggerSend}
-                    disabled={!inputPrompt.trim() && !isListening}
-                    className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all cursor-pointer ${
-                      inputPrompt.trim() || isListening
-                        ? 'bg-zinc-900 text-white hover:bg-black dark:bg-zinc-100 dark:text-zinc-950 dark:hover:bg-white shadow-xs'
-                        : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-600 cursor-not-allowed'
-                    }`}
-                    title="Send Prompt (Enter)"
-                  >
-                    <ArrowUp className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
+          <PromptInput
+            inputPrompt={inputPrompt}
+            setInputPrompt={setInputPrompt}
+            onSend={(finalPrompt, modeOverride) => onSendMessage(finalPrompt, modeOverride || activeMode)}
+            onAbort={onAbort}
+            isLoading={isLoading}
+            isListening={isListening}
+            onToggleVoice={onToggleVoice}
+            modelConfig={modelConfig}
+            onOpenModelModal={onOpenModelModal}
+            activeMode={activeMode}
+            setActiveMode={setActiveMode}
+            variant="borderless-flat"
+          />
 
           {/* Bottom Engine Status Bar */}
           <div className="flex justify-center items-center mt-2.5 gap-4 sm:gap-6 text-[10px] text-zinc-400 dark:text-zinc-500 font-mono tracking-wider select-none">
@@ -635,7 +509,7 @@ export const AIChatFlat: React.FC<AIChatFlatProps> = ({
             <span>•</span>
             <span>Provider: {modelConfig.provider.toUpperCase()}</span>
             <span>•</span>
-            <span className="hidden sm:inline">React Bits Pro (Flat Edition)</span>
+            <span className="hidden sm:inline">React Bits Pro (Flat & Borderless)</span>
           </div>
         </div>
       </footer>
