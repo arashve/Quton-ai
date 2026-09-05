@@ -45,7 +45,7 @@ import {
   Moon,
 } from 'lucide-react';
 import { CodeBlock } from './CodeBlock';
-import { ShinyText, SpotlightCard, ReactBitsAIInput, AppSidebar, AIChatFlat } from './reactbits';
+import { ShinyText, SpotlightCard, ReactBitsAIInput, AppSidebar } from './reactbits';
 import { BorderBeam, AnimatedGradientText, ShimmerButton, TextAnimate } from './magicui';
 import dynamic from 'next/dynamic';
 
@@ -1137,23 +1137,139 @@ export const Chat: React.FC = () => {
           </div>
         </header>
 
-        {/* React Bits Pro Flat AI Chat */}
-        <AIChatFlat
-          messages={messages}
-          isLoading={isLoading}
-          onSendMessage={handleSendMessage}
-          onAbort={abortStream}
-          onRegenerate={handleRegenerate}
-          modelConfig={modelConfig}
-          onOpenModelModal={() => setIsModelModalOpen(true)}
-          lastMetrics={lastMetrics}
-          activeMode={activeMode}
-          setActiveMode={(mode) => setActiveMode(mode as any)}
-          isListening={isListening}
-          onToggleVoice={toggleSpeechRecognition}
-          headingRef={headingRef}
-          starterPrompts={STARTER_PROMPTS}
-        />
+        {/* Scrollable Center Body: Empty State OR Messages Feed */}
+        <div
+          className={`flex-1 overflow-y-auto p-3 sm:p-8 space-y-4 sm:space-y-6 relative z-10 bg-transparent ${
+            !hasMessages ? 'pointer-events-none' : ''
+          }`}
+        >
+          {!hasMessages ? (
+            /* Minimalist Monochrome Empty State - Flat */
+            <div className="h-full min-h-[380px] sm:min-h-[460px] flex flex-col items-center justify-center max-w-3xl mx-auto py-4 sm:py-6">
+              <div className="text-center mb-6 sm:mb-8 select-none relative px-4 py-2">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-100/90 dark:bg-zinc-900/90 border border-zinc-200/80 dark:border-zinc-800/80 backdrop-blur-xs text-[10px] sm:text-[11px] font-mono text-zinc-600 dark:text-zinc-400 mb-4 shadow-xs">
+                  <span className="w-1.5 h-1.5 rounded-full bg-zinc-900 dark:bg-zinc-100" />
+                  <span>Minimalist Intelligence • SSE Streaming</span>
+                </div>
+
+                <h1
+                  ref={headingRef}
+                  className="font-pixel text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-3.5 leading-tight select-none pointer-events-none opacity-0"
+                  aria-label="What can I build for you?"
+                >
+                  What can I build for you?
+                </h1>
+                <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 max-w-md mx-auto leading-relaxed">
+                  Real-time streaming agent with sub-50ms chunk latency. Select a template below or type a query.
+                </p>
+              </div>
+
+              {/* Starter Suggestions Grid - Flat */}
+              <div className="hidden sm:grid w-full max-w-2xl grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 mb-3 pointer-events-auto">
+                {STARTER_PROMPTS.slice(0, 4).map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <div
+                      key={item.title}
+                      id={`starter-card-${item.title.toLowerCase().replace(/\s+/g, '-')}`}
+                      onClick={() => handleSendMessage(item.prompt, item.mode)}
+                      className="p-3.5 rounded-2xl bg-zinc-100/70 hover:bg-zinc-200/80 dark:bg-zinc-900/60 dark:hover:bg-zinc-800/80 border border-zinc-200/70 dark:border-zinc-800/70 backdrop-blur-xs transition-all cursor-pointer group"
+                    >
+                      <div className="flex items-center gap-2.5 mb-1.5">
+                        <div className="w-7 h-7 rounded-lg bg-zinc-200/80 dark:bg-zinc-800 flex items-center justify-center text-zinc-700 dark:text-zinc-300 group-hover:text-black dark:group-hover:text-white transition-colors">
+                          <Icon className="w-3.5 h-3.5" />
+                        </div>
+                        <span className="text-xs sm:text-sm font-semibold text-zinc-900 dark:text-zinc-100 group-hover:text-black dark:group-hover:text-white transition-colors">
+                          {item.title}
+                        </span>
+                      </div>
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2 leading-relaxed group-hover:text-zinc-700 dark:group-hover:text-zinc-300 transition-colors">
+                        {item.prompt}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Quick tags row */}
+              <div className="hidden sm:flex flex-wrap justify-center items-center gap-2 mt-2 pointer-events-auto">
+                {STARTER_PROMPTS.slice(4).map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <button
+                      key={item.title}
+                      id={`starter-pill-${item.title.toLowerCase().replace(/\s+/g, '-')}`}
+                      type="button"
+                      onClick={() => handleSendMessage(item.prompt, item.mode)}
+                      className="group flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-100/80 hover:bg-zinc-200/90 dark:bg-zinc-900/70 dark:hover:bg-zinc-800/90 border border-zinc-200/60 dark:border-zinc-800/60 backdrop-blur-xs text-xs text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100 transition cursor-pointer"
+                    >
+                      <Icon className="w-3 h-3 text-zinc-500 group-hover:text-zinc-900 dark:group-hover:text-zinc-200 transition-colors" />
+                      <span>{item.title}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ) : (
+            /* Active Messages List - Flat */
+            <div className="max-w-3xl mx-auto space-y-7 pb-36">
+              {messages.map((message, index) => {
+                const isAssistant = message.role === 'assistant';
+                const isLatest = index === messages.length - 1;
+                const isStreamingThis = isLoading && isLatest && isAssistant;
+
+                return (
+                  <ChatMessageItem
+                    key={message.id}
+                    message={message}
+                    index={index}
+                    isStreamingThis={isStreamingThis}
+                    isLatestAssistant={isAssistant && isLatest}
+                    copiedId={copiedId}
+                    onCopy={handleCopyMessage}
+                    onSpeak={toggleSpeak}
+                    speakingMessageId={speakingMessageId}
+                    onRegenerate={handleRegenerate}
+                    onFeedback={handleFeedback}
+                    feedback={feedback}
+                  />
+                );
+              })}
+              <div ref={messagesEndRef} />
+            </div>
+          )}
+        </div>
+
+        {/* Floating Bottom Input Bar - Full-bleed transparency, NO solid cutoff */}
+        <footer className="p-3 sm:p-6 pt-0 mt-auto flex-shrink-0 relative z-20 bg-transparent">
+          <div className="max-w-3xl mx-auto relative">
+            <ReactBitsAIInput
+              inputPrompt={inputPrompt}
+              setInputPrompt={setInputPrompt}
+              onSend={(customPrompt, modeOverride) => handleSendMessage(customPrompt, modeOverride)}
+              onAbort={abortStream}
+              isLoading={isLoading}
+              isListening={isListening}
+              onToggleVoice={toggleSpeechRecognition}
+              modelConfig={modelConfig}
+              onOpenModelModal={() => setIsModelModalOpen(true)}
+              activeMode={activeMode}
+              setActiveMode={(mode) => setActiveMode(mode as any)}
+            />
+
+            {/* Bottom Status Information */}
+            <div className="flex justify-center items-center mt-2.5 gap-4 sm:gap-6 text-[10px] text-zinc-400 dark:text-zinc-500 font-mono tracking-wider select-none">
+              <span className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-zinc-900 dark:bg-zinc-100 animate-pulse" />
+                Stream: SSE Active
+              </span>
+              <span>•</span>
+              <span>Engine: {modelConfig.provider.toUpperCase()}</span>
+              <span>•</span>
+              <span className="hidden sm:inline">Model: {modelConfig.model}</span>
+            </div>
+          </div>
+        </footer>
       </main>
 
 
