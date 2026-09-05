@@ -54,8 +54,10 @@ type PixelBlastProps = {
   dissolve?: number;
   fadeOut?: boolean;
   dissolveSpeed?: number;
-  excludeRect?: { minX: number; minY: number; maxX: number; maxY: number } | null;
+  headingRef?: React.RefObject<HTMLElement | null>;
+  showText?: boolean;
   bgColor?: string;
+  textColor?: string;
 };
 
 const createTouchTexture = (): TouchTexture => {
@@ -202,8 +204,11 @@ uniform float uRippleThickness;
 uniform float uRippleIntensity;
 uniform float uEdgeFade;
 uniform float uDissolve;
-uniform vec4  uExcludeRect;
-uniform vec3  uBgColor;
+
+uniform sampler2D uTextTexture;
+uniform int       uHasText;
+uniform vec3      uBgColor;
+uniform vec3      uTextColor;
 
 uniform int   uShapeType;
 const int SHAPE_SQUARE   = 0;
@@ -354,27 +359,11 @@ void main(){
     }
   }
 
-  // Text zone exclusion: if background pixels are under the text area,
-  // their color becomes the background color and coverage drops to zero so text is crystal clear
-  vec2 normCoord = gl_FragCoord.xy / uResolution;
-  bool inTextZone = false;
-  if (uExcludeRect.z > uExcludeRect.x) {
-    if (normCoord.x >= uExcludeRect.x && normCoord.x <= uExcludeRect.z &&
-        normCoord.y >= uExcludeRect.y && normCoord.y <= uExcludeRect.w) {
-      inTextZone = true;
-      coverage = 0.0;
-    }
-  }
-
   float M;
   if      (uShapeType == SHAPE_CIRCLE)   M = maskCircle (pixelUV, coverage);
   else if (uShapeType == SHAPE_TRIANGLE) M = maskTriangle(pixelUV, pixelId, coverage);
   else if (uShapeType == SHAPE_DIAMOND)  M = maskDiamond(pixelUV, coverage);
   else                                   M = maskSquare (pixelUV, coverage);
-
-  if (inTextZone) {
-    M = 0.0;
-  }
 
   if (uEdgeFade > 0.0) {
     vec2 norm = gl_FragCoord.xy / uResolution;
@@ -383,7 +372,25 @@ void main(){
     M *= fade;
   }
 
-  vec3 color = inTextZone ? uBgColor : uColor;
+  vec3 color = uColor;
+  float alpha = M;
+
+  if (uHasText == 1) {
+    vec2 textUV = gl_FragCoord.xy / uResolution;
+    vec4 textSample = texture(uTextTexture, textUV);
+    if (textSample.a > 0.05) {
+      // Dual-tone high contrast:
+      // If a pixel particle is underneath (M > 0.25):
+      // The text adopts the background color (uBgColor, black in dark mode)
+      // so it is crisp and inverted against the white pixel cloud.
+      // If no pixel particle is underneath (M <= 0.25):
+      // The text adopts the text color (uTextColor, white in dark mode)
+      // so it is crisp against the black canvas background.
+      vec3 targetTextColor = (M > 0.25) ? uBgColor : uTextColor;
+      color = mix(color, targetTextColor, textSample.a);
+      alpha = max(alpha, textSample.a);
+    }
+  }
 
   // sRGB gamma correction - convert linear to sRGB for accurate color output
   vec3 srgbColor = mix(
@@ -392,7 +399,7 @@ void main(){
     step(0.0031308, color)
   );
 
-  fragColor = vec4(srgbColor, M);
+  fragColor = vec4(srgbColor, alpha);
 }
 `;
 
@@ -424,8 +431,10 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
   dissolve,
   fadeOut = false,
   dissolveSpeed = 1.2,
-  excludeRect,
-  bgColor
+  headingRef,
+  showText = false,
+  bgColor = '#020202',
+  textColor = '#ffffff'
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const visibilityRef = useRef({ visible: true });
@@ -434,12 +443,18 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
   const fadeOutRef = useRef(fadeOut);
   const dissolveRef = useRef(dissolve);
   const dissolveSpeedRef = useRef(dissolveSpeed);
+  const showTextRef = useRef(showText);
+  const bgColorRef = useRef(bgColor);
+  const textColorRef = useRef(textColor);
 
   useEffect(() => {
     fadeOutRef.current = fadeOut;
     dissolveRef.current = dissolve;
     dissolveSpeedRef.current = dissolveSpeed;
-  }, [fadeOut, dissolve, dissolveSpeed]);
+    showTextRef.current = showText;
+    bgColorRef.current = bgColor;
+    textColorRef.current = textColor;
+  }, [fadeOut, dissolve, dissolveSpeed, showText, bgColor, textColor]);
 
   const threeRef = useRef<{
     renderer: THREE.WebGLRenderer;
@@ -465,8 +480,10 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
       uRippleIntensity: { value: number };
       uEdgeFade: { value: number };
       uDissolve: { value: number };
-      uExcludeRect: { value: THREE.Vector4 };
+      uTextTexture: { value: THREE.CanvasTexture };
+      uHasText: { value: number };
       uBgColor: { value: THREE.Color };
+      uTextColor: { value: THREE.Color };
     };
     resizeObserver?: ResizeObserver;
     raf?: number;
@@ -475,6 +492,10 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
     composer?: EffectComposer;
     touch?: ReturnType<typeof createTouchTexture>;
     liquidEffect?: Effect;
+    textCanvas?: HTMLCanvasElement;
+    textCtx?: CanvasRenderingContext2D | null;
+    textTexture?: THREE.CanvasTexture;
+    updateTextTexture?: () => void;
   } | null>(null);
   const prevConfigRef = useRef<ReinitConfig | null>(null);
   useEffect(() => {
@@ -523,6 +544,92 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
       } else {
         renderer.setClearColor(0x000000, 1);
       }
+      const textCanvas = document.createElement('canvas');
+      const textCtx = textCanvas.getContext('2d');
+      const textTexture = new THREE.CanvasTexture(textCanvas);
+      textTexture.minFilter = THREE.LinearFilter;
+      textTexture.magFilter = THREE.LinearFilter;
+
+      const updateTextTexture = () => {
+        if (!textCtx || !container) return;
+        const heading = headingRef?.current;
+
+        const w = container.clientWidth || 1;
+        const h = container.clientHeight || 1;
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+        textCanvas.width = Math.max(1, Math.round(w * dpr));
+        textCanvas.height = Math.max(1, Math.round(h * dpr));
+        textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height);
+
+        if (!showTextRef.current || !heading) {
+          if (threeRef.current?.uniforms) {
+            threeRef.current.uniforms.uHasText.value = 0;
+          }
+          textTexture.needsUpdate = true;
+          return;
+        }
+
+        const cRect = container.getBoundingClientRect();
+        const hRect = heading.getBoundingClientRect();
+
+        if (cRect.width <= 0 || cRect.height <= 0 || hRect.width <= 0) {
+          return;
+        }
+
+        textCtx.save();
+        textCtx.scale(dpr, dpr);
+
+        const computed = window.getComputedStyle(heading);
+        const fontSize = parseFloat(computed.fontSize) || 48;
+        const fontWeight = computed.fontWeight || 'bold';
+        const fontFamily = computed.fontFamily || "'Pixelify Sans', 'Press Start 2P', monospace";
+
+        textCtx.font = `${fontWeight} ${fontSize}px ${fontFamily}`;
+        textCtx.textAlign = 'center';
+        textCtx.textBaseline = 'middle';
+        textCtx.fillStyle = '#ffffff';
+
+        const centerX = (hRect.left + hRect.right) / 2 - cRect.left;
+        const centerY = (hRect.top + hRect.bottom) / 2 - cRect.top;
+
+        const text = heading.textContent || 'What can I build for you?';
+        const maxLineWidth = Math.min(hRect.width + 40, w - 24);
+
+        const words = text.split(' ');
+        const lines: string[] = [];
+        let currentLine = '';
+
+        for (const word of words) {
+          const testLine = currentLine ? `${currentLine} ${word}` : word;
+          const metrics = textCtx.measureText(testLine);
+          if (metrics.width > maxLineWidth && currentLine) {
+            lines.push(currentLine);
+            currentLine = word;
+          } else {
+            currentLine = testLine;
+          }
+        }
+        if (currentLine) {
+          lines.push(currentLine);
+        }
+
+        const lineHeight = fontSize * 1.18;
+        const totalTextHeight = lines.length * lineHeight;
+        const startY = centerY - totalTextHeight / 2 + lineHeight / 2;
+
+        lines.forEach((line, idx) => {
+          textCtx.fillText(line, centerX, startY + idx * lineHeight);
+        });
+
+        textCtx.restore();
+
+        textTexture.needsUpdate = true;
+        if (threeRef.current?.uniforms) {
+          threeRef.current.uniforms.uHasText.value = 1;
+        }
+      };
+
       const uniforms = {
         uResolution: { value: new THREE.Vector2(0, 0) },
         uTime: { value: 0 },
@@ -541,15 +648,11 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
         uRippleThickness: { value: rippleThickness },
         uRippleIntensity: { value: rippleIntensityScale },
         uEdgeFade: { value: edgeFade },
-        uDissolve: { value: fadeOut ? 1.0 : (dissolve ?? 0.0) },
-        uExcludeRect: {
-          value: excludeRect
-            ? new THREE.Vector4(excludeRect.minX, excludeRect.minY, excludeRect.maxX, excludeRect.maxY)
-            : new THREE.Vector4(-1, -1, -1, -1)
-        },
-        uBgColor: {
-          value: new THREE.Color(bgColor || (color === '#f5f5f5' ? '#020202' : '#f3f0ee'))
-        }
+        uDissolve: { value: 0.0 },
+        uTextTexture: { value: textTexture },
+        uHasText: { value: showText ? 1 : 0 },
+        uBgColor: { value: new THREE.Color(bgColor) },
+        uTextColor: { value: new THREE.Color(textColor) }
       };
       const scene = new THREE.Scene();
       const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
@@ -574,10 +677,17 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
         if (threeRef.current?.composer)
           threeRef.current.composer.setSize(renderer.domElement.width, renderer.domElement.height);
         uniforms.uPixelSize.value = pixelSize * renderer.getPixelRatio();
+        updateTextTexture();
       };
       setSize();
       const ro = new ResizeObserver(setSize);
       ro.observe(container);
+
+      if (typeof document !== 'undefined' && document.fonts) {
+        document.fonts.ready.then(() => {
+          updateTextTexture();
+        });
+      }
       const randomFloat = (): number => {
         if (typeof window !== 'undefined' && window.crypto?.getRandomValues) {
           const u32 = new Uint32Array(1);
@@ -688,6 +798,10 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
           lastTimeRef.current = performance.now();
         }
 
+        if (showTextRef.current && uniforms.uHasText.value === 0 && headingRef?.current) {
+          updateTextTexture();
+        }
+
         if (liquidEffect) {
           const liqEffect = liquidEffect as Effect & { uniforms: Map<string, THREE.Uniform> };
           const timeUniform = liqEffect.uniforms.get('uTime');
@@ -723,13 +837,20 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
         timeOffset,
         composer,
         touch,
-        liquidEffect
+        liquidEffect,
+        textCanvas,
+        textCtx,
+        textTexture,
+        updateTextTexture
       };
     } else {
       const t = threeRef.current!;
       t.uniforms.uShapeType.value = SHAPE_MAP[variant] ?? 0;
       t.uniforms.uPixelSize.value = pixelSize * t.renderer.getPixelRatio();
       t.uniforms.uColor.value.set(color);
+      t.uniforms.uBgColor.value.set(bgColor);
+      t.uniforms.uTextColor.value.set(textColor);
+      t.uniforms.uHasText.value = showText ? 1 : 0;
       t.uniforms.uScale.value = patternScale;
       t.uniforms.uDensity.value = patternDensity;
       t.uniforms.uPixelJitter.value = pixelSizeJitter;
@@ -738,14 +859,7 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
       t.uniforms.uRippleThickness.value = rippleThickness;
       t.uniforms.uRippleSpeed.value = rippleSpeed;
       t.uniforms.uEdgeFade.value = edgeFade;
-      if (excludeRect) {
-        t.uniforms.uExcludeRect.value.set(excludeRect.minX, excludeRect.minY, excludeRect.maxX, excludeRect.maxY);
-      } else {
-        t.uniforms.uExcludeRect.value.set(-1, -1, -1, -1);
-      }
-      if (bgColor) {
-        t.uniforms.uBgColor.value.set(bgColor);
-      }
+      t.updateTextTexture?.();
       if (transparent) {
         t.renderer.setClearAlpha(0);
         t.renderer.setClearColor(0x000000, 0);
@@ -762,20 +876,6 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
       if (t.touch) t.touch.radiusScale = liquidRadius;
     }
     prevConfigRef.current = cfg;
-    return () => {
-      if (threeRef.current && mustReinit) return;
-      if (!threeRef.current) return;
-      const t = threeRef.current;
-      t.resizeObserver?.disconnect();
-      cancelAnimationFrame(t.raf!);
-      t.quad?.geometry.dispose();
-      t.material.dispose();
-      t.composer?.dispose();
-      t.renderer.dispose();
-      t.renderer.forceContextLoss();
-      if (t.renderer.domElement.parentElement === container) container.removeChild(t.renderer.domElement);
-      threeRef.current = null;
-    };
   }, [
     antialias,
     liquid,
@@ -796,13 +896,33 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
     autoPauseOffscreen,
     variant,
     color,
-    speed,
-    fadeOut,
-    dissolve,
-    dissolveSpeed,
-    excludeRect,
-    bgColor
+    bgColor,
+    textColor,
+    showText,
+    headingRef,
+    speed
   ]);
+
+  // Clean up on component unmount
+  useEffect(() => {
+    const container = containerRef.current;
+    return () => {
+      if (!threeRef.current) return;
+      const t = threeRef.current;
+      t.resizeObserver?.disconnect();
+      cancelAnimationFrame(t.raf!);
+      t.quad?.geometry.dispose();
+      t.material.dispose();
+      t.textTexture?.dispose();
+      t.composer?.dispose();
+      t.renderer.dispose();
+      t.renderer.forceContextLoss();
+      if (container && t.renderer.domElement.parentElement === container) {
+        container.removeChild(t.renderer.domElement);
+      }
+      threeRef.current = null;
+    };
+  }, []);
 
   return (
     <div

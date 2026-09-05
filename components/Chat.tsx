@@ -475,44 +475,7 @@ export const Chat: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
   const recognitionRef = useRef<any>(null);
-
-  // Center empty state & text zone exclusion refs
-  const emptyStateTextRef = useRef<HTMLDivElement>(null);
-  const mainRef = useRef<HTMLElement>(null);
-  const [textExcludeRect, setTextExcludeRect] = useState<{
-    minX: number;
-    minY: number;
-    maxX: number;
-    maxY: number;
-  } | null>(null);
-
-  useEffect(() => {
-    let rafId: number;
-
-    const updateRect = () => {
-      if (!emptyStateTextRef.current || !mainRef.current) return;
-      const tRect = emptyStateTextRef.current.getBoundingClientRect();
-      const mRect = mainRef.current.getBoundingClientRect();
-      if (mRect.width <= 0 || mRect.height <= 0) return;
-
-      const padX = 24;
-      const padY = 20;
-
-      const minX = Math.max(0, (tRect.left - mRect.left - padX) / mRect.width);
-      const maxX = Math.min(1, (tRect.right - mRect.left + padX) / mRect.width);
-      const minY = Math.max(0, (mRect.bottom - tRect.bottom - padY) / mRect.height);
-      const maxY = Math.min(1, (mRect.bottom - tRect.top + padY) / mRect.height);
-
-      setTextExcludeRect({ minX, minY, maxX, maxY });
-    };
-
-    rafId = requestAnimationFrame(updateRect);
-    window.addEventListener('resize', updateRect);
-    return () => {
-      cancelAnimationFrame(rafId);
-      window.removeEventListener('resize', updateRect);
-    };
-  }, []);
+  const headingRef = useRef<HTMLHeadingElement>(null);
 
   // On client mount, load persisted sessions asynchronously
   useEffect(() => {
@@ -1125,14 +1088,13 @@ export const Chat: React.FC = () => {
       </aside>
 
       {/* Main Content Area */}
-      <main ref={mainRef} className="flex-1 flex flex-col relative h-full overflow-hidden bg-[var(--page-bg)] transition-colors duration-200">
+      <main className="flex-1 flex flex-col relative h-full overflow-hidden bg-[var(--page-bg)] transition-colors duration-200">
         {/* PixelBlast interactive background - FULL SCREEN for entire chat screen */}
-        {/* PixelBlast interactive background - FULL SCREEN matching reactbits */}
         {isMounted && (
           <div
             id="chat-pixel-blast-background"
-            className={`absolute inset-0 w-full h-full z-0 overflow-hidden transition-colors duration-1000 ${
-              hasMessages ? 'pointer-events-none bg-transparent' : 'pointer-events-auto bg-[var(--pixel-bg)]'
+            className={`absolute inset-0 w-full h-full z-0 overflow-hidden ${
+              hasMessages ? 'pointer-events-none' : 'pointer-events-auto'
             }`}
           >
             <PixelBlast
@@ -1140,7 +1102,9 @@ export const Chat: React.FC = () => {
               pixelSize={4}
               color={theme === 'dark' ? '#f5f5f5' : '#1a1a1a'}
               bgColor={theme === 'dark' ? '#0b0b0b' : '#f3f0ee'}
-              excludeRect={textExcludeRect}
+              textColor={theme === 'dark' ? '#ffffff' : '#111111'}
+              headingRef={headingRef}
+              showText={!hasMessages}
               patternScale={2}
               patternDensity={1}
               pixelSizeJitter={0}
@@ -1156,7 +1120,7 @@ export const Chat: React.FC = () => {
               edgeFade={0.1}
               transparent
               fadeOut={hasMessages}
-              dissolveSpeed={1.4}
+              dissolveSpeed={0.75}
             />
           </div>
         )}
@@ -1262,19 +1226,16 @@ export const Chat: React.FC = () => {
           {!hasMessages ? (
             /* Minimalist Monochrome Empty State - Flat */
             <div className="h-full min-h-[360px] sm:min-h-[440px] flex flex-col items-center justify-center max-w-3xl mx-auto py-4 sm:py-6">
-              <div ref={emptyStateTextRef} className="text-center mb-6 sm:mb-8 select-none relative px-4 py-2">
+              <div className="text-center mb-6 sm:mb-8 select-none relative px-4 py-2">
                 <div className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full bg-zinc-100/90 dark:bg-zinc-900/90 backdrop-blur-xs text-[10px] sm:text-[11px] font-mono text-zinc-600 dark:text-zinc-400 mb-4 shadow-xs">
                   <span className="w-1.5 h-1.5 rounded-full bg-zinc-900 dark:bg-zinc-100" />
                   <span>Minimalist Intelligence • SSE Streaming</span>
                 </div>
 
                 <h1
-                  className="font-pixel text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-zinc-950 dark:text-white mb-3.5 leading-tight select-none drop-shadow-sm"
-                  style={{
-                    textShadow: theme === 'dark' 
-                      ? '0 2px 24px rgba(0,0,0,0.9), 0 0 12px rgba(11,11,11,0.95)' 
-                      : '0 2px 24px rgba(255,255,255,0.9), 0 0 12px rgba(243,240,238,0.95)'
-                  }}
+                  ref={headingRef}
+                  className="font-pixel text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-3.5 leading-tight select-none pointer-events-none opacity-0"
+                  aria-label="What can I build for you?"
                 >
                   What can I build for you?
                 </h1>
