@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback, useSyncExternalStore, useMemo } from 'react';
+import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { motion, AnimatePresence } from 'motion/react';
@@ -39,6 +40,7 @@ import {
   Key,
   Server,
   Settings,
+  Home,
   Radio,
   ExternalLink,
   Sun,
@@ -727,7 +729,11 @@ const ChatMessageItem = React.memo(function ChatMessageItem({
   );
 });
 
-export const Chat: React.FC = () => {
+export interface ChatProps {
+  initialPrompt?: string;
+}
+
+export const Chat: React.FC<ChatProps> = ({ initialPrompt }) => {
   // Client-mounting state to ensure perfect hydration without cascading render warnings
   const isMounted = useSyncExternalStore(
     emptySubscribe,
@@ -1580,6 +1586,15 @@ export const Chat: React.FC = () => {
     }
   }, [inputPrompt, isLoading, activeMode, messages, modelConfig, isCompareMode, compareModelB, autoSpeak, toggleSpeak]);
 
+  // Handle incoming initial prompt from main portal search box
+  const initialPromptHandledRef = useRef(false);
+  useEffect(() => {
+    if (isMounted && initialPrompt && initialPrompt.trim() && !initialPromptHandledRef.current) {
+      initialPromptHandledRef.current = true;
+      handleSendMessage(initialPrompt.trim());
+    }
+  }, [isMounted, initialPrompt, handleSendMessage]);
+
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -1730,6 +1745,27 @@ export const Chat: React.FC = () => {
             </div>
 
             <div className="hidden lg:block w-[1px] h-3.5 bg-zinc-200 dark:bg-zinc-800 mx-1" />
+
+            {/* Portal & Settings Quick Switchers */}
+            <Link
+              id="header-home-portal-btn"
+              href="/"
+              className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 rounded-full text-xs font-medium border border-zinc-200/80 dark:border-zinc-800/80 bg-zinc-100/80 dark:bg-zinc-900/80 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:border-zinc-300 dark:hover:border-zinc-700 transition cursor-pointer"
+              title="Return to Main Portal"
+            >
+              <Home className="w-3.5 h-3.5 text-zinc-500" />
+              <span className="hidden sm:inline font-mono text-[11px]">Portal</span>
+            </Link>
+
+            <Link
+              id="header-settings-page-btn"
+              href="/settings"
+              className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 rounded-full text-xs font-medium border border-zinc-200/80 dark:border-zinc-800/80 bg-zinc-100/80 dark:bg-zinc-900/80 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:border-zinc-300 dark:hover:border-zinc-700 transition cursor-pointer"
+              title="Open Settings Page"
+            >
+              <Settings className="w-3.5 h-3.5 text-zinc-500" />
+              <span className="hidden sm:inline font-mono text-[11px]">Settings</span>
+            </Link>
 
             {/* Interactive Model Selector Button - Flat */}
             <button
