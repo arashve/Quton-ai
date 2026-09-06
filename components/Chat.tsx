@@ -64,12 +64,19 @@ import {
   StoreInvoiceBuilderWidget,
   StoreOfficialInvoiceWidget,
 } from './StoreAgentWidgets';
+import { AgentStudioWorkspace } from './AgentStudioWorkspace';
+import { AgentStudioHubModal } from './AgentStudioHubModal';
 import {
   getStoreProfile,
   isStoreAgentInstalled,
   StoreProfile,
   StoreInvoice,
   subscribeStoreUpdates,
+  getActiveWorkspace,
+  setActiveWorkspace as persistActiveWorkspace,
+  isStudioAgentEnabled,
+  toggleStudioAgent,
+  getStudioAgents,
 } from '@/lib/storeAgentService';
 import { CodeBlock } from './CodeBlock';
 import { ShinyText, SpotlightCard, ReactBitsAIInput, PromptInput, AppSidebar } from './reactbits';
@@ -800,18 +807,27 @@ export const Chat: React.FC<ChatProps> = ({ initialPrompt, initialAgent }) => {
   const [currentSessionId, setCurrentSessionId] = useState<string>('session_init');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
 
-  // StoreFlow Agent Integration State
+  // StoreFlow & Agent Workspace State
   const [storeProfile, setStoreProfile] = useState<StoreProfile | null>(() =>
     typeof window !== 'undefined' ? getStoreProfile() : null
   );
   const [isStoreInstalled, setIsStoreInstalled] = useState<boolean>(() =>
     typeof window !== 'undefined' ? isStoreAgentInstalled() : false
   );
-  const [activeAgent, setActiveAgent] = useState<string | null>(() => {
+  const [activeWorkspace, setActiveWorkspaceState] = useState<string>(() => {
     if (initialAgent) return initialAgent;
-    if (typeof window !== 'undefined' && isStoreAgentInstalled()) return 'shop';
-    return null;
+    if (typeof window !== 'undefined') return getActiveWorkspace();
+    return 'default';
   });
+  const [isAgentHubOpen, setIsAgentHubOpen] = useState<boolean>(false);
+
+  // Backward compatibility: activeAgent is 'shop' when activeWorkspace is 'shop'
+  const activeAgent = activeWorkspace === 'shop' ? 'shop' : null;
+
+  const handleSelectWorkspace = useCallback((wsId: string) => {
+    setActiveWorkspaceState(wsId);
+    persistActiveWorkspace(wsId);
+  }, []);
 
   useEffect(() => {
     const checkStore = () => {
@@ -819,8 +835,9 @@ export const Chat: React.FC<ChatProps> = ({ initialPrompt, initialAgent }) => {
       setIsStoreInstalled(installed);
       const profile = getStoreProfile();
       setStoreProfile(profile);
-      if (initialAgent === 'shop' || installed) {
-        setActiveAgent('shop');
+      if (initialAgent) {
+        setActiveWorkspaceState(initialAgent);
+        persistActiveWorkspace(initialAgent);
       }
     };
     return subscribeStoreUpdates(checkStore);
@@ -2016,38 +2033,60 @@ export const Chat: React.FC<ChatProps> = ({ initialPrompt, initialAgent }) => {
               )}
             </button>
 
-            {/* StoreFlow Agent Indicator & Mode Toggle */}
-            {isStoreInstalled ? (
+            {/* Aurora Glassmorphic Agent & Workspace Switcher */}
+            <div className="flex items-center gap-1 p-1 rounded-full bg-white/10 dark:bg-zinc-900/70 backdrop-blur-xl border border-white/15 dark:border-white/10 shadow-sm">
+              {/* 1. Standard AI Chat Tab */}
               <button
-                id="header-store-agent-btn"
+                id="header-workspace-chat-btn"
                 type="button"
-                onClick={() => setActiveAgent((prev) => (prev === 'shop' ? null : 'shop'))}
-                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border transition cursor-pointer ${
-                  activeAgent === 'shop'
-                    ? 'bg-gradient-to-r from-purple-500/20 to-indigo-500/20 border-purple-500/50 text-purple-300 font-bold shadow-xs'
-                    : 'bg-zinc-100/80 dark:bg-zinc-900/80 border-zinc-200/70 dark:border-zinc-800/70 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100'
+                onClick={() => handleSelectWorkspace('default')}
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition cursor-pointer ${
+                  activeWorkspace === 'default'
+                    ? 'bg-white text-zinc-950 shadow-sm'
+                    : 'text-zinc-400 hover:text-white'
                 }`}
-                title="StoreFlow Agent • ایجنت هوشمند فروشگاهی"
+                title="محیط چت عمومی و استاندارد هوش مصنوعی"
               >
-                <span>🏪</span>
-                <span className="hidden md:inline font-sans text-[11px]">
-                  {storeProfile?.storeName || 'StoreFlow'}
-                </span>
-                {activeAgent === 'shop' && (
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                )}
+                <span>💬</span>
+                <span className="text-[11px]">چت عادی</span>
               </button>
-            ) : (
-              <Link
-                id="header-store-marketplace-link"
-                href="/marketplace"
-                className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border border-purple-500/30 bg-purple-500/10 text-purple-300 hover:bg-purple-500/20 transition cursor-pointer"
-                title="نصب ایجنت فروشگاهی از مارکت‌پلیس"
+
+              {/* 2. StoreFlow Dedicated Agent Tab (if installed or currently in shop) */}
+              {isStoreInstalled && (
+                <button
+                  id="header-workspace-store-btn"
+                  type="button"
+                  onClick={() => handleSelectWorkspace('shop')}
+                  className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition cursor-pointer ${
+                    activeWorkspace === 'shop'
+                      ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md shadow-purple-600/30'
+                      : 'text-purple-300 hover:text-white'
+                  }`}
+                  title="فضای اختصاصی فروشگاه و انبارداری StoreFlow"
+                >
+                  <span>🏪</span>
+                  <span className="hidden sm:inline text-[11px]">
+                    {storeProfile?.storeName || 'StoreFlow'}
+                  </span>
+                  <span className="sm:hidden text-[11px]">فروشگاه</span>
+                  {activeWorkspace === 'shop' && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  )}
+                </button>
+              )}
+
+              {/* 3. Agent Studio Hub Button */}
+              <button
+                id="header-agent-hub-btn"
+                type="button"
+                onClick={() => setIsAgentHubOpen(true)}
+                className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold text-zinc-400 hover:text-white hover:bg-white/10 transition cursor-pointer"
+                title="هاب و استودیوی ایجنت‌ها • روشن/خاموش کردن و سوئیچ بین ایجنت‌ها"
               >
-                <span>🏪</span>
-                <span className="font-sans text-[11px]">+ ایجنت فروشگاه</span>
-              </Link>
-            )}
+                <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+                <span className="hidden md:inline text-[11px]">استودیو ایجنت‌ها</span>
+              </button>
+            </div>
           </div>
 
           <div className="flex items-center gap-1 sm:gap-2">
@@ -2116,78 +2155,26 @@ export const Chat: React.FC<ChatProps> = ({ initialPrompt, initialAgent }) => {
           </div>
         </header>
 
-        {/* Scrollable Center Body: Empty State OR Messages Feed */}
-        <div
-          className={`flex-1 overflow-y-auto p-3 sm:p-8 space-y-4 sm:space-y-6 relative z-10 bg-transparent ${
-            !hasMessages ? 'pointer-events-none' : ''
-          }`}
-        >
-          {!hasMessages ? (
-            activeAgent === 'shop' ? (
-              /* StoreFlow Custom Agent Empty State */
-              <div dir="rtl" className="h-full min-h-[380px] sm:min-h-[460px] flex flex-col items-center justify-center max-w-3xl mx-auto py-4 sm:py-6 text-center">
-                <div className="w-16 h-16 rounded-3xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-3xl shadow-xl shadow-purple-600/30 mb-4 animate-in zoom-in duration-300">
-                  🏪
-                </div>
-
-                <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-purple-500/15 border border-purple-500/30 text-purple-300 text-xs font-mono mb-3">
-                  <span>فروشگاه {storeProfile?.storeName || 'من'}</span>
-                  <span>•</span>
-                  <span>مدیریت: {storeProfile?.ownerName || 'مدیر'}</span>
-                </div>
-
-                <h1 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight mb-2">
-                  دستیار هوشمند فروشگاه و صدور فاکتور
-                </h1>
-                <p className="text-xs sm:text-sm text-zinc-400 max-w-lg mx-auto leading-relaxed mb-8">
-                  می‌توانید به راحتی محصولات جدید تعریف کنید، موجودی انبار را مشاهده و جستجو کنید، و فاکتور رسمی با مهر دیجیتال برای مشتریان صادر نمایید.
-                </p>
-
-                {/* Quick Action Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 w-full max-w-2xl pointer-events-auto">
-                  <div
-                    onClick={() => handleTriggerStoreAction('add_product')}
-                    className="p-4 rounded-2xl bg-zinc-900/70 hover:bg-purple-950/40 border border-white/10 hover:border-purple-500/40 transition-all cursor-pointer text-right group shadow-lg"
-                  >
-                    <div className="w-8 h-8 rounded-xl bg-purple-500/20 text-purple-300 flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform">
-                      <Plus className="w-4 h-4" />
-                    </div>
-                    <h3 className="text-xs sm:text-sm font-bold text-white mb-1">افزودن محصول جدید</h3>
-                    <p className="text-[11px] text-zinc-400 leading-relaxed">
-                      ثبت نام کالا، بارکد، قیمت و تعداد موجودی انبار
-                    </p>
-                  </div>
-
-                  <div
-                    onClick={() => handleTriggerStoreAction('catalog')}
-                    className="p-4 rounded-2xl bg-zinc-900/70 hover:bg-indigo-950/40 border border-white/10 hover:border-indigo-500/40 transition-all cursor-pointer text-right group shadow-lg"
-                  >
-                    <div className="w-8 h-8 rounded-xl bg-indigo-500/20 text-indigo-300 flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform">
-                      <Boxes className="w-4 h-4" />
-                    </div>
-                    <h3 className="text-xs sm:text-sm font-bold text-white mb-1">لیست محصولات و انبار</h3>
-                    <p className="text-[11px] text-zinc-400 leading-relaxed">
-                      کاتالوگ زنده، فیلتر دسته‌بندی و بررسی موجودی
-                    </p>
-                  </div>
-
-                  <div
-                    onClick={() => handleTriggerStoreAction('invoice_builder')}
-                    className="p-4 rounded-2xl bg-zinc-900/70 hover:bg-emerald-950/40 border border-white/10 hover:border-emerald-500/40 transition-all cursor-pointer text-right group shadow-lg"
-                  >
-                    <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform">
-                      <ReceiptText className="w-4 h-4" />
-                    </div>
-                    <h3 className="text-xs sm:text-sm font-bold text-white mb-1">صدور فاکتور رسمی</h3>
-                    <p className="text-[11px] text-zinc-400 leading-relaxed">
-                      محاسبه اقلام، تخفیف، مالیات و صدور با مهر رسمی
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ) : (
-            /* Minimalist Monochrome Empty State - Flat */
-            <div className="h-full min-h-[380px] sm:min-h-[460px] flex flex-col items-center justify-center max-w-3xl mx-auto py-4 sm:py-6">
+        {/* Scrollable Workspace: Dedicated Agent Studio OR Standard AI Chat */}
+        {activeWorkspace !== 'default' ? (
+          <div className="flex-1 overflow-y-auto p-2 sm:p-6 relative z-10 pb-16">
+            <AgentStudioWorkspace
+              agentId={activeWorkspace}
+              onReturnToStandardChat={() => handleSelectWorkspace('default')}
+              onOpenHubModal={() => setIsAgentHubOpen(true)}
+            />
+          </div>
+        ) : (
+          <>
+            {/* Scrollable Center Body: Empty State OR Messages Feed */}
+            <div
+              className={`flex-1 overflow-y-auto p-3 sm:p-8 space-y-4 sm:space-y-6 relative z-10 bg-transparent ${
+                !hasMessages ? 'pointer-events-none' : ''
+              }`}
+            >
+              {!hasMessages ? (
+                /* Minimalist Monochrome Empty State - Flat */
+                <div className="h-full min-h-[380px] sm:min-h-[460px] flex flex-col items-center justify-center max-w-3xl mx-auto py-4 sm:py-6">
               <div className="text-center mb-6 sm:mb-8 select-none relative px-4 py-2">
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-100/90 dark:bg-zinc-900/90 border border-zinc-200/80 dark:border-zinc-800/80 backdrop-blur-xs text-[10px] sm:text-[11px] font-mono text-zinc-600 dark:text-zinc-400 mb-4 shadow-xs">
                   <span className="w-1.5 h-1.5 rounded-full bg-zinc-900 dark:bg-zinc-100" />
@@ -2452,7 +2439,9 @@ export const Chat: React.FC<ChatProps> = ({ initialPrompt, initialAgent }) => {
             </div>
           </div>
         </footer>
-      </main>
+      </>
+    )}
+  </main>
 
 
       {/* Library Drawer Modal - Completely Flat */}
@@ -3048,6 +3037,13 @@ export const Chat: React.FC<ChatProps> = ({ initialPrompt, initialAgent }) => {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Agent Studio Hub Modal */}
+      <AgentStudioHubModal
+        isOpen={isAgentHubOpen}
+        onClose={() => setIsAgentHubOpen(false)}
+        onSelectWorkspace={handleSelectWorkspace}
+      />
     </div>
   );
 };

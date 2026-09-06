@@ -44,6 +44,57 @@ const PROFILE_KEY = 'autoflow_store_profile_v1';
 const PRODUCTS_KEY = 'autoflow_store_products_v1';
 const INVOICES_KEY = 'autoflow_store_invoices_v1';
 const AGENTS_KEY = 'autoflow_installed_agents_v1';
+const ACTIVE_WORKSPACE_KEY = 'autoflow_active_workspace_v1';
+const AGENT_ENABLED_PREFIX = 'autoflow_agent_enabled_';
+
+export interface StudioAgent {
+  id: string; // 'shop' | 'code' | 'research'
+  name: string;
+  titleFa: string;
+  badge: string;
+  descriptionFa: string;
+  icon: string;
+  accentColor: string;
+  glowGradient: string;
+  isEnabled: boolean;
+  capabilities: string[];
+}
+
+export const ALL_STUDIO_AGENTS: Omit<StudioAgent, 'isEnabled'>[] = [
+  {
+    id: 'shop',
+    name: 'StoreFlow AI',
+    titleFa: 'فروشگاه و صدور فاکتور',
+    badge: 'E-Commerce v2.4',
+    descriptionFa: 'مدیریت محصولات انبار، صدور خودکار فاکتور رسمی دیجیتال و استعلام موجودی هوشمند.',
+    icon: '🏪',
+    accentColor: '#8B5CF6',
+    glowGradient: 'from-purple-600/30 via-indigo-600/20 to-cyan-500/10',
+    capabilities: ['ثبت کالا', 'کاتالوگ زنده', 'فاکتور رسمی', 'محاسبه تخفیف'],
+  },
+  {
+    id: 'code',
+    name: 'CodeFlow Architect',
+    titleFa: 'معمار کد و توسعه',
+    badge: 'Fullstack Dev v3.0',
+    descriptionFa: 'معماری مایکروسرویس، بررسی امنیت API، دیباگ خط‌به‌خط و تولید کدهای تایپ‌اسکریپت بهینه‌شده.',
+    icon: '⚡',
+    accentColor: '#06B6D4',
+    glowGradient: 'from-cyan-600/30 via-blue-600/20 to-purple-500/10',
+    capabilities: ['معماری سیستم', 'دیباگ سریع', 'تست واحد', 'بهینه‌سازی AST'],
+  },
+  {
+    id: 'research',
+    name: 'DeepInsight Agent',
+    titleFa: 'پژوهش و تحلیل عمیق',
+    badge: 'Deep Research v2.1',
+    descriptionFa: 'سنتز اسناد پیچیده، ارزیابی داده‌های وب، مقایسه تخصصی مدل‌ها و استخراج رفرنس‌های معتبر.',
+    icon: '🔬',
+    accentColor: '#F59E0B',
+    glowGradient: 'from-amber-600/30 via-rose-600/20 to-purple-500/10',
+    capabilities: ['استخراج رفرنس', 'سنتز داده‌ها', 'تحلیل بازار', 'چکیده‌سازی'],
+  },
+];
 
 // Default initial starter products when a store is activated
 const DEFAULT_PRODUCTS: StoreProduct[] = [
@@ -119,6 +170,71 @@ export function isStoreAgentInstalled(): boolean {
     return Boolean(profile && profile.isActive);
   } catch {
     return false;
+  }
+}
+
+export function isStudioAgentEnabled(agentId: string): boolean {
+  if (typeof window === 'undefined') return agentId === 'shop';
+  try {
+    const raw = localStorage.getItem(AGENT_ENABLED_PREFIX + agentId);
+    if (raw === null) {
+      // Default: if it's shop and store profile exists, true; others can be enabled as well
+      if (agentId === 'shop') return isStoreAgentInstalled();
+      return true; // enabled by default in studio
+    }
+    return raw === 'true';
+  } catch {
+    return true;
+  }
+}
+
+export function setStudioAgentEnabled(agentId: string, enabled: boolean): void {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(AGENT_ENABLED_PREFIX + agentId, String(enabled));
+    if (agentId === 'shop') {
+      const profile = getStoreProfile();
+      if (profile) {
+        profile.isActive = enabled;
+        localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
+      }
+    }
+    notifyStoreUpdate();
+  } catch (e) {
+    console.error('Failed to set agent enabled status:', e);
+  }
+}
+
+export function toggleStudioAgent(agentId: string): boolean {
+  const current = isStudioAgentEnabled(agentId);
+  const next = !current;
+  setStudioAgentEnabled(agentId, next);
+  return next;
+}
+
+export function getStudioAgents(): StudioAgent[] {
+  return ALL_STUDIO_AGENTS.map((agent) => ({
+    ...agent,
+    isEnabled: isStudioAgentEnabled(agent.id),
+  }));
+}
+
+export function getActiveWorkspace(): string {
+  if (typeof window === 'undefined') return 'default';
+  try {
+    return localStorage.getItem(ACTIVE_WORKSPACE_KEY) || 'default';
+  } catch {
+    return 'default';
+  }
+}
+
+export function setActiveWorkspace(workspaceId: string): void {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(ACTIVE_WORKSPACE_KEY, workspaceId);
+    notifyStoreUpdate();
+  } catch (e) {
+    console.error('Failed to set active workspace:', e);
   }
 }
 

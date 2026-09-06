@@ -31,6 +31,10 @@ import {
   uninstallStoreAgent,
   getStoreProducts,
   subscribeStoreUpdates,
+  getStudioAgents,
+  toggleStudioAgent,
+  setStudioAgentEnabled,
+  StudioAgent,
 } from '@/lib/storeAgentService';
 
 const STORE_CATEGORIES = [
@@ -51,6 +55,7 @@ export default function MarketplacePage() {
   const [isInstalled, setIsInstalled] = useState(() => (typeof window !== 'undefined' ? isStoreAgentInstalled() : false));
   const [storeProfile, setStoreProfile] = useState<StoreProfile | null>(() => (typeof window !== 'undefined' ? getStoreProfile() : null));
   const [productsCount, setProductsCount] = useState(() => (typeof window !== 'undefined' ? getStoreProducts().length : 0));
+  const [agents, setAgents] = useState<StudioAgent[]>(() => (typeof window !== 'undefined' ? getStudioAgents() : []));
 
   // Setup modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -65,15 +70,25 @@ export default function MarketplacePage() {
     const installed = isStoreAgentInstalled();
     const profile = getStoreProfile();
     const products = getStoreProducts();
+    const allAgents = getStudioAgents();
     setIsInstalled(installed);
     setStoreProfile(profile);
     setProductsCount(products.length);
+    setAgents(allAgents);
 
     if (profile) {
       setStoreNameInput(profile.storeName || '');
       setOwnerNameInput(profile.ownerName || '');
       setPhoneInput(profile.phone || '');
       setCategoryInput(profile.category || STORE_CATEGORIES[0]);
+    }
+  };
+
+  const handleToggleAgent = (agentId: string) => {
+    const newState = toggleStudioAgent(agentId);
+    setAgents(getStudioAgents());
+    if (agentId === 'shop') {
+      setIsInstalled(newState);
     }
   };
 
@@ -171,7 +186,7 @@ export default function MarketplacePage() {
               }`}
             >
               <span>مشاهده و جستجوی ایجنت‌ها</span>
-              <span className="px-1.5 py-0.2 rounded-md bg-zinc-800 text-[10px] text-zinc-300">۱</span>
+              <span className="px-1.5 py-0.2 rounded-md bg-zinc-800 text-[10px] text-zinc-300">{agents.length}</span>
             </button>
             <button
               type="button"
@@ -183,10 +198,18 @@ export default function MarketplacePage() {
               }`}
             >
               <span>نصب‌شده در استودیوی من</span>
-              <span className={`px-1.5 py-0.2 rounded-md text-[10px] font-mono ${isInstalled ? 'bg-emerald-500/20 text-emerald-300' : 'bg-zinc-800 text-zinc-400'}`}>
-                {isInstalled ? '1' : '0'}
+              <span className={`px-1.5 py-0.2 rounded-md text-[10px] font-mono ${agents.some((a) => a.isEnabled) ? 'bg-emerald-500/20 text-emerald-300' : 'bg-zinc-800 text-zinc-400'}`}>
+                {agents.filter((a) => a.isEnabled).length}
               </span>
             </button>
+            <Link
+              href="/chat"
+              className="hidden md:flex items-center gap-1.5 px-3 py-2 rounded-2xl text-xs font-semibold text-zinc-400 hover:text-white bg-zinc-950 hover:bg-zinc-900 border border-zinc-800 transition"
+              title="ورود مستقیم به چت عادی هوش مصنوعی بدون ایجنت"
+            >
+              <span>💬</span>
+              <span>چت عادی</span>
+            </Link>
           </div>
 
           {/* Search Field */}
@@ -205,128 +228,119 @@ export default function MarketplacePage() {
         {/* TAB 1: EXPLORE AGENTS */}
         {activeTab === 'explore' && (
           <div>
-            {matchesSearch ? (
+            {agents.filter((a) =>
+              a.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              a.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              a.category.toLowerCase().includes(searchQuery.toLowerCase())
+            ).length > 0 ? (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* 1. The Shop & Sales Agent Card */}
-                <div className="group relative overflow-hidden rounded-[32px] bg-zinc-900/60 backdrop-blur-2xl border border-white/10 hover:border-purple-500/40 transition-all duration-300 p-6 sm:p-7 shadow-2xl flex flex-col justify-between">
-                  {/* Subtle Card Glow */}
-                  <div className="absolute -top-20 -right-20 w-48 h-48 bg-purple-600/15 rounded-full blur-3xl pointer-events-none group-hover:bg-purple-600/25 transition" />
+                {agents
+                  .filter((a) =>
+                    a.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    a.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    a.category.toLowerCase().includes(searchQuery.toLowerCase())
+                  )
+                  .map((agent) => (
+                    <div
+                      key={agent.id}
+                      className="group relative overflow-hidden rounded-[32px] bg-white/10 dark:bg-zinc-900/40 backdrop-blur-xl border border-white/15 dark:border-white/10 hover:border-purple-500/40 transition-all duration-300 p-6 sm:p-7 shadow-2xl flex flex-col justify-between"
+                    >
+                      {/* Ambient Radial Glow */}
+                      <div className="absolute -top-20 -right-20 w-48 h-48 bg-purple-600/15 rounded-full blur-3xl pointer-events-none group-hover:bg-purple-600/25 transition" />
 
-                  <div>
-                    {/* Top Badges */}
-                    <div className="flex items-center justify-between gap-2 mb-4">
-                      <div className="flex items-center gap-2">
-                        <span className="px-3 py-1 rounded-full text-[11px] font-bold font-mono bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
-                          رایگان • FREE
-                        </span>
-                        <span className="px-2.5 py-1 rounded-full text-[10px] font-mono bg-zinc-800/80 border border-zinc-700/60 text-zinc-300">
-                          v1.0 • E-Commerce
-                        </span>
-                      </div>
-
-                      {isInstalled ? (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-bold">
-                          <CheckCircle2 className="w-3.5 h-3.5" />
-                          <span>فعال در استودیو</span>
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-800 text-zinc-400 text-xs font-medium border border-zinc-700">
-                          <span>در حالت عادی غیرفعال</span>
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Agent Header */}
-                    <div className="flex items-start gap-4 mb-4">
-                      <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-white text-2xl shadow-lg shadow-purple-600/30 shrink-0">
-                        🏪
-                      </div>
                       <div>
-                        <h3 className="text-xl font-extrabold text-white tracking-tight flex items-center gap-2">
-                          <span>StoreFlow • ایجنت هوشمند فروشگاهی</span>
-                          <Sparkles className="w-4 h-4 text-purple-400" />
-                        </h3>
-                        <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
-                          دستیار فوق‌هوشمند مدیریت کاتالوگ، انبارداری سریع و صدور فاکتور رسمی به صورت تعاملی در محیط چت استودیو.
-                        </p>
+                        {/* Top Badges & Switch */}
+                        <div className="flex items-center justify-between gap-2 mb-4">
+                          <div className="flex items-center gap-2">
+                            <span className="px-3 py-1 rounded-full text-[11px] font-bold font-mono bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
+                              رایگان • FREE
+                            </span>
+                            <span className="px-2.5 py-1 rounded-full text-[10px] font-mono bg-zinc-800/80 border border-zinc-700/60 text-zinc-300">
+                              {agent.category}
+                            </span>
+                          </div>
+
+                          {/* Apple-Style Switch */}
+                          <div className="flex items-center gap-2">
+                            <span className="text-[11px] text-zinc-400 font-mono">
+                              {agent.isEnabled ? 'فعال' : 'غیرفعال'}
+                            </span>
+                            <button
+                              type="button"
+                              role="switch"
+                              aria-checked={agent.isEnabled}
+                              onClick={() => handleToggleAgent(agent.id)}
+                              className={`w-12 h-6.5 p-0.5 rounded-full transition-colors duration-200 ease-in-out cursor-pointer relative ${
+                                agent.isEnabled
+                                  ? 'bg-gradient-to-r from-purple-500 to-indigo-500 shadow-sm shadow-purple-500/30'
+                                  : 'bg-zinc-700/80 hover:bg-zinc-600'
+                              }`}
+                              title={agent.isEnabled ? 'خاموش کردن ایجنت' : 'روشن کردن ایجنت'}
+                            >
+                              <div
+                                className={`w-5 h-5 rounded-full bg-white shadow-md transform transition-transform duration-200 ${
+                                  agent.isEnabled ? '-translate-x-5.5' : 'translate-x-0'
+                                }`}
+                              />
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Agent Header */}
+                        <div className="flex items-start gap-4 mb-4">
+                          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-white text-2xl shadow-lg shadow-purple-600/30 shrink-0">
+                            {agent.icon}
+                          </div>
+                          <div>
+                            <h3 className="text-xl font-extrabold text-white tracking-tight flex items-center gap-2">
+                              <span>{agent.name}</span>
+                              <Sparkles className="w-4 h-4 text-purple-400" />
+                            </h3>
+                            <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
+                              {agent.description}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Agent Capabilities Checklist */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 my-5 p-4 rounded-2xl bg-black/40 border border-white/5 text-xs text-zinc-300">
+                          {agent.capabilities.map((cap, idx) => (
+                            <div key={idx} className="flex items-center gap-2">
+                              <CheckCircle2 className="w-4 h-4 text-purple-400 shrink-0" />
+                              <span>{cap}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Actions */}
+                      <div className="pt-4 border-t border-white/10 flex flex-wrap items-center justify-between gap-3">
+                        <div className="flex items-center gap-2 w-full sm:w-auto">
+                          <Link
+                            href={`/chat?agent=${agent.id}`}
+                            className="flex-1 sm:flex-initial px-5 py-2.5 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs transition shadow-lg flex items-center justify-center gap-2 cursor-pointer"
+                          >
+                            <span>ورود به فضای استودیو</span>
+                            <ArrowRight className="w-3.5 h-3.5 rotate-180" />
+                          </Link>
+                          {agent.id === 'shop' && (
+                            <button
+                              type="button"
+                              onClick={handleOpenActivation}
+                              className="px-3.5 py-2.5 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/10 text-zinc-300 hover:text-white text-xs font-semibold transition cursor-pointer flex items-center gap-1.5"
+                            >
+                              <Settings2 className="w-3.5 h-3.5" />
+                              <span>تنظیمات فروشگاه</span>
+                            </button>
+                          )}
+                        </div>
+
+                        <div className="text-[11px] text-zinc-500 font-mono">
+                          نسخه {agent.version} • AUTOFLOW
+                        </div>
                       </div>
                     </div>
-
-                    {/* Agent Capabilities Checklist */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 my-5 p-4 rounded-2xl bg-black/40 border border-white/5 text-xs text-zinc-300">
-                      <div className="flex items-center gap-2">
-                        <Boxes className="w-4 h-4 text-purple-400 shrink-0" />
-                        <span>تعریف و انبارداری سریع محصولات</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <ReceiptText className="w-4 h-4 text-cyan-400 shrink-0" />
-                        <span>محاسبه تخفیف و صدور فاکتور رسمی</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
-                        <span>مهر دیجیتال و پرینت/اشتراک فاکتور</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Bot className="w-4 h-4 text-indigo-400 shrink-0" />
-                        <span>کامپوننت‌های تعاملی جنریتیو در چت</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Actions */}
-                  <div className="pt-4 border-t border-white/10 flex flex-wrap items-center justify-between gap-3">
-                    {isInstalled ? (
-                      <div className="flex items-center gap-2 w-full sm:w-auto">
-                        <Link
-                          href="/chat?agent=shop"
-                          className="flex-1 sm:flex-initial px-5 py-2.5 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs transition shadow-lg flex items-center justify-center gap-2 cursor-pointer"
-                        >
-                          <span>ورود به چت با ایجنت</span>
-                          <ArrowRight className="w-3.5 h-3.5 rotate-180" />
-                        </Link>
-                        <button
-                          type="button"
-                          onClick={handleOpenActivation}
-                          className="px-3.5 py-2.5 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/10 text-zinc-300 hover:text-white text-xs font-semibold transition cursor-pointer flex items-center gap-1.5"
-                        >
-                          <Settings2 className="w-3.5 h-3.5" />
-                          <span>ویرایش اطلاعات</span>
-                        </button>
-                      </div>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={handleOpenActivation}
-                        className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-white hover:bg-zinc-200 text-zinc-950 font-extrabold text-xs transition shadow-md flex items-center justify-center gap-2 cursor-pointer"
-                      >
-                        <Plus className="w-4 h-4" />
-                        <span>فعال‌سازی و اتصال به استودیو</span>
-                      </button>
-                    )}
-
-                    <div className="text-[11px] text-zinc-500 font-mono">
-                      توسعه‌داده شده برای AUTOFLOW
-                    </div>
-                  </div>
-                </div>
-
-                {/* Coming Soon Teaser for Next Agents */}
-                <div className="relative rounded-[32px] bg-zinc-900/30 backdrop-blur-xl border border-dashed border-zinc-800 p-6 sm:p-7 flex flex-col justify-between text-center items-center">
-                  <div className="my-auto py-8">
-                    <div className="w-14 h-14 rounded-2xl bg-zinc-900 border border-zinc-800 text-zinc-500 mx-auto flex items-center justify-center mb-3">
-                      <Bot className="w-6 h-6" />
-                    </div>
-                    <h4 className="text-base font-bold text-white mb-1">
-                      ایجنت‌های بعدی در راه هستند...
-                    </h4>
-                    <p className="text-xs text-zinc-400 max-w-sm mx-auto leading-relaxed">
-                      ایجنت‌های تخصصی پشتیبانی هوشمند، تحلیلگر داده مالی، و دستیار سئو به زودی در مارکت‌پلیس قابل نصب خواهند بود.
-                    </p>
-                  </div>
-                  <span className="text-[11px] font-mono text-zinc-600">
-                    Next update • Agent Ecosystem
-                  </span>
-                </div>
+                  ))}
               </div>
             ) : (
               <div className="p-12 text-center rounded-3xl bg-zinc-900/30 border border-zinc-800">
@@ -339,81 +353,97 @@ export default function MarketplacePage() {
         {/* TAB 2: INSTALLED AGENTS */}
         {activeTab === 'installed' && (
           <div>
-            {isInstalled && storeProfile ? (
-              <div className="max-w-2xl mx-auto rounded-[32px] bg-zinc-900/80 backdrop-blur-2xl border border-white/15 p-6 sm:p-8 shadow-2xl space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-white/10">
-                  <div className="flex items-center gap-3.5">
-                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-2xl shadow-lg">
-                      🏪
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h3 className="text-lg font-extrabold text-white">
-                          {storeProfile.storeName}
-                        </h3>
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                          آنلاین و متصل
-                        </span>
+            {agents.filter((a) => a.isEnabled).length > 0 ? (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {agents
+                  .filter((a) => a.isEnabled)
+                  .map((agent) => (
+                    <div
+                      key={agent.id}
+                      className="rounded-[32px] bg-zinc-900/80 backdrop-blur-2xl border border-white/15 p-6 sm:p-8 shadow-2xl space-y-6 flex flex-col justify-between"
+                    >
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-white/10">
+                        <div className="flex items-center gap-3.5">
+                          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-2xl shadow-lg shrink-0">
+                            {agent.icon}
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <h3 className="text-lg font-extrabold text-white">
+                                {agent.id === 'shop' && storeProfile?.storeName
+                                  ? storeProfile.storeName
+                                  : agent.name}
+                              </h3>
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                                فعال در استودیو
+                              </span>
+                            </div>
+                            <p className="text-xs text-zinc-400 mt-0.5 leading-relaxed">
+                              {agent.description}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Switch */}
+                        <button
+                          type="button"
+                          role="switch"
+                          aria-checked={agent.isEnabled}
+                          onClick={() => handleToggleAgent(agent.id)}
+                          className="w-12 h-6.5 p-0.5 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 shadow-sm shadow-purple-500/30 transition cursor-pointer self-start sm:self-center"
+                          title="خاموش کردن ایجنت"
+                        >
+                          <div className="w-5 h-5 rounded-full bg-white shadow-md transform -translate-x-5.5 transition-transform duration-200" />
+                        </button>
                       </div>
-                      <p className="text-xs text-zinc-400 mt-0.5">
-                        مدیریت: <span className="text-white">{storeProfile.ownerName}</span> • دسته‌بندی: {storeProfile.category}
-                      </p>
+
+                      {/* Quick Details */}
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        <div className="p-4 rounded-2xl bg-black/40 border border-white/5 text-center">
+                          <span className="text-[11px] text-zinc-400 block mb-1">دسته‌بندی</span>
+                          <span className="text-xs font-bold text-purple-300">{agent.category}</span>
+                        </div>
+                        <div className="p-4 rounded-2xl bg-black/40 border border-white/5 text-center">
+                          <span className="text-[11px] text-zinc-400 block mb-1">نسخه</span>
+                          <span className="text-xs font-bold font-mono text-zinc-200">v{agent.version}</span>
+                        </div>
+                        <div className="p-4 rounded-2xl bg-black/40 border border-white/5 text-center col-span-2 sm:col-span-1">
+                          <span className="text-[11px] text-zinc-400 block mb-1">وضعیت</span>
+                          <span className="text-xs font-bold text-emerald-400">آماده تعامل</span>
+                        </div>
+                      </div>
+
+                      {/* Settings & Direct Open */}
+                      <div className="pt-4 border-t border-white/10 flex items-center justify-between gap-3">
+                        <Link
+                          href={`/chat?agent=${agent.id}`}
+                          className="px-5 py-2.5 rounded-2xl bg-white hover:bg-zinc-200 text-zinc-950 font-bold text-xs transition shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                        >
+                          <span>ورود به فضای استودیو</span>
+                          <ArrowRight className="w-3.5 h-3.5 rotate-180" />
+                        </Link>
+
+                        {agent.id === 'shop' && (
+                          <button
+                            type="button"
+                            onClick={handleOpenActivation}
+                            className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-medium text-zinc-300 transition cursor-pointer"
+                          >
+                            ویرایش مشخصات
+                          </button>
+                        )}
+                      </div>
                     </div>
-                  </div>
-
-                  <Link
-                    href="/chat?agent=shop"
-                    className="px-5 py-2.5 rounded-2xl bg-white hover:bg-zinc-200 text-zinc-950 font-bold text-xs transition shadow-md flex items-center justify-center gap-2 cursor-pointer shrink-0"
-                  >
-                    <span>باز کردن در استودیو</span>
-                    <ArrowRight className="w-3.5 h-3.5 rotate-180" />
-                  </Link>
-                </div>
-
-                {/* Quick stats */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  <div className="p-4 rounded-2xl bg-black/40 border border-white/5 text-center">
-                    <span className="text-[11px] text-zinc-400 block mb-1">کالاهای ثبت شده</span>
-                    <span className="text-lg font-bold font-mono text-purple-300">{productsCount} محصول</span>
-                  </div>
-                  <div className="p-4 rounded-2xl bg-black/40 border border-white/5 text-center">
-                    <span className="text-[11px] text-zinc-400 block mb-1">شماره تماس پشتیبان</span>
-                    <span className="text-xs font-bold font-mono text-zinc-200">{storeProfile.phone}</span>
-                  </div>
-                  <div className="p-4 rounded-2xl bg-black/40 border border-white/5 text-center col-span-2 sm:col-span-1">
-                    <span className="text-[11px] text-zinc-400 block mb-1">وضعیت سرویس</span>
-                    <span className="text-xs font-bold text-emerald-400">آماده صدور فاکتور</span>
-                  </div>
-                </div>
-
-                {/* Settings & Uninstall */}
-                <div className="pt-4 border-t border-white/10 flex items-center justify-between">
-                  <button
-                    type="button"
-                    onClick={handleOpenActivation}
-                    className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-medium text-zinc-300 transition cursor-pointer"
-                  >
-                    ویرایش مشخصات فروشگاه
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleUninstall}
-                    className="px-4 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-xs font-medium text-rose-300 transition cursor-pointer flex items-center gap-1.5"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                    <span>غیرفعال‌سازی ایجنت</span>
-                  </button>
-                </div>
+                  ))}
               </div>
             ) : (
               <div className="rounded-[36px] bg-zinc-900/40 backdrop-blur-xl border border-zinc-800 p-10 sm:p-14 text-center max-w-xl mx-auto shadow-2xl">
                 <div className="w-14 h-14 rounded-2xl bg-zinc-900 border border-zinc-800 text-zinc-400 mx-auto flex items-center justify-center mb-4">
                   <Bot className="w-6 h-6" />
                 </div>
-                <h3 className="text-lg font-bold text-white mb-2">هنوز هیچ ایجنتی فعال نکرده‌اید</h3>
+                <h3 className="text-lg font-bold text-white mb-2">هنوز هیچ ایجنتی فعال نیست</h3>
                 <p className="text-xs text-zinc-400 leading-relaxed max-w-md mx-auto mb-5">
-                  برای اینکه ایجنت فروشگاهی در چت استودیوی شما اضافه شود، از تب «مشاهده و جستجوی ایجنت‌ها» روی دکمه فعال‌سازی کلیک کنید.
+                  برای فعال‌سازی ایجنت‌ها، از تب «مشاهده و جستجوی ایجنت‌ها» سوئیچ هر ایجنت را روشن کنید.
                 </p>
                 <button
                   type="button"
