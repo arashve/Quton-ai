@@ -16,6 +16,8 @@ import {
   CheckCircle2,
   AlertCircle,
   Loader2,
+  Zap,
+  Info,
 } from 'lucide-react';
 
 function AuthContent() {
@@ -23,7 +25,15 @@ function AuthContent() {
   const searchParams = useSearchParams();
   const redirectUrl = searchParams.get('redirect') || '/chat';
 
-  const { user, loading, signInWithGoogle, signInWithEmail, signUpWithEmail, signOutUser } = useAuth();
+  const {
+    user,
+    loading,
+    signInWithGoogle,
+    signInWithEmail,
+    signUpWithEmail,
+    signInAsGuest,
+    signOutUser,
+  } = useAuth();
 
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
   const [email, setEmail] = useState('');
@@ -31,16 +41,23 @@ function AuthContent() {
   const [name, setName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [isOperationNotAllowed, setIsOperationNotAllowed] = useState(false);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   const handleGoogleAuth = async () => {
     try {
       setIsSubmitting(true);
       setErrorMsg(null);
+      setIsOperationNotAllowed(false);
       await signInWithGoogle();
       router.push(redirectUrl);
     } catch (err: any) {
-      if (err?.code !== 'auth/popup-closed-by-user') {
+      if (err?.code === 'auth/operation-not-allowed') {
+        setIsOperationNotAllowed(true);
+        setErrorMsg(
+          'ارائه‌دهنده Google در پنل Firebase (بخش Authentication > Sign-in method) هنوز فعال نشده است. می‌توانید از دکمه ورود سریع زیر استفاده کنید یا آن را در کنسول فایربیس فعال نمایید.'
+        );
+      } else if (err?.code !== 'auth/popup-closed-by-user') {
         setErrorMsg(err?.message || 'Failed to sign in with Google');
       }
     } finally {
@@ -58,6 +75,7 @@ function AuthContent() {
     try {
       setIsSubmitting(true);
       setErrorMsg(null);
+      setIsOperationNotAllowed(false);
       if (mode === 'signin') {
         await signInWithEmail(email, password);
         router.push(redirectUrl);
@@ -69,18 +87,30 @@ function AuthContent() {
         }, 800);
       }
     } catch (err: any) {
-      let msg = err?.message || 'Authentication failed';
-      if (err?.code === 'auth/invalid-credential' || err?.code === 'auth/wrong-password') {
-        msg = 'Invalid email or password.';
-      } else if (err?.code === 'auth/email-already-in-use') {
-        msg = 'An account with this email already exists.';
-      } else if (err?.code === 'auth/weak-password') {
-        msg = 'Password should be at least 6 characters.';
+      if (err?.code === 'auth/operation-not-allowed') {
+        setIsOperationNotAllowed(true);
+        setErrorMsg(
+          'ارائه‌دهنده Email/Password در کنسول فایربیس (Authentication > Sign-in method) هنوز فعال نشده است. از دکمه «ورود سریع تستی» زیر استفاده کنید تا فوراً وارد شوید.'
+        );
+      } else {
+        let msg = err?.message || 'Authentication failed';
+        if (err?.code === 'auth/invalid-credential' || err?.code === 'auth/wrong-password') {
+          msg = 'Invalid email or password.';
+        } else if (err?.code === 'auth/email-already-in-use') {
+          msg = 'An account with this email already exists.';
+        } else if (err?.code === 'auth/weak-password') {
+          msg = 'Password should be at least 6 characters.';
+        }
+        setErrorMsg(msg);
       }
-      setErrorMsg(msg);
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleQuickGuestLogin = () => {
+    signInAsGuest(name.trim() || 'Developer User', email.trim() || 'developer@autoflow.ai');
+    router.push(redirectUrl);
   };
 
   // If already authenticated
@@ -99,7 +129,7 @@ function AuthContent() {
         <div>
           <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-zinc-800 text-zinc-300 font-mono text-xs mb-2">
             <CheckCircle2 className="w-3.5 h-3.5 text-white" />
-            <span>Authenticated</span>
+            <span>{'isGuest' in user && user.isGuest ? 'Developer Session' : 'Authenticated'}</span>
           </div>
           <h2 className="text-xl font-bold text-white tracking-tight">
             {user.displayName || 'Welcome Back'}
@@ -154,6 +184,7 @@ function AuthContent() {
             onClick={() => {
               setMode('signin');
               setErrorMsg(null);
+              setIsOperationNotAllowed(false);
             }}
             className={`py-2 rounded-xl transition cursor-pointer ${
               mode === 'signin'
@@ -168,6 +199,7 @@ function AuthContent() {
             onClick={() => {
               setMode('signup');
               setErrorMsg(null);
+              setIsOperationNotAllowed(false);
             }}
             className={`py-2 rounded-xl transition cursor-pointer ${
               mode === 'signup'
@@ -181,17 +213,42 @@ function AuthContent() {
 
         {/* Feedback Messages */}
         {errorMsg && (
-          <div className="p-3 rounded-2xl bg-zinc-950 border border-zinc-800 text-xs text-zinc-300 flex items-start gap-2">
-            <AlertCircle className="w-4 h-4 text-white shrink-0 mt-0.5" />
-            <span>{errorMsg}</span>
+          <div className="p-3.5 rounded-2xl bg-zinc-950 border border-zinc-800 text-xs text-zinc-300 space-y-2">
+            <div className="flex items-start gap-2">
+              <AlertCircle className="w-4 h-4 text-white shrink-0 mt-0.5" />
+              <span className="leading-relaxed">{errorMsg}</span>
+            </div>
+            {isOperationNotAllowed && (
+              <div className="pt-2 border-t border-zinc-800">
+                <button
+                  type="button"
+                  onClick={handleQuickGuestLogin}
+                  className="w-full py-2 px-3 rounded-xl bg-white hover:bg-zinc-200 text-zinc-950 font-bold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <Zap className="w-3.5 h-3.5" />
+                  <span>ورود فوری به عنوان Developer / Guest</span>
+                </button>
+              </div>
+            )}
           </div>
         )}
+
         {successMsg && (
           <div className="p-3 rounded-2xl bg-zinc-950 border border-zinc-800 text-xs text-zinc-300 flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 text-white shrink-0" />
             <span>{successMsg}</span>
           </div>
         )}
+
+        {/* 1-Click Quick Demo Login Pill (Always available for immediate testing) */}
+        <button
+          type="button"
+          onClick={handleQuickGuestLogin}
+          className="w-full py-2.5 px-4 rounded-2xl bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-white font-semibold text-xs transition flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+        >
+          <Zap className="w-4 h-4 text-white" />
+          <span>ورود سریع تستی (Quick Studio Access)</span>
+        </button>
 
         {/* Quick Google Sign In */}
         <button
@@ -276,7 +333,7 @@ function AuthContent() {
               <Loader2 className="w-4 h-4 animate-spin text-zinc-950" />
             ) : mode === 'signin' ? (
               <>
-                <span>Sign In to Studio</span>
+                <span>Sign In with Email</span>
                 <ArrowRight className="w-4 h-4" />
               </>
             ) : (
@@ -288,8 +345,9 @@ function AuthContent() {
           </button>
         </form>
 
-        <div className="pt-2 text-center text-[11px] text-zinc-500">
-          Protected with Firebase Security Rules and private local sessions.
+        <div className="pt-2 text-center text-[11px] text-zinc-500 flex items-center justify-center gap-1.5">
+          <Info className="w-3.5 h-3.5" />
+          <span>If Firebase sign-in providers are not yet enabled in your console, use Quick Access.</span>
         </div>
       </div>
     </div>
@@ -298,7 +356,7 @@ function AuthContent() {
 
 export default function AuthPage() {
   return (
-    <div className="min-h-screen relative w-full overflow-x-hidden bg-zinc-950 text-zinc-100 selection:bg-zinc-800 flex flex-col justify-between">
+    <div className="min-h-[100dvh] relative w-full overflow-x-hidden bg-zinc-950 text-zinc-100 selection:bg-zinc-800 flex flex-col justify-between pb-[calc(env(safe-area-inset-bottom)+6rem)] md:pb-[calc(env(safe-area-inset-bottom)+3rem)]">
       {/* 1. Desktop Navbar-12 */}
       <Navbar12 />
 
