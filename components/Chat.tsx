@@ -2239,7 +2239,7 @@ export const Chat: React.FC<ChatProps> = ({ initialPrompt, initialAgent }) => {
                 })}
               </div>
             </div>
-          )) : (
+          ) : (
             /* Active Messages List - Flat */
             <div className="max-w-3xl mx-auto space-y-7 pb-36">
               {messages.map((message, index) => {
