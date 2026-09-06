@@ -1,11 +1,14 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&family=Press+Start+2P&display=swap');
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+:root {
+  --font-pixel: 'Segoe UI', 'Tahoma', 'Verdana', sans-serif;
+}
+
 .font-pixel {
-  font-family: var(--font-pixel), 'Pixelify Sans', 'Press Start 2P', monospace, sans-serif;
+  font-family: var(--font-pixel), 'Segoe UI', 'Tahoma', 'Verdana', sans-serif;
 }
 
 :root {
@@ -27,9 +30,27 @@ html, body {
   background: #020202;
 }
 
+:root {
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+}
+
 body {
+  min-height: 100vh;
   min-height: 100dvh;
+  min-height: 100svh;
+  min-height: -webkit-fill-available;
+  padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left);
+  box-sizing: border-box;
   background: #020202;
+}
+
+@supports (-webkit-touch-callout: none) {
+  body {
+    min-height: -webkit-fill-available;
+  }
 }
 
 .dark {
