@@ -74,8 +74,8 @@ export const ALL_STUDIO_AGENTS: Omit<StudioAgent, 'isEnabled'>[] = [
     description: 'مدیریت محصولات انبار، صدور خودکار فاکتور رسمی دیجیتال و استعلام موجودی هوشمند.',
     descriptionFa: 'مدیریت محصولات انبار، صدور خودکار فاکتور رسمی دیجیتال و استعلام موجودی هوشمند.',
     icon: '🏪',
-    accentColor: '#8B5CF6',
-    glowGradient: 'from-purple-600/30 via-indigo-600/20 to-cyan-500/10',
+    accentColor: '#FFFFFF',
+    glowGradient: 'from-white/10 via-zinc-800/20 to-transparent',
     capabilities: ['ثبت کالا', 'کاتالوگ زنده', 'فاکتور رسمی', 'محاسبه تخفیف'],
   },
   {
@@ -88,8 +88,8 @@ export const ALL_STUDIO_AGENTS: Omit<StudioAgent, 'isEnabled'>[] = [
     description: 'معماری مایکروسرویس، بررسی امنیت API، دیباگ خط‌به‌خط و تولید کدهای تایپ‌اسکریپت بهینه‌شده.',
     descriptionFa: 'معماری مایکروسرویس، بررسی امنیت API، دیباگ خط‌به‌خط و تولید کدهای تایپ‌اسکریپت بهینه‌شده.',
     icon: '⚡',
-    accentColor: '#06B6D4',
-    glowGradient: 'from-cyan-600/30 via-blue-600/20 to-purple-500/10',
+    accentColor: '#FFFFFF',
+    glowGradient: 'from-white/10 via-zinc-800/20 to-transparent',
     capabilities: ['معماری سیستم', 'دیباگ سریع', 'تست واحد', 'بهینه‌سازی AST'],
   },
   {
@@ -102,8 +102,8 @@ export const ALL_STUDIO_AGENTS: Omit<StudioAgent, 'isEnabled'>[] = [
     description: 'سنتز اسناد پیچیده، ارزیابی داده‌های وب، مقایسه تخصصی مدل‌ها و استخراج رفرنس‌های معتبر.',
     descriptionFa: 'سنتز اسناد پیچیده، ارزیابی داده‌های وب، مقایسه تخصصی مدل‌ها و استخراج رفرنس‌های معتبر.',
     icon: '🔬',
-    accentColor: '#F59E0B',
-    glowGradient: 'from-amber-600/30 via-rose-600/20 to-purple-500/10',
+    accentColor: '#FFFFFF',
+    glowGradient: 'from-white/10 via-zinc-800/20 to-transparent',
     capabilities: ['استخراج رفرنس', 'سنتز داده‌ها', 'تحلیل بازار', 'چکیده‌سازی'],
   },
 ];

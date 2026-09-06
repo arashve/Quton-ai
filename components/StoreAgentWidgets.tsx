@@ -106,16 +106,12 @@ export function StoreAddProductWidget({
   return (
     <div
       dir="rtl"
-      className="relative overflow-hidden w-full my-3 p-5 sm:p-6 rounded-[28px] bg-zinc-900/90 dark:bg-zinc-900/90 backdrop-blur-2xl border border-white/15 dark:border-white/10 shadow-2xl text-zinc-100 font-sans"
+      className="relative overflow-hidden w-full my-3 p-5 sm:p-6 rounded-[28px] bg-zinc-900 border border-zinc-800 shadow-2xl text-zinc-100 font-sans"
     >
-      {/* Aurora glowing background mesh */}
-      <div className="absolute -top-24 -right-24 w-60 h-60 bg-purple-600/15 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-24 -left-24 w-60 h-60 bg-cyan-600/15 rounded-full blur-3xl pointer-events-none" />
-
       {/* Header */}
-      <div className="relative z-10 flex items-center justify-between gap-3 pb-4 mb-4 border-b border-white/10">
+      <div className="relative z-10 flex items-center justify-between gap-3 pb-4 mb-4 border-b border-zinc-800">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-400 shadow-sm">
+          <div className="w-10 h-10 rounded-2xl bg-zinc-800 border border-zinc-700 flex items-center justify-center text-white shadow-sm">
             <PackagePlus className="w-5 h-5" />
           </div>
           <div>
@@ -123,7 +119,7 @@ export function StoreAddProductWidget({
               <h3 className="text-base font-bold text-white tracking-tight">
                 افزودن محصول جدید به انبار
               </h3>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-purple-500/20 text-purple-300 border border-purple-500/30">
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-zinc-800 text-zinc-300 border border-zinc-700">
                 Store Agent Tool
               </span>
             </div>
@@ -139,11 +135,11 @@ export function StoreAddProductWidget({
 
       {/* Success Notification if just added */}
       {justAddedProduct && (
-        <div className="relative z-10 mb-4 p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="relative z-10 mb-4 p-3.5 rounded-2xl bg-zinc-800 border border-zinc-700 flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-2 duration-200">
           <div className="flex items-center gap-2.5 min-w-0">
-            <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+            <CheckCircle2 className="w-5 h-5 text-white shrink-0" />
             <div className="truncate text-xs">
-              <span className="font-bold text-emerald-300 ml-1">
+              <span className="font-bold text-white ml-1">
                 {justAddedProduct.emoji} {justAddedProduct.title}
               </span>
               <span className="text-zinc-300">با موفقیت به کاتالوگ فروشگاه اضافه شد.</span>
@@ -154,7 +150,7 @@ export function StoreAddProductWidget({
               <button
                 type="button"
                 onClick={onOpenCatalog}
-                className="px-3 py-1.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 text-emerald-300 text-xs font-medium cursor-pointer transition"
+                className="px-3 py-1.5 rounded-xl bg-zinc-700 hover:bg-zinc-600 border border-zinc-600 text-white text-xs font-medium cursor-pointer transition"
               >
                 مشاهده در کاتالوگ
               </button>
@@ -171,7 +167,7 @@ export function StoreAddProductWidget({
             <label className="block text-xs text-zinc-400 font-medium mb-1.5">
               آیکون / نشان
             </label>
-            <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-black/40 border border-white/10">
+            <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-zinc-950 border border-zinc-800">
               <span className="text-xl px-2">{emoji}</span>
               <div className="flex-1 flex gap-1 overflow-x-auto py-1 scrollbar-none">
                 {SAMPLE_EMOJIS.map((e) => (
@@ -179,8 +175,8 @@ export function StoreAddProductWidget({
                     key={e}
                     type="button"
                     onClick={() => setEmoji(e)}
-                    className={`px-1.5 py-0.5 rounded-lg text-sm hover:bg-white/10 transition cursor-pointer ${
-                      emoji === e ? 'bg-white/20 ring-1 ring-white/30' : ''
+                    className={`px-1.5 py-0.5 rounded-lg text-sm hover:bg-zinc-800 transition cursor-pointer ${
+                      emoji === e ? 'bg-zinc-800 text-white ring-1 ring-zinc-600' : 'text-zinc-400'
                     }`}
                   >
                     {e}
@@ -193,7 +189,7 @@ export function StoreAddProductWidget({
           {/* Product Title */}
           <div className="sm:col-span-9">
             <label className="block text-xs text-zinc-400 font-medium mb-1.5">
-              نام و عنوان محصول <span className="text-rose-400">*</span>
+              نام و عنوان محصول <span className="text-zinc-400">*</span>
             </label>
             <input
               type="text"
@@ -201,7 +197,7 @@ export function StoreAddProductWidget({
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="مثال: هندزفری بلوتوث پرو سری جدید"
-              className="w-full px-3.5 py-2.5 rounded-2xl bg-black/40 border border-white/10 text-xs sm:text-sm text-white placeholder:text-zinc-500 focus:outline-hidden focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition"
+              className="w-full px-3.5 py-2.5 rounded-2xl bg-zinc-950 border border-zinc-800 text-xs sm:text-sm text-white placeholder:text-zinc-500 focus:outline-hidden focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 transition"
             />
           </div>
         </div>
@@ -210,7 +206,7 @@ export function StoreAddProductWidget({
           {/* Price */}
           <div>
             <label className="block text-xs text-zinc-400 font-medium mb-1.5">
-              قیمت واحد (تومان) <span className="text-rose-400">*</span>
+              قیمت واحد (تومان) <span className="text-zinc-400">*</span>
             </label>
             <input
               type="text"
@@ -221,10 +217,10 @@ export function StoreAddProductWidget({
                 setPrice(numeric ? parseInt(numeric, 10).toLocaleString('en-US') : '');
               }}
               placeholder="مثال: 1,250,000"
-              className="w-full px-3.5 py-2.5 rounded-2xl bg-black/40 border border-white/10 text-xs sm:text-sm text-white placeholder:text-zinc-500 focus:outline-hidden focus:border-purple-500 focus:ring-1 focus:ring-purple-500 font-mono transition"
+              className="w-full px-3.5 py-2.5 rounded-2xl bg-zinc-950 border border-zinc-800 text-xs sm:text-sm text-white placeholder:text-zinc-500 focus:outline-hidden focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 font-mono transition"
             />
             {parsedPrice > 0 && (
-              <p className="text-[11px] text-purple-400 mt-1 font-medium">
+              <p className="text-[11px] text-zinc-300 mt-1 font-medium">
                 {formatTomans(parsedPrice)}
               </p>
             )}
@@ -240,7 +236,7 @@ export function StoreAddProductWidget({
               min="0"
               value={stock}
               onChange={(e) => setStock(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-2xl bg-black/40 border border-white/10 text-xs sm:text-sm text-white placeholder:text-zinc-500 focus:outline-hidden focus:border-purple-500 focus:ring-1 focus:ring-purple-500 font-mono transition"
+              className="w-full px-3.5 py-2.5 rounded-2xl bg-zinc-950 border border-zinc-800 text-xs sm:text-sm text-white placeholder:text-zinc-500 focus:outline-hidden focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 font-mono transition"
             />
           </div>
 
@@ -252,7 +248,7 @@ export function StoreAddProductWidget({
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-2xl bg-black/40 border border-white/10 text-xs text-white focus:outline-hidden focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition cursor-pointer"
+              className="w-full px-3.5 py-2.5 rounded-2xl bg-zinc-950 border border-zinc-800 text-xs text-white focus:outline-hidden focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 transition cursor-pointer"
             >
               {CATEGORIES.map((c) => (
                 <option key={c} value={c} className="bg-zinc-900 text-white">
@@ -273,7 +269,7 @@ export function StoreAddProductWidget({
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="مثال: گارانتی ۱۸ ماهه شرکتی، رنگ مشکی مات"
-            className="w-full px-3.5 py-2.5 rounded-2xl bg-black/40 border border-white/10 text-xs sm:text-sm text-white placeholder:text-zinc-500 focus:outline-hidden focus:border-purple-500 transition"
+            className="w-full px-3.5 py-2.5 rounded-2xl bg-zinc-950 border border-zinc-800 text-xs sm:text-sm text-white placeholder:text-zinc-500 focus:outline-hidden focus:border-zinc-400 transition"
           />
         </div>
 
@@ -282,7 +278,7 @@ export function StoreAddProductWidget({
           <button
             type="submit"
             disabled={isSubmitting || !title.trim() || parsedPrice <= 0}
-            className="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs sm:text-sm shadow-lg shadow-purple-600/20 transition flex items-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-5 py-2.5 rounded-2xl bg-white hover:bg-zinc-200 text-zinc-950 font-bold text-xs sm:text-sm shadow-md transition flex items-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Plus className="w-4 h-4" />
             <span>{isSubmitting ? 'در حال ثبت...' : 'ثبت محصول در انبار'}</span>
@@ -293,7 +289,7 @@ export function StoreAddProductWidget({
               <button
                 type="button"
                 onClick={onOpenCatalog}
-                className="px-4 py-2 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-zinc-300 hover:text-white text-xs font-medium transition cursor-pointer flex items-center gap-1.5"
+                className="px-4 py-2 rounded-2xl bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-200 hover:text-white text-xs font-medium transition cursor-pointer flex items-center gap-1.5"
               >
                 <Boxes className="w-3.5 h-3.5" />
                 <span>مشاهده کاتالوگ انبار</span>
@@ -303,7 +299,7 @@ export function StoreAddProductWidget({
               <button
                 type="button"
                 onClick={onOpenInvoice}
-                className="px-4 py-2 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-zinc-300 hover:text-white text-xs font-medium transition cursor-pointer flex items-center gap-1.5"
+                className="px-4 py-2 rounded-2xl bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-200 hover:text-white text-xs font-medium transition cursor-pointer flex items-center gap-1.5"
               >
                 <ReceiptText className="w-3.5 h-3.5" />
                 <span>صدور فاکتور</span>
@@ -363,14 +359,12 @@ export function StoreProductCatalogWidget({
   return (
     <div
       dir="rtl"
-      className="relative overflow-hidden w-full my-3 p-5 sm:p-6 rounded-[28px] bg-zinc-900/90 dark:bg-zinc-900/90 backdrop-blur-2xl border border-white/15 dark:border-white/10 shadow-2xl text-zinc-100 font-sans"
+      className="relative overflow-hidden w-full my-3 p-5 sm:p-6 rounded-[28px] bg-zinc-900 border border-zinc-800 shadow-2xl text-zinc-100 font-sans"
     >
-      <div className="absolute -top-24 -left-24 w-60 h-60 bg-cyan-600/15 rounded-full blur-3xl pointer-events-none" />
-
       {/* Header */}
-      <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 mb-4 border-b border-white/10">
+      <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 mb-4 border-b border-zinc-800">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shadow-sm">
+          <div className="w-10 h-10 rounded-2xl bg-zinc-800 border border-zinc-700 flex items-center justify-center text-white shadow-sm">
             <Boxes className="w-5 h-5" />
           </div>
           <div>
@@ -378,7 +372,7 @@ export function StoreProductCatalogWidget({
               <h3 className="text-base font-bold text-white tracking-tight">
                 کاتالوگ و لیست محصولات فعال
               </h3>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-zinc-800 text-zinc-300 border border-zinc-700">
                 {products.length} محصول در انبار
               </span>
             </div>
@@ -394,7 +388,7 @@ export function StoreProductCatalogWidget({
             <button
               type="button"
               onClick={onAddProductClick}
-              className="px-3.5 py-2 rounded-2xl bg-purple-600/80 hover:bg-purple-600 border border-purple-500/30 text-white text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer"
+              className="px-3.5 py-2 rounded-2xl bg-white hover:bg-zinc-200 text-zinc-950 text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer shadow-sm"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>افزودن محصول</span>
@@ -404,7 +398,7 @@ export function StoreProductCatalogWidget({
             <button
               type="button"
               onClick={onOpenInvoice}
-              className="px-3.5 py-2 rounded-2xl bg-emerald-600/80 hover:bg-emerald-600 border border-emerald-500/30 text-white text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer"
+              className="px-3.5 py-2 rounded-2xl bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-white text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer"
             >
               <ReceiptText className="w-3.5 h-3.5" />
               <span>صدور فاکتور</span>
@@ -422,7 +416,7 @@ export function StoreProductCatalogWidget({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="جستجوی نام کالا..."
-            className="w-full pr-9 pl-4 py-2 rounded-2xl bg-black/40 border border-white/10 text-xs text-white placeholder:text-zinc-500 focus:outline-hidden focus:border-cyan-500"
+            className="w-full pr-9 pl-4 py-2 rounded-2xl bg-zinc-950 border border-zinc-800 text-xs text-white placeholder:text-zinc-500 focus:outline-hidden focus:border-zinc-400"
           />
         </div>
 
@@ -435,8 +429,8 @@ export function StoreProductCatalogWidget({
               onClick={() => setSelectedCategory(cat)}
               className={`px-3 py-1 rounded-xl text-[11px] font-medium whitespace-nowrap transition cursor-pointer ${
                 selectedCategory === cat
-                  ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-semibold'
-                  : 'bg-black/30 text-zinc-400 hover:text-white border border-white/5'
+                  ? 'bg-white text-zinc-950 font-bold'
+                  : 'bg-zinc-950 text-zinc-400 hover:text-white border border-zinc-800'
               }`}
             >
               {cat}
@@ -447,7 +441,7 @@ export function StoreProductCatalogWidget({
 
       {/* Bento Grid of Products */}
       {filtered.length === 0 ? (
-        <div className="relative z-10 p-8 text-center rounded-2xl bg-black/30 border border-white/5">
+        <div className="relative z-10 p-8 text-center rounded-2xl bg-zinc-950 border border-zinc-800">
           <p className="text-xs text-zinc-400 mb-3">هیچ محصولی مطابق جستجو یافت نشد.</p>
           {onAddProductClick && (
             <button
@@ -464,21 +458,21 @@ export function StoreProductCatalogWidget({
           {filtered.map((prod) => (
             <div
               key={prod.id}
-              className="group relative p-4 rounded-[22px] bg-black/30 hover:bg-black/50 border border-white/10 hover:border-white/20 transition-all flex flex-col justify-between shadow-sm"
+              className="group relative p-4 rounded-[22px] bg-zinc-950 hover:bg-zinc-900 border border-zinc-800 hover:border-zinc-700 transition-all flex flex-col justify-between shadow-sm"
             >
               <div>
                 <div className="flex items-start justify-between gap-2 mb-2">
-                  <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-xl">
+                  <div className="w-10 h-10 rounded-xl bg-zinc-800 border border-zinc-700 flex items-center justify-center text-xl">
                     {prod.emoji || '📦'}
                   </div>
                   <div className="flex items-center gap-1">
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-white/10 text-zinc-300 border border-white/10">
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-zinc-800 text-zinc-300 border border-zinc-700">
                       انبار: {prod.stock}
                     </span>
                     <button
                       type="button"
                       onClick={() => handleDelete(prod.id)}
-                      className="p-1.5 rounded-lg text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10 transition cursor-pointer opacity-0 group-hover:opacity-100"
+                      className="p-1.5 rounded-lg text-zinc-500 hover:text-white hover:bg-zinc-800 transition cursor-pointer opacity-0 group-hover:opacity-100"
                       title="حذف از انبار"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -496,8 +490,8 @@ export function StoreProductCatalogWidget({
                 )}
               </div>
 
-              <div className="pt-3 mt-2 border-t border-white/5 flex items-center justify-between gap-2">
-                <span className="text-xs sm:text-sm font-extrabold text-cyan-300 font-mono">
+              <div className="pt-3 mt-2 border-t border-zinc-800 flex items-center justify-between gap-2">
+                <span className="text-xs sm:text-sm font-extrabold text-white font-mono">
                   {formatTomans(prod.price)}
                 </span>
 
@@ -505,7 +499,7 @@ export function StoreProductCatalogWidget({
                   <button
                     type="button"
                     onClick={() => onSelectForInvoice(prod)}
-                    className="px-2.5 py-1.5 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/30 text-cyan-300 text-[11px] font-semibold flex items-center gap-1 transition cursor-pointer"
+                    className="px-2.5 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-white text-[11px] font-semibold flex items-center gap-1 transition cursor-pointer"
                   >
                     <Plus className="w-3 h-3" />
                     <span>افزودن به فاکتور</span>
@@ -514,7 +508,7 @@ export function StoreProductCatalogWidget({
                   <button
                     type="button"
                     onClick={onOpenInvoice}
-                    className="px-2.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-zinc-300 text-[11px] font-medium transition cursor-pointer"
+                    className="px-2.5 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-300 text-[11px] font-medium transition cursor-pointer"
                   >
                     انتخاب در فاکتور
                   </button>
@@ -630,14 +624,12 @@ export function StoreInvoiceBuilderWidget({
   return (
     <div
       dir="rtl"
-      className="relative overflow-hidden w-full my-3 p-5 sm:p-6 rounded-[28px] bg-zinc-900/90 dark:bg-zinc-900/90 backdrop-blur-2xl border border-white/15 dark:border-white/10 shadow-2xl text-zinc-100 font-sans"
+      className="relative overflow-hidden w-full my-3 p-5 sm:p-6 rounded-[28px] bg-zinc-900 border border-zinc-800 shadow-2xl text-zinc-100 font-sans"
     >
-      <div className="absolute -top-24 -right-24 w-60 h-60 bg-emerald-600/15 rounded-full blur-3xl pointer-events-none" />
-
       {/* Header */}
-      <div className="relative z-10 flex items-center justify-between gap-3 pb-4 mb-4 border-b border-white/10">
+      <div className="relative z-10 flex items-center justify-between gap-3 pb-4 mb-4 border-b border-zinc-800">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-sm">
+          <div className="w-10 h-10 rounded-2xl bg-zinc-800 border border-zinc-700 flex items-center justify-center text-white shadow-sm">
             <ReceiptText className="w-5 h-5" />
           </div>
           <div>
@@ -645,7 +637,7 @@ export function StoreInvoiceBuilderWidget({
               <h3 className="text-base font-bold text-white tracking-tight">
                 صدور فاکتور و پیش‌فاکتور رسمی
               </h3>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-zinc-800 text-zinc-300 border border-zinc-700">
                 Invoice Engine
               </span>
             </div>
@@ -662,7 +654,7 @@ export function StoreInvoiceBuilderWidget({
           <button
             type="button"
             onClick={onOpenCatalog}
-            className="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-zinc-300 transition cursor-pointer"
+            className="px-3 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-xs text-zinc-300 transition cursor-pointer"
           >
             مشاهده کاتالوگ
           </button>
@@ -671,12 +663,12 @@ export function StoreInvoiceBuilderWidget({
 
       <form onSubmit={handleIssueInvoice} className="relative z-10 space-y-4">
         {/* Customer Information */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 p-4 rounded-2xl bg-black/30 border border-white/10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 p-4 rounded-2xl bg-zinc-950 border border-zinc-800">
           <div>
             <label className="block text-xs text-zinc-400 font-medium mb-1.5 flex items-center gap-1.5">
               <User className="w-3.5 h-3.5 text-zinc-400" />
               <span>نام و نام خانوادگی خریدار</span>
-              <span className="text-rose-400">*</span>
+              <span className="text-zinc-400">*</span>
             </label>
             <input
               type="text"
@@ -684,7 +676,7 @@ export function StoreInvoiceBuilderWidget({
               value={customerName}
               onChange={(e) => setCustomerName(e.target.value)}
               placeholder="مثال: سارا محمدی"
-              className="w-full px-3.5 py-2 rounded-xl bg-black/50 border border-white/10 text-xs sm:text-sm text-white placeholder:text-zinc-500 focus:outline-hidden focus:border-emerald-500"
+              className="w-full px-3.5 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs sm:text-sm text-white placeholder:text-zinc-500 focus:outline-hidden focus:border-zinc-400"
             />
           </div>
 
@@ -698,13 +690,13 @@ export function StoreInvoiceBuilderWidget({
               value={customerPhone}
               onChange={(e) => setCustomerPhone(e.target.value)}
               placeholder="۰۹۱۲۳۴۵۶۷۸۹"
-              className="w-full px-3.5 py-2 rounded-xl bg-black/50 border border-white/10 text-xs sm:text-sm text-white placeholder:text-zinc-500 focus:outline-hidden focus:border-emerald-500 font-mono"
+              className="w-full px-3.5 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs sm:text-sm text-white placeholder:text-zinc-500 focus:outline-hidden focus:border-zinc-400 font-mono"
             />
           </div>
         </div>
 
         {/* Product selection list for invoice */}
-        <div className="p-4 rounded-2xl bg-black/30 border border-white/10">
+        <div className="p-4 rounded-2xl bg-zinc-950 border border-zinc-800">
           <div className="flex items-center justify-between mb-2.5">
             <span className="text-xs font-bold text-zinc-300">
               اقلام انتخابی فاکتور ({invoiceItemList.length} قلم کالا)
@@ -722,8 +714,8 @@ export function StoreInvoiceBuilderWidget({
                   key={prod.id}
                   className={`flex items-center justify-between gap-3 p-2.5 rounded-xl border transition ${
                     qty > 0
-                      ? 'bg-emerald-500/10 border-emerald-500/30'
-                      : 'bg-black/20 border-white/5 opacity-70 hover:opacity-100'
+                      ? 'bg-zinc-800 border-zinc-600'
+                      : 'bg-zinc-900/50 border-zinc-800/60 opacity-70 hover:opacity-100'
                   }`}
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
@@ -739,21 +731,21 @@ export function StoreInvoiceBuilderWidget({
                   {/* Quantity Stepper */}
                   <div className="flex items-center gap-2 shrink-0">
                     {qty > 0 ? (
-                      <div className="flex items-center gap-1 bg-black/50 border border-white/15 rounded-xl p-0.5">
+                      <div className="flex items-center gap-1 bg-zinc-900 border border-zinc-700 rounded-xl p-0.5">
                         <button
                           type="button"
                           onClick={() => updateQuantity(prod.id, -1)}
-                          className="w-6 h-6 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center text-white cursor-pointer"
+                          className="w-6 h-6 rounded-lg bg-zinc-800 hover:bg-zinc-700 flex items-center justify-center text-white cursor-pointer"
                         >
                           <Minus className="w-3 h-3" />
                         </button>
-                        <span className="w-7 text-center font-mono text-xs font-bold text-emerald-300">
+                        <span className="w-7 text-center font-mono text-xs font-bold text-white">
                           {qty}
                         </span>
                         <button
                           type="button"
                           onClick={() => updateQuantity(prod.id, 1)}
-                          className="w-6 h-6 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center text-white cursor-pointer"
+                          className="w-6 h-6 rounded-lg bg-zinc-800 hover:bg-zinc-700 flex items-center justify-center text-white cursor-pointer"
                         >
                           <Plus className="w-3 h-3" />
                         </button>
@@ -762,7 +754,7 @@ export function StoreInvoiceBuilderWidget({
                       <button
                         type="button"
                         onClick={() => updateQuantity(prod.id, 1)}
-                        className="px-2.5 py-1 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-medium text-zinc-300 cursor-pointer transition flex items-center gap-1"
+                        className="px-2.5 py-1 rounded-xl bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-xs font-medium text-zinc-300 cursor-pointer transition flex items-center gap-1"
                       >
                         <Plus className="w-3 h-3" />
                         <span>افزودن</span>
@@ -776,7 +768,7 @@ export function StoreInvoiceBuilderWidget({
         </div>
 
         {/* Financial Summary & Discounts */}
-        <div className="p-4 rounded-2xl bg-black/40 border border-white/10 space-y-2.5">
+        <div className="p-4 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-2.5">
           <div className="flex items-center justify-between text-xs text-zinc-400">
             <span>جمع اقلام:</span>
             <span className="font-mono text-white font-semibold">{formatTomans(subtotal)}</span>
@@ -784,7 +776,7 @@ export function StoreInvoiceBuilderWidget({
 
           <div className="flex items-center justify-between text-xs text-zinc-400">
             <span className="flex items-center gap-1">
-              <Tag className="w-3 h-3 text-rose-400" />
+              <Tag className="w-3 h-3 text-zinc-400" />
               <span>تخفیف ویژه فروشگاه (تومان):</span>
             </span>
             <input
@@ -794,11 +786,11 @@ export function StoreInvoiceBuilderWidget({
                 const numeric = e.target.value.replace(/\D/g, '');
                 setDiscount(numeric ? parseInt(numeric, 10).toLocaleString('en-US') : '0');
               }}
-              className="w-32 px-2.5 py-1 rounded-lg bg-black/60 border border-white/15 text-xs text-right font-mono text-rose-400 focus:outline-hidden"
+              className="w-32 px-2.5 py-1 rounded-lg bg-zinc-900 border border-zinc-700 text-xs text-right font-mono text-zinc-200 focus:outline-hidden"
             />
           </div>
 
-          <div className="pt-2 border-t border-white/10 flex items-center justify-between text-sm sm:text-base font-extrabold text-emerald-300">
+          <div className="pt-2 border-t border-zinc-800 flex items-center justify-between text-sm sm:text-base font-extrabold text-white">
             <span>مبلغ نهایی قابل پرداخت:</span>
             <span className="font-mono">{formatTomans(total)}</span>
           </div>
@@ -808,7 +800,7 @@ export function StoreInvoiceBuilderWidget({
         <button
           type="submit"
           disabled={isIssuing || !customerName.trim() || invoiceItemList.length === 0}
-          className="w-full py-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs sm:text-sm shadow-lg shadow-emerald-600/20 transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full py-3 rounded-2xl bg-white hover:bg-zinc-200 text-zinc-950 font-bold text-xs sm:text-sm shadow-md transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <ReceiptText className="w-4 h-4" />
           <span>{isIssuing ? 'در حال صدور فاکتور نهایی...' : 'ثبت خرید و صدور فاکتور رسمی'}</span>
@@ -868,20 +860,16 @@ ${invoice.items.map((i, idx) => `${idx + 1}. ${i.title} × ${i.quantity} = ${(i.
   return (
     <div
       dir="rtl"
-      className="relative overflow-hidden w-full my-4 p-6 sm:p-8 rounded-[32px] bg-zinc-900/95 dark:bg-zinc-900/95 backdrop-blur-2xl border border-white/20 shadow-2xl text-zinc-100 font-sans print:bg-white print:text-black print:border-none"
+      className="relative overflow-hidden w-full my-4 p-6 sm:p-8 rounded-[32px] bg-zinc-900 border border-zinc-800 shadow-2xl text-zinc-100 font-sans print:bg-white print:text-black print:border-none"
     >
-      {/* Aurora glow */}
-      <div className="absolute top-0 right-1/4 w-72 h-72 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none print:hidden" />
-      <div className="absolute bottom-0 left-1/4 w-72 h-72 bg-purple-500/15 rounded-full blur-3xl pointer-events-none print:hidden" />
-
       {/* Official Header */}
-      <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 mb-6 border-b border-white/10 print:border-zinc-300">
+      <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 mb-6 border-b border-zinc-800 print:border-zinc-300">
         <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-500/30 to-teal-500/30 border border-emerald-500/40 flex items-center justify-center text-emerald-300 shadow-md">
+          <div className="w-12 h-12 rounded-2xl bg-zinc-800 border border-zinc-700 flex items-center justify-center text-white shadow-md">
             <Store className="w-6 h-6" />
           </div>
           <div>
-            <span className="text-[10px] font-mono tracking-wider uppercase text-emerald-400 font-bold block mb-0.5">
+            <span className="text-[10px] font-mono tracking-wider uppercase text-zinc-400 font-bold block mb-0.5">
               فاکتور فروش کالا و خدمات
             </span>
             <h2 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight print:text-black">
@@ -896,7 +884,7 @@ ${invoice.items.map((i, idx) => `${idx + 1}. ${i.title} × ${i.quantity} = ${(i.
 
         {/* Invoice Metadata Badge */}
         <div className="flex flex-col sm:items-end gap-1 font-mono text-xs">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 font-bold">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-200 font-bold">
             <ShieldCheck className="w-3.5 h-3.5" />
             <span>شماره فاکتور: {invoice.invoiceNumber}</span>
           </div>
@@ -907,7 +895,7 @@ ${invoice.items.map((i, idx) => `${idx + 1}. ${i.title} × ${i.quantity} = ${(i.
       </div>
 
       {/* Customer Info Bar */}
-      <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-2xl bg-black/40 border border-white/10 print:bg-zinc-100 print:border-zinc-300 mb-6">
+      <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-2xl bg-zinc-950 border border-zinc-800 print:bg-zinc-100 print:border-zinc-300 mb-6">
         <div>
           <span className="text-[11px] text-zinc-400 block mb-0.5">مشخصات خریدار:</span>
           <span className="text-sm font-bold text-white print:text-black">
@@ -925,9 +913,9 @@ ${invoice.items.map((i, idx) => `${idx + 1}. ${i.title} × ${i.quantity} = ${(i.
       </div>
 
       {/* Itemized Table */}
-      <div className="relative z-10 overflow-x-auto rounded-2xl border border-white/10 print:border-zinc-300 mb-6">
+      <div className="relative z-10 overflow-x-auto rounded-2xl border border-zinc-800 print:border-zinc-300 mb-6">
         <table className="w-full text-right text-xs sm:text-sm">
-          <thead className="bg-white/5 print:bg-zinc-200 text-zinc-400 print:text-zinc-700 text-xs font-semibold">
+          <thead className="bg-zinc-950 print:bg-zinc-200 text-zinc-400 print:text-zinc-700 text-xs font-semibold">
             <tr>
               <th className="py-3 px-3 w-12 text-center">ردیف</th>
               <th className="py-3 px-4">شرح کالا یا خدمات</th>
@@ -936,9 +924,9 @@ ${invoice.items.map((i, idx) => `${idx + 1}. ${i.title} × ${i.quantity} = ${(i.
               <th className="py-3 px-4 text-left">مبلغ کل</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-white/5 print:divide-zinc-200">
+          <tbody className="divide-y divide-zinc-800 print:divide-zinc-200">
             {invoice.items.map((item, idx) => (
-              <tr key={item.productId} className="hover:bg-white/5 transition">
+              <tr key={item.productId} className="hover:bg-zinc-800/50 transition">
                 <td className="py-3 px-3 text-center font-mono text-zinc-500">{idx + 1}</td>
                 <td className="py-3 px-4 font-medium text-white print:text-black">
                   {item.title}
@@ -949,7 +937,7 @@ ${invoice.items.map((i, idx) => `${idx + 1}. ${i.title} × ${i.quantity} = ${(i.
                 <td className="py-3 px-4 text-left font-mono text-zinc-400 print:text-zinc-700">
                   {formatTomans(item.price)}
                 </td>
-                <td className="py-3 px-4 text-left font-mono font-bold text-emerald-300 print:text-black">
+                <td className="py-3 px-4 text-left font-mono font-bold text-white print:text-black">
                   {formatTomans(item.price * item.quantity)}
                 </td>
               </tr>
@@ -959,14 +947,14 @@ ${invoice.items.map((i, idx) => `${idx + 1}. ${i.title} × ${i.quantity} = ${(i.
       </div>
 
       {/* Totals & Official Digital Stamp */}
-      <div className="relative z-10 grid grid-cols-1 sm:grid-cols-12 gap-6 items-end pb-4 border-b border-white/10 print:border-zinc-300 mb-6">
+      <div className="relative z-10 grid grid-cols-1 sm:grid-cols-12 gap-6 items-end pb-4 border-b border-zinc-800 print:border-zinc-300 mb-6">
         {/* Digital Verification Stamp */}
-        <div className="sm:col-span-6 flex items-center gap-3 p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/30">
-          <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-300 shrink-0">
+        <div className="sm:col-span-6 flex items-center gap-3 p-3 rounded-2xl bg-zinc-950 border border-zinc-800">
+          <div className="w-10 h-10 rounded-xl bg-zinc-800 border border-zinc-700 flex items-center justify-center text-white shrink-0">
             <CheckCircle2 className="w-6 h-6" />
           </div>
           <div>
-            <span className="text-xs font-bold text-emerald-300 block">
+            <span className="text-xs font-bold text-white block">
               تاییدیه دیجیتال ثبت خرید
             </span>
             <span className="text-[10px] text-zinc-400 leading-tight block">
@@ -984,12 +972,12 @@ ${invoice.items.map((i, idx) => `${idx + 1}. ${i.title} × ${i.quantity} = ${(i.
             </span>
           </div>
           {invoice.discount > 0 && (
-            <div className="flex justify-between text-xs text-rose-400">
+            <div className="flex justify-between text-xs text-zinc-400">
               <span>تخفیف اعمال شده:</span>
-              <span className="font-mono">-{formatTomans(invoice.discount)}</span>
+              <span className="font-mono text-zinc-300">-{formatTomans(invoice.discount)}</span>
             </div>
           )}
-          <div className="flex justify-between text-base font-extrabold text-emerald-300 print:text-black pt-2 border-t border-white/10 print:border-zinc-300">
+          <div className="flex justify-between text-base font-extrabold text-white print:text-black pt-2 border-t border-zinc-800 print:border-zinc-300">
             <span>مبلغ نهایی پرداختی:</span>
             <span className="font-mono">{formatTomans(invoice.total)}</span>
           </div>
@@ -1010,9 +998,9 @@ ${invoice.items.map((i, idx) => `${idx + 1}. ${i.title} × ${i.quantity} = ${(i.
           <button
             type="button"
             onClick={handleCopySummary}
-            className="px-4 py-2 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/10 text-white text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer"
+            className="px-4 py-2 rounded-2xl bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-white text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer"
           >
-            {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+            {copied ? <Check className="w-3.5 h-3.5 text-white" /> : <Copy className="w-3.5 h-3.5" />}
             <span>{copied ? 'کپی شد!' : 'کپی مشخصات'}</span>
           </button>
         </div>
@@ -1021,7 +1009,7 @@ ${invoice.items.map((i, idx) => `${idx + 1}. ${i.title} × ${i.quantity} = ${(i.
           <button
             type="button"
             onClick={onNewInvoice}
-            className="px-4 py-2 rounded-2xl bg-purple-600/80 hover:bg-purple-600 text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+            className="px-4 py-2 rounded-2xl bg-white hover:bg-zinc-200 text-zinc-950 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-sm"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>صدور فاکتور جدید</span>

@@ -2059,8 +2059,8 @@ export const Chat: React.FC<ChatProps> = ({ initialPrompt, initialAgent }) => {
                   onClick={() => handleSelectWorkspace('shop')}
                   className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition cursor-pointer ${
                     activeWorkspace === 'shop'
-                      ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md shadow-purple-600/30'
-                      : 'text-purple-300 hover:text-white'
+                      ? 'bg-white text-zinc-950 shadow-sm'
+                      : 'text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
                   }`}
                   title="فضای اختصاصی فروشگاه و انبارداری StoreFlow"
                 >
@@ -2070,7 +2070,7 @@ export const Chat: React.FC<ChatProps> = ({ initialPrompt, initialAgent }) => {
                   </span>
                   <span className="sm:hidden text-[11px]">فروشگاه</span>
                   {activeWorkspace === 'shop' && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-zinc-950 dark:bg-zinc-950" />
                   )}
                 </button>
               )}
@@ -2080,10 +2080,10 @@ export const Chat: React.FC<ChatProps> = ({ initialPrompt, initialAgent }) => {
                 id="header-agent-hub-btn"
                 type="button"
                 onClick={() => setIsAgentHubOpen(true)}
-                className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold text-zinc-400 hover:text-white hover:bg-white/10 transition cursor-pointer"
+                className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/10 transition cursor-pointer"
                 title="هاب و استودیوی ایجنت‌ها • روشن/خاموش کردن و سوئیچ بین ایجنت‌ها"
               >
-                <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+                <Sparkles className="w-3.5 h-3.5 text-zinc-400" />
                 <span className="hidden md:inline text-[11px]">استودیو ایجنت‌ها</span>
               </button>
             </div>
