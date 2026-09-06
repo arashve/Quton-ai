@@ -16,8 +16,9 @@ import {
   CheckCircle2,
   AlertCircle,
   Loader2,
-  Zap,
-  Info,
+  Copy,
+  Check,
+  ExternalLink,
 } from 'lucide-react';
 
 function AuthContent() {
@@ -31,7 +32,6 @@ function AuthContent() {
     signInWithGoogle,
     signInWithEmail,
     signUpWithEmail,
-    signInAsGuest,
     signOutUser,
   } = useAuth();
 
@@ -42,20 +42,36 @@ function AuthContent() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isOperationNotAllowed, setIsOperationNotAllowed] = useState(false);
+  const [isUnauthorizedDomain, setIsUnauthorizedDomain] = useState(false);
+  const [copiedDomain, setCopiedDomain] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+
+  const copyToClipboard = (text: string) => {
+    if (typeof window !== 'undefined') {
+      navigator.clipboard.writeText(text);
+      setCopiedDomain(text);
+      setTimeout(() => setCopiedDomain(null), 2500);
+    }
+  };
 
   const handleGoogleAuth = async () => {
     try {
       setIsSubmitting(true);
       setErrorMsg(null);
       setIsOperationNotAllowed(false);
+      setIsUnauthorizedDomain(false);
       await signInWithGoogle();
       router.push(redirectUrl);
     } catch (err: any) {
-      if (err?.code === 'auth/operation-not-allowed') {
+      if (err?.code === 'auth/unauthorized-domain') {
+        setIsUnauthorizedDomain(true);
+        setErrorMsg(
+          'دامنه این سایت در لیست دامنه‌های مجاز پروژه فایربیس ثبت نشده است.'
+        );
+      } else if (err?.code === 'auth/operation-not-allowed') {
         setIsOperationNotAllowed(true);
         setErrorMsg(
-          'ارائه‌دهنده Google در پنل Firebase (بخش Authentication > Sign-in method) هنوز فعال نشده است. می‌توانید از دکمه ورود سریع زیر استفاده کنید یا آن را در کنسول فایربیس فعال نمایید.'
+          'ورود با گوگل در کنسول فایربیس (بخش Authentication > Sign-in method) هنوز فعال نشده است.'
         );
       } else if (err?.code !== 'auth/popup-closed-by-user') {
         setErrorMsg(err?.message || 'Failed to sign in with Google');
@@ -76,6 +92,7 @@ function AuthContent() {
       setIsSubmitting(true);
       setErrorMsg(null);
       setIsOperationNotAllowed(false);
+      setIsUnauthorizedDomain(false);
       if (mode === 'signin') {
         await signInWithEmail(email, password);
         router.push(redirectUrl);
@@ -90,11 +107,11 @@ function AuthContent() {
       if (err?.code === 'auth/operation-not-allowed') {
         setIsOperationNotAllowed(true);
         setErrorMsg(
-          'ارائه‌دهنده Email/Password در کنسول فایربیس (Authentication > Sign-in method) هنوز فعال نشده است. از دکمه «ورود سریع تستی» زیر استفاده کنید تا فوراً وارد شوید.'
+          'روش Email/Password در کنسول فایربیس فعال نشده است. لطفاً آن را در کنسول فایربیس فعال کنید.'
         );
       } else {
         let msg = err?.message || 'Authentication failed';
-        if (err?.code === 'auth/invalid-credential' || err?.code === 'auth/wrong-password') {
+        if (err?.code === 'auth/invalid-credential' || err?.code === 'auth/wrong-password' || err?.code === 'auth/user-not-found') {
           msg = 'Invalid email or password.';
         } else if (err?.code === 'auth/email-already-in-use') {
           msg = 'An account with this email already exists.';
@@ -106,11 +123,6 @@ function AuthContent() {
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const handleQuickGuestLogin = () => {
-    signInAsGuest(name.trim() || 'Developer User', email.trim() || 'developer@autoflow.ai');
-    router.push(redirectUrl);
   };
 
   // If already authenticated
@@ -129,7 +141,7 @@ function AuthContent() {
         <div>
           <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-zinc-800 text-zinc-300 font-mono text-xs mb-2">
             <CheckCircle2 className="w-3.5 h-3.5 text-white" />
-            <span>{'isGuest' in user && user.isGuest ? 'Developer Session' : 'Authenticated'}</span>
+            <span>Authenticated</span>
           </div>
           <h2 className="text-xl font-bold text-white tracking-tight">
             {user.displayName || 'Welcome Back'}
@@ -160,6 +172,8 @@ function AuthContent() {
     );
   }
 
+  const currentDomain = typeof window !== 'undefined' ? window.location.hostname : 'qutonbot.vercel.app';
+
   return (
     <div className="max-w-md w-full mx-auto">
       {/* Auth Card */}
@@ -173,7 +187,7 @@ function AuthContent() {
             {mode === 'signin' ? 'Sign in to AUTOFLOW' : 'Create an Account'}
           </h1>
           <p className="text-xs text-zinc-400">
-            Sign in is required to launch Chat Studio, run models, and persist sessions.
+            Sign in with your Google account or email to access your Studio and manage models.
           </p>
         </div>
 
@@ -185,6 +199,7 @@ function AuthContent() {
               setMode('signin');
               setErrorMsg(null);
               setIsOperationNotAllowed(false);
+              setIsUnauthorizedDomain(false);
             }}
             className={`py-2 rounded-xl transition cursor-pointer ${
               mode === 'signin'
@@ -200,6 +215,7 @@ function AuthContent() {
               setMode('signup');
               setErrorMsg(null);
               setIsOperationNotAllowed(false);
+              setIsUnauthorizedDomain(false);
             }}
             className={`py-2 rounded-xl transition cursor-pointer ${
               mode === 'signup'
@@ -218,16 +234,76 @@ function AuthContent() {
               <AlertCircle className="w-4 h-4 text-white shrink-0 mt-0.5" />
               <span className="leading-relaxed">{errorMsg}</span>
             </div>
+
+            {/* Unauthorized Domain Guide */}
+            {isUnauthorizedDomain && (
+              <div className="pt-2.5 border-t border-zinc-800 space-y-2.5 text-zinc-300">
+                <div className="p-2.5 rounded-xl bg-zinc-900 border border-zinc-800 space-y-2">
+                  <span className="font-semibold text-white block">راه‌اندازی دامنه‌های مجاز در فایربیس:</span>
+                  <p className="text-[11px] text-zinc-400 leading-relaxed">
+                    برای فعال شدن ورود با گوگل، باید دو دامنه زیر در کنسول فایربیس اضافه شوند:
+                  </p>
+                  
+                  {/* Vercel Domain */}
+                  <div className="flex items-center justify-between gap-2 p-2 rounded-lg bg-zinc-950 border border-zinc-800">
+                    <code className="font-mono text-[11px] text-zinc-200">qutonbot.vercel.app</code>
+                    <button
+                      type="button"
+                      onClick={() => copyToClipboard('qutonbot.vercel.app')}
+                      className="inline-flex items-center gap-1 text-[11px] text-white hover:underline cursor-pointer shrink-0 font-sans"
+                    >
+                      {copiedDomain === 'qutonbot.vercel.app' ? (
+                        <>
+                          <Check className="w-3 h-3 text-emerald-400" />
+                          <span className="text-emerald-400">کپی شد</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3 h-3" />
+                          <span>کپی</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+
+                  {/* Current runtime domain if different */}
+                  {currentDomain !== 'qutonbot.vercel.app' && (
+                    <div className="flex items-center justify-between gap-2 p-2 rounded-lg bg-zinc-950 border border-zinc-800">
+                      <code className="font-mono text-[11px] text-zinc-200 break-all">{currentDomain}</code>
+                      <button
+                        type="button"
+                        onClick={() => copyToClipboard(currentDomain)}
+                        className="inline-flex items-center gap-1 text-[11px] text-white hover:underline cursor-pointer shrink-0 font-sans"
+                      >
+                        {copiedDomain === currentDomain ? (
+                          <>
+                            <Check className="w-3 h-3 text-emerald-400" />
+                            <span className="text-emerald-400">کپی شد</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-3 h-3" />
+                            <span>کپی</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  )}
+
+                  <p className="text-[10px] text-zinc-400 leading-normal">
+                    مسیر: <span className="text-zinc-200 font-mono">Firebase Console &gt; Authentication &gt; Settings &gt; Authorized domains &gt; Add domain</span>
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Operation Not Allowed Guide */}
             {isOperationNotAllowed && (
-              <div className="pt-2 border-t border-zinc-800">
-                <button
-                  type="button"
-                  onClick={handleQuickGuestLogin}
-                  className="w-full py-2 px-3 rounded-xl bg-white hover:bg-zinc-200 text-zinc-950 font-bold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer"
-                >
-                  <Zap className="w-3.5 h-3.5" />
-                  <span>ورود فوری به عنوان Developer / Guest</span>
-                </button>
+              <div className="pt-2.5 border-t border-zinc-800 space-y-1 text-[11px] text-zinc-400">
+                <p className="text-white font-medium">فعال‌سازی در کنسول فایربیس:</p>
+                <p>
+                  به مسیر <span className="font-mono text-zinc-200">Firebase Console &gt; Authentication &gt; Sign-in method</span> بروید و روش‌های <strong>Google</strong> و <strong>Email/Password</strong> را فعال (Enable) کنید.
+                </p>
               </div>
             )}
           </div>
@@ -240,17 +316,7 @@ function AuthContent() {
           </div>
         )}
 
-        {/* 1-Click Quick Demo Login Pill (Always available for immediate testing) */}
-        <button
-          type="button"
-          onClick={handleQuickGuestLogin}
-          className="w-full py-2.5 px-4 rounded-2xl bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-white font-semibold text-xs transition flex items-center justify-center gap-2 cursor-pointer shadow-xs"
-        >
-          <Zap className="w-4 h-4 text-white" />
-          <span>ورود سریع تستی (Quick Studio Access)</span>
-        </button>
-
-        {/* Quick Google Sign In */}
+        {/* Real Google Sign In */}
         <button
           type="button"
           onClick={handleGoogleAuth}
@@ -307,7 +373,7 @@ function AuthContent() {
           <div className="space-y-1">
             <div className="flex justify-between items-center text-xs">
               <label className="text-zinc-400 font-medium">Password</label>
-              {mode === 'signin' && (
+              {mode === 'signup' && (
                 <span className="text-zinc-500 text-[11px]">Min. 6 characters</span>
               )}
             </div>
@@ -344,11 +410,6 @@ function AuthContent() {
             )}
           </button>
         </form>
-
-        <div className="pt-2 text-center text-[11px] text-zinc-500 flex items-center justify-center gap-1.5">
-          <Info className="w-3.5 h-3.5" />
-          <span>If Firebase sign-in providers are not yet enabled in your console, use Quick Access.</span>
-        </div>
       </div>
     </div>
   );

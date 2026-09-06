@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useMemo, useEffect, useRef } from 'react';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Sparkles,
@@ -32,6 +33,7 @@ import {
   Circle,
   Clock,
   LayoutGrid,
+  Store,
 } from 'lucide-react';
 import type { ChatSession } from '../Chat';
 
@@ -301,6 +303,19 @@ export const AppShell9: React.FC<AppShell9Props> = ({
             Engine Config
           </span>
         </button>
+
+        {/* Agent Marketplace */}
+        <Link
+          id="app-shell-rail-marketplace"
+          href="/marketplace"
+          className="w-10 h-10 rounded-xl text-purple-400 hover:text-purple-300 hover:bg-purple-500/10 flex items-center justify-center transition cursor-pointer group relative"
+          title="Agent Marketplace"
+        >
+          <Store className="w-4 h-4" />
+          <span className="absolute left-14 px-2 py-1 rounded-lg bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-950 text-[11px] whitespace-nowrap font-medium opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50 shadow-md">
+            Agent Marketplace
+          </span>
+        </Link>
       </div>
 
       {/* Middle Section: Active Inference Engine Indicator & Quick Navigation */}

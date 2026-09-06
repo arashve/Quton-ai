@@ -54,7 +54,23 @@ import {
   Columns,
   Smile,
   Mic,
+  Store,
+  Boxes,
+  ReceiptText,
 } from 'lucide-react';
+import {
+  StoreAddProductWidget,
+  StoreProductCatalogWidget,
+  StoreInvoiceBuilderWidget,
+  StoreOfficialInvoiceWidget,
+} from './StoreAgentWidgets';
+import {
+  getStoreProfile,
+  isStoreAgentInstalled,
+  StoreProfile,
+  StoreInvoice,
+  subscribeStoreUpdates,
+} from '@/lib/storeAgentService';
 import { CodeBlock } from './CodeBlock';
 import { ShinyText, SpotlightCard, ReactBitsAIInput, PromptInput, AppSidebar } from './reactbits';
 import type { PromptAttachment } from './reactbits';
@@ -97,6 +113,8 @@ export interface ChatMessage {
   isError?: boolean;
   reactions?: Record<string, number>;
   userReactions?: string[];
+  storeWidget?: 'add_product' | 'catalog' | 'invoice_builder' | 'official_invoice';
+  storeInvoiceData?: StoreInvoice;
   comparison?: {
     modelA: ComparisonSlotData;
     modelB: ComparisonSlotData;
@@ -204,6 +222,7 @@ interface ChatMessageItemProps {
   onEditPrompt?: (text: string) => void;
   onToggleReaction?: (messageId: string, emoji: string) => void;
   onVoteWinner?: (messageId: string, winner: 'modelA' | 'modelB' | null) => void;
+  onTriggerStoreAction?: (action: 'add_product' | 'catalog' | 'invoice_builder') => void;
 }
 
 function formatMessageTime(ts: number): string {
@@ -278,6 +297,7 @@ const ChatMessageItem = React.memo(function ChatMessageItem({
   onEditPrompt,
   onToggleReaction,
   onVoteWinner,
+  onTriggerStoreAction,
 }: ChatMessageItemProps) {
   const isUser = message.role === 'user';
   const [selectedPreviewImage, setSelectedPreviewImage] = useState<string | null>(null);
@@ -606,6 +626,39 @@ const ChatMessageItem = React.memo(function ChatMessageItem({
               </div>
             )}
 
+            {/* StoreFlow Generative UI Widgets */}
+            {message.storeWidget === 'add_product' && (
+              <div className="my-3">
+                <StoreAddProductWidget
+                  onOpenCatalog={() => onTriggerStoreAction?.('catalog')}
+                  onOpenInvoice={() => onTriggerStoreAction?.('invoice_builder')}
+                />
+              </div>
+            )}
+            {message.storeWidget === 'catalog' && (
+              <div className="my-3">
+                <StoreProductCatalogWidget
+                  onAddProductClick={() => onTriggerStoreAction?.('add_product')}
+                  onOpenInvoice={() => onTriggerStoreAction?.('invoice_builder')}
+                />
+              </div>
+            )}
+            {message.storeWidget === 'invoice_builder' && (
+              <div className="my-3">
+                <StoreInvoiceBuilderWidget
+                  onOpenCatalog={() => onTriggerStoreAction?.('catalog')}
+                />
+              </div>
+            )}
+            {message.storeWidget === 'official_invoice' && message.storeInvoiceData && (
+              <div className="my-3">
+                <StoreOfficialInvoiceWidget
+                  invoice={message.storeInvoiceData}
+                  onNewInvoice={() => onTriggerStoreAction?.('invoice_builder')}
+                />
+              </div>
+            )}
+
             {/* 5. Assistant Action Toolbar (AI Chat 7 & 8 Pattern) */}
             {displayContent && !isStreamingThis && (
               <div className="pt-2 border-t border-zinc-200/50 dark:border-zinc-800/50 flex flex-wrap items-center justify-between gap-2 text-xs text-zinc-500 dark:text-zinc-400">
@@ -731,9 +784,10 @@ const ChatMessageItem = React.memo(function ChatMessageItem({
 
 export interface ChatProps {
   initialPrompt?: string;
+  initialAgent?: string;
 }
 
-export const Chat: React.FC<ChatProps> = ({ initialPrompt }) => {
+export const Chat: React.FC<ChatProps> = ({ initialPrompt, initialAgent }) => {
   // Client-mounting state to ensure perfect hydration without cascading render warnings
   const isMounted = useSyncExternalStore(
     emptySubscribe,
@@ -745,6 +799,87 @@ export const Chat: React.FC<ChatProps> = ({ initialPrompt }) => {
   const [sessions, setSessions] = useState<ChatSession[]>([INITIAL_DEFAULT_SESSION]);
   const [currentSessionId, setCurrentSessionId] = useState<string>('session_init');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+
+  // StoreFlow Agent Integration State
+  const [storeProfile, setStoreProfile] = useState<StoreProfile | null>(() =>
+    typeof window !== 'undefined' ? getStoreProfile() : null
+  );
+  const [isStoreInstalled, setIsStoreInstalled] = useState<boolean>(() =>
+    typeof window !== 'undefined' ? isStoreAgentInstalled() : false
+  );
+  const [activeAgent, setActiveAgent] = useState<string | null>(() => {
+    if (initialAgent) return initialAgent;
+    if (typeof window !== 'undefined' && isStoreAgentInstalled()) return 'shop';
+    return null;
+  });
+
+  useEffect(() => {
+    const checkStore = () => {
+      const installed = isStoreAgentInstalled();
+      setIsStoreInstalled(installed);
+      const profile = getStoreProfile();
+      setStoreProfile(profile);
+      if (initialAgent === 'shop' || installed) {
+        setActiveAgent('shop');
+      }
+    };
+    return subscribeStoreUpdates(checkStore);
+  }, [initialAgent]);
+
+  // Listen for newly issued invoices to render official invoice component
+  useEffect(() => {
+    const handleInvoiceEvent = (e: any) => {
+      const invoice = e.detail;
+      if (invoice) {
+        const now = Date.now();
+        const invoiceMsg: ChatMessage = {
+          id: createId('msg_assistant'),
+          role: 'assistant',
+          content: `✅ فاکتور رسمی به شماره **${invoice.invoiceNumber}** با موفقیت صادر شد و در سیستم ثبت گردید:`,
+          timestamp: now,
+          modelUsed: 'StoreFlow AI',
+          storeWidget: 'official_invoice',
+          storeInvoiceData: invoice,
+        };
+        setMessages((prev) => [...prev, invoiceMsg]);
+      }
+    };
+    window.addEventListener('store_invoice_generated', handleInvoiceEvent);
+    return () => window.removeEventListener('store_invoice_generated', handleInvoiceEvent);
+  }, []);
+
+  const handleTriggerStoreAction = useCallback((action: 'add_product' | 'catalog' | 'invoice_builder') => {
+    const nowTime = Date.now();
+    const actionTitles: Record<string, string> = {
+      add_product: 'فرم هوشمند افزودن کالا و ثبت محصول جدید در انبار فروشگاه:',
+      catalog: 'کاتالوگ و لیست اقلام موجود در انبار فروشگاه:',
+      invoice_builder: 'سیستم صدور فاکتور و ثبت سفارش جدید فروشگاه:',
+    };
+
+    const userPrompts: Record<string, string> = {
+      add_product: 'افزودن محصول جدید به فروشگاه',
+      catalog: 'مشاهده لیست محصولات',
+      invoice_builder: 'صدور فاکتور رسمی',
+    };
+
+    const userMsg: ChatMessage = {
+      id: createId('msg_user'),
+      role: 'user',
+      content: userPrompts[action],
+      timestamp: nowTime,
+    };
+
+    const assistantMsg: ChatMessage = {
+      id: createId('msg_assistant'),
+      role: 'assistant',
+      content: actionTitles[action],
+      timestamp: nowTime + 1,
+      modelUsed: 'StoreFlow AI',
+      storeWidget: action,
+    };
+
+    setMessages((prev) => [...prev, userMsg, assistantMsg]);
+  }, []);
 
   const [inputPrompt, setInputPrompt] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -1176,6 +1311,62 @@ export const Chat: React.FC<ChatProps> = ({ initialPrompt }) => {
       mode: currentMode,
       attachments: attachments && attachments.length > 0 ? attachments : undefined,
     };
+
+    // StoreFlow Agent Natural Language Intents
+    const lowerText = textToSend.toLowerCase();
+    const isAddProductIntent =
+      lowerText.includes('افزودن محصول') ||
+      lowerText.includes('محصول جدید') ||
+      lowerText.includes('ثبت کالا') ||
+      lowerText.includes('اضافه کردن محصول') ||
+      lowerText.includes('اضافه کردن کالا') ||
+      lowerText.includes('add product');
+
+    const isCatalogIntent =
+      lowerText.includes('لیست محصول') ||
+      lowerText.includes('کاتالوگ') ||
+      lowerText.includes('محصولات فروشگاه') ||
+      lowerText.includes('لیست کالا') ||
+      lowerText.includes('انبار') ||
+      lowerText.includes('لیست اجناس') ||
+      lowerText.includes('product list') ||
+      lowerText.includes('catalog');
+
+    const isInvoiceIntent =
+      lowerText.includes('صدور فاکتور') ||
+      lowerText.includes('فاکتور جدید') ||
+      lowerText.includes('ثبت خرید') ||
+      lowerText.includes('پیش فاکتور') ||
+      lowerText.includes('فاکتور فروش') ||
+      lowerText.includes('invoice') ||
+      lowerText.includes('create invoice');
+
+    if (isAddProductIntent || isCatalogIntent || isInvoiceIntent) {
+      const widgetType: 'add_product' | 'catalog' | 'invoice_builder' = isAddProductIntent
+        ? 'add_product'
+        : isCatalogIntent
+        ? 'catalog'
+        : 'invoice_builder';
+
+      const actionTitle =
+        widgetType === 'add_product'
+          ? 'فرم هوشمند افزودن محصول جدید به انبار و کاتالوگ فروشگاه:'
+          : widgetType === 'catalog'
+          ? 'کاتالوگ و لیست محصولات فعال انبار فروشگاه:'
+          : 'سیستم صدور فاکتور رسمی و ثبت سفارش فروشگاه:';
+
+      const assistantMsg: ChatMessage = {
+        id: createId('msg_assistant'),
+        role: 'assistant',
+        content: actionTitle,
+        timestamp: nowTime + 1,
+        modelUsed: 'StoreFlow AI',
+        storeWidget: widgetType,
+      };
+
+      setMessages((prev) => [...prev, userMessage, assistantMsg]);
+      return;
+    }
 
     // AI Chat 7 Split Pane Comparison Mode
     if (isCompareMode) {
@@ -1824,6 +2015,39 @@ export const Chat: React.FC<ChatProps> = ({ initialPrompt }) => {
                 <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping" />
               )}
             </button>
+
+            {/* StoreFlow Agent Indicator & Mode Toggle */}
+            {isStoreInstalled ? (
+              <button
+                id="header-store-agent-btn"
+                type="button"
+                onClick={() => setActiveAgent((prev) => (prev === 'shop' ? null : 'shop'))}
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border transition cursor-pointer ${
+                  activeAgent === 'shop'
+                    ? 'bg-gradient-to-r from-purple-500/20 to-indigo-500/20 border-purple-500/50 text-purple-300 font-bold shadow-xs'
+                    : 'bg-zinc-100/80 dark:bg-zinc-900/80 border-zinc-200/70 dark:border-zinc-800/70 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100'
+                }`}
+                title="StoreFlow Agent • ایجنت هوشمند فروشگاهی"
+              >
+                <span>🏪</span>
+                <span className="hidden md:inline font-sans text-[11px]">
+                  {storeProfile?.storeName || 'StoreFlow'}
+                </span>
+                {activeAgent === 'shop' && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                )}
+              </button>
+            ) : (
+              <Link
+                id="header-store-marketplace-link"
+                href="/marketplace"
+                className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border border-purple-500/30 bg-purple-500/10 text-purple-300 hover:bg-purple-500/20 transition cursor-pointer"
+                title="نصب ایجنت فروشگاهی از مارکت‌پلیس"
+              >
+                <span>🏪</span>
+                <span className="font-sans text-[11px]">+ ایجنت فروشگاه</span>
+              </Link>
+            )}
           </div>
 
           <div className="flex items-center gap-1 sm:gap-2">
@@ -1899,6 +2123,69 @@ export const Chat: React.FC<ChatProps> = ({ initialPrompt }) => {
           }`}
         >
           {!hasMessages ? (
+            activeAgent === 'shop' ? (
+              /* StoreFlow Custom Agent Empty State */
+              <div dir="rtl" className="h-full min-h-[380px] sm:min-h-[460px] flex flex-col items-center justify-center max-w-3xl mx-auto py-4 sm:py-6 text-center">
+                <div className="w-16 h-16 rounded-3xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-3xl shadow-xl shadow-purple-600/30 mb-4 animate-in zoom-in duration-300">
+                  🏪
+                </div>
+
+                <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-purple-500/15 border border-purple-500/30 text-purple-300 text-xs font-mono mb-3">
+                  <span>فروشگاه {storeProfile?.storeName || 'من'}</span>
+                  <span>•</span>
+                  <span>مدیریت: {storeProfile?.ownerName || 'مدیر'}</span>
+                </div>
+
+                <h1 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight mb-2">
+                  دستیار هوشمند فروشگاه و صدور فاکتور
+                </h1>
+                <p className="text-xs sm:text-sm text-zinc-400 max-w-lg mx-auto leading-relaxed mb-8">
+                  می‌توانید به راحتی محصولات جدید تعریف کنید، موجودی انبار را مشاهده و جستجو کنید، و فاکتور رسمی با مهر دیجیتال برای مشتریان صادر نمایید.
+                </p>
+
+                {/* Quick Action Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 w-full max-w-2xl pointer-events-auto">
+                  <div
+                    onClick={() => handleTriggerStoreAction('add_product')}
+                    className="p-4 rounded-2xl bg-zinc-900/70 hover:bg-purple-950/40 border border-white/10 hover:border-purple-500/40 transition-all cursor-pointer text-right group shadow-lg"
+                  >
+                    <div className="w-8 h-8 rounded-xl bg-purple-500/20 text-purple-300 flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform">
+                      <Plus className="w-4 h-4" />
+                    </div>
+                    <h3 className="text-xs sm:text-sm font-bold text-white mb-1">افزودن محصول جدید</h3>
+                    <p className="text-[11px] text-zinc-400 leading-relaxed">
+                      ثبت نام کالا، بارکد، قیمت و تعداد موجودی انبار
+                    </p>
+                  </div>
+
+                  <div
+                    onClick={() => handleTriggerStoreAction('catalog')}
+                    className="p-4 rounded-2xl bg-zinc-900/70 hover:bg-indigo-950/40 border border-white/10 hover:border-indigo-500/40 transition-all cursor-pointer text-right group shadow-lg"
+                  >
+                    <div className="w-8 h-8 rounded-xl bg-indigo-500/20 text-indigo-300 flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform">
+                      <Boxes className="w-4 h-4" />
+                    </div>
+                    <h3 className="text-xs sm:text-sm font-bold text-white mb-1">لیست محصولات و انبار</h3>
+                    <p className="text-[11px] text-zinc-400 leading-relaxed">
+                      کاتالوگ زنده، فیلتر دسته‌بندی و بررسی موجودی
+                    </p>
+                  </div>
+
+                  <div
+                    onClick={() => handleTriggerStoreAction('invoice_builder')}
+                    className="p-4 rounded-2xl bg-zinc-900/70 hover:bg-emerald-950/40 border border-white/10 hover:border-emerald-500/40 transition-all cursor-pointer text-right group shadow-lg"
+                  >
+                    <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform">
+                      <ReceiptText className="w-4 h-4" />
+                    </div>
+                    <h3 className="text-xs sm:text-sm font-bold text-white mb-1">صدور فاکتور رسمی</h3>
+                    <p className="text-[11px] text-zinc-400 leading-relaxed">
+                      محاسبه اقلام، تخفیف، مالیات و صدور با مهر رسمی
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ) : (
             /* Minimalist Monochrome Empty State - Flat */
             <div className="h-full min-h-[380px] sm:min-h-[460px] flex flex-col items-center justify-center max-w-3xl mx-auto py-4 sm:py-6">
               <div className="text-center mb-6 sm:mb-8 select-none relative px-4 py-2">
@@ -1965,7 +2252,7 @@ export const Chat: React.FC<ChatProps> = ({ initialPrompt }) => {
                 })}
               </div>
             </div>
-          ) : (
+          )) : (
             /* Active Messages List - Flat */
             <div className="max-w-3xl mx-auto space-y-7 pb-36">
               {messages.map((message, index) => {
@@ -2002,6 +2289,7 @@ export const Chat: React.FC<ChatProps> = ({ initialPrompt }) => {
                       feedback={feedback}
                       onToggleReaction={handleToggleReaction}
                       onVoteWinner={handleVoteWinner}
+                      onTriggerStoreAction={handleTriggerStoreAction}
                       onEditPrompt={(text) => {
                         setInputPrompt(text);
                         if (textareaRef.current) {
@@ -2074,6 +2362,55 @@ export const Chat: React.FC<ChatProps> = ({ initialPrompt }) => {
                 >
                   Exit Arena
                 </button>
+              </div>
+            )}
+
+            {/* StoreFlow Agent Interactive Action Bar */}
+            {activeAgent === 'shop' && (
+              <div
+                dir="rtl"
+                className="mb-2.5 p-2.5 sm:p-3 rounded-2xl bg-zinc-900/90 backdrop-blur-xl border border-purple-500/30 shadow-xl flex flex-wrap items-center justify-between gap-2 animate-in fade-in slide-in-from-bottom-2 duration-200"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-base">🏪</span>
+                  <div className="text-right">
+                    <span className="text-xs font-bold text-white block">
+                      {storeProfile?.storeName || 'فروشگاه هوشمند'}
+                    </span>
+                    <span className="text-[10px] text-purple-300 font-mono">
+                      ایجنت فعال • {storeProfile?.ownerName || 'مدیر'}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <button
+                    type="button"
+                    onClick={() => handleTriggerStoreAction('add_product')}
+                    className="px-3 py-1.5 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 text-purple-200 hover:text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>افزودن محصول</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleTriggerStoreAction('catalog')}
+                    className="px-3 py-1.5 rounded-xl bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/40 text-indigo-200 hover:text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Boxes className="w-3.5 h-3.5" />
+                    <span>لیست محصولات</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleTriggerStoreAction('invoice_builder')}
+                    className="px-3 py-1.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-200 hover:text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <ReceiptText className="w-3.5 h-3.5" />
+                    <span>صدور فاکتور</span>
+                  </button>
+                </div>
               </div>
             )}
 

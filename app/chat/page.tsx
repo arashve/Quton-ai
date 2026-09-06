@@ -12,14 +12,20 @@ function ChatWorkspace() {
   const router = useRouter();
   const { user, loading } = useAuth();
   const initialPrompt = searchParams.get('q') || searchParams.get('prompt') || undefined;
+  const initialAgent = searchParams.get('agent') || undefined;
 
   // Enforce authentication to launch Chatbot
   useEffect(() => {
     if (!loading && !user) {
-      const target = initialPrompt ? `/chat?q=${encodeURIComponent(initialPrompt)}` : '/chat';
+      let target = '/chat';
+      const params = new URLSearchParams();
+      if (initialPrompt) params.set('q', initialPrompt);
+      if (initialAgent) params.set('agent', initialAgent);
+      const qs = params.toString();
+      if (qs) target += `?${qs}`;
       router.replace(`/auth?redirect=${encodeURIComponent(target)}`);
     }
-  }, [user, loading, router, initialPrompt]);
+  }, [user, loading, router, initialPrompt, initialAgent]);
 
   if (loading) {
     return (
@@ -60,7 +66,7 @@ function ChatWorkspace() {
 
   return (
     <main className="min-h-screen relative w-full h-screen overflow-hidden bg-[var(--page-bg)] transition-colors duration-200">
-      <Chat initialPrompt={initialPrompt} />
+      <Chat initialPrompt={initialPrompt} initialAgent={initialAgent} />
     </main>
   );
 }
