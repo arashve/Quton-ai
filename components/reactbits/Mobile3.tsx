@@ -6,9 +6,9 @@ import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Home,
-  Inbox,
-  Calendar,
-  BarChart2,
+  MessageSquare,
+  Store,
+  Columns,
   Search,
   X,
 } from 'lucide-react';
@@ -21,16 +21,13 @@ interface SearchItem {
 }
 
 const SEARCH_ITEMS: SearchItem[] = [
-  { id: '1', title: 'Renewal pipeline', category: 'Saved view', href: '/chat?q=Renewal%20pipeline' },
-  { id: '2', title: 'Invoice 4192', category: 'Billing', href: '/chat?q=Invoice%204192' },
-  { id: '3', title: 'Ana Reyes', category: 'Teammate', href: '/chat?q=Ana%20Reyes' },
-  { id: '4', title: 'Agent Marketplace', category: 'Extensions', href: '/marketplace' },
-  { id: '5', title: 'Sign In / Account', category: 'Auth', href: '/auth' },
-  { id: '6', title: 'Split Arena', category: 'Benchmark', href: '/arena' },
-  { id: '7', title: 'Chat Studio', category: 'Workspace', href: '/chat' },
-  { id: '8', title: 'Voice 8 Studio', category: 'Audio', href: '/voice' },
-  { id: '9', title: 'Model Matrix', category: 'Engines', href: '/models' },
-  { id: '10', title: 'System Settings', category: 'Config', href: '/settings' },
+  { id: '1', title: 'چت استودیو • Chat Studio', category: 'Workspace', href: '/chat' },
+  { id: '2', title: 'مارکت‌پلیس ایجنت‌ها • Agent Marketplace', category: 'Extensions', href: '/marketplace' },
+  { id: '3', title: 'دوئل و بنچ‌مارک مدل‌ها • Split Arena', category: 'Benchmark', href: '/arena' },
+  { id: '4', title: 'ماتریس موتورها • Model Matrix', category: 'Engines', href: '/models' },
+  { id: '5', title: 'استودیو صوتی • Voice Studio', category: 'Audio', href: '/voice' },
+  { id: '6', title: 'تنظیمات سیستم • System Settings', category: 'Config', href: '/settings' },
+  { id: '7', title: 'ورود به حساب • Sign In', category: 'Auth', href: '/auth' },
 ];
 
 export function Mobile3() {
@@ -49,18 +46,11 @@ export function Mobile3() {
     }
   }, [isSearching]);
 
-  // Exact navigation items matching the video:
-  // 1: Home
-  // 2: Inbox
-  // 3: Calendar
-  // 4: BarChart
-  // [Vertical Divider]
-  // 5: Search
   const navItems = [
     { id: 'home', icon: Home, href: '/', label: 'Home', isActive: pathname === '/' },
-    { id: 'inbox', icon: Inbox, href: '/chat', label: 'Inbox', isActive: pathname.startsWith('/chat') },
-    { id: 'calendar', icon: Calendar, href: '/arena', label: 'Calendar', isActive: pathname.startsWith('/arena') },
-    { id: 'stats', icon: BarChart2, href: '/models', label: 'Stats', isActive: pathname.startsWith('/models') },
+    { id: 'chat', icon: MessageSquare, href: '/chat', label: 'Chat', isActive: pathname.startsWith('/chat') },
+    { id: 'marketplace', icon: Store, href: '/marketplace', label: 'Store', isActive: pathname.startsWith('/marketplace') },
+    { id: 'arena', icon: Columns, href: '/arena', label: 'Arena', isActive: pathname.startsWith('/arena') },
   ];
 
   const filteredResults = query.trim()
@@ -88,15 +78,15 @@ export function Mobile3() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
             onClick={() => setIsSearching(false)}
-            className="fixed inset-0 z-40 bg-black/40 backdrop-blur-xs md:hidden"
+            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-xs md:hidden"
           />
         )}
       </AnimatePresence>
 
-      {/* Floating Bottom Dock Container */}
-      <div className="fixed inset-x-0 z-50 md:hidden flex flex-col items-center justify-end px-4 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] pointer-events-none">
+      {/* Floating Bottom Dock Container - Fixed strictly to bottom */}
+      <div className="fixed inset-x-0 bottom-0 z-50 md:hidden flex flex-col items-center justify-end px-4 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] pointer-events-none">
         <div className="w-full max-w-[340px] pointer-events-auto">
-          {/* SEARCH SUGGESTIONS & RESULTS (Direct replica of video 00:03 - 00:06) */}
+          {/* SEARCH SUGGESTIONS & RESULTS */}
           <AnimatePresence>
             {isSearching && (
               <motion.div
@@ -104,27 +94,27 @@ export function Mobile3() {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 10, scale: 0.98 }}
                 transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
-                className="mb-2 p-1.5 rounded-2xl bg-white border border-zinc-200/90 shadow-[0_12px_40px_rgba(0,0,0,0.14)] overflow-hidden"
+                className="mb-2 p-1.5 rounded-2xl bg-zinc-900 border border-zinc-800 shadow-2xl overflow-hidden"
               >
-                <div className="divide-y divide-zinc-100">
+                <div className="divide-y divide-zinc-800">
                   {filteredResults.map((item) => (
                     <button
                       key={item.id}
                       type="button"
                       onClick={() => handleSelectResult(item.href)}
-                      className="w-full px-3 py-2.5 flex items-center justify-between text-left hover:bg-zinc-50 rounded-xl transition cursor-pointer group"
+                      className="w-full px-3 py-2.5 flex items-center justify-between text-left hover:bg-zinc-800 rounded-xl transition cursor-pointer group"
                     >
-                      <span className="text-sm font-normal text-zinc-900 tracking-tight">
+                      <span className="text-sm font-normal text-zinc-200 group-hover:text-white tracking-tight">
                         {item.title}
                       </span>
-                      <span className="text-xs font-normal text-zinc-400">
+                      <span className="text-xs font-mono text-zinc-400">
                         {item.category}
                       </span>
                     </button>
                   ))}
                   {filteredResults.length === 0 && (
                     <div className="px-3 py-4 text-center text-xs text-zinc-400">
-                      No results found
+                      موردی یافت نشد • No results found
                     </div>
                   )}
                 </div>
@@ -132,18 +122,18 @@ export function Mobile3() {
             )}
           </AnimatePresence>
 
-          {/* MORPHING DOCK (Exact 1:1 geometry, shadow, borders and animation from video) */}
+          {/* MORPHING DOCK */}
           <motion.div
             layout
             transition={{ type: 'spring', stiffness: 450, damping: 32 }}
-            className={`w-full overflow-hidden transition-all bg-white border border-zinc-200/90 shadow-[0_10px_35px_rgba(0,0,0,0.12)] ${
+            className={`w-full overflow-hidden transition-all bg-zinc-950/95 backdrop-blur-2xl border border-zinc-800 shadow-2xl ${
               isSearching
                 ? 'rounded-full px-4 py-2.5'
                 : 'rounded-full px-2 py-1.5 max-w-fit mx-auto'
             }`}
           >
             {isSearching ? (
-              /* Expanded Search Input Bar (Video frame 00:04 - 00:06) */
+              /* Expanded Search Input Bar */
               <div className="flex items-center gap-3 w-full">
                 <Search className="w-4 h-4 text-zinc-400 shrink-0 stroke-[1.8]" />
                 <input
@@ -158,8 +148,8 @@ export function Mobile3() {
                       setIsSearching(false);
                     }
                   }}
-                  placeholder="Search accounts, views, invoices"
-                  className="flex-1 bg-transparent text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-hidden py-0.5"
+                  placeholder="جستجو در بخش‌های AUTOFLOW..."
+                  className="flex-1 bg-transparent text-sm text-white placeholder:text-zinc-500 focus:outline-hidden py-0.5"
                 />
                 <button
                   type="button"
@@ -170,14 +160,14 @@ export function Mobile3() {
                       setIsSearching(false);
                     }
                   }}
-                  className="p-1 rounded-full text-zinc-400 hover:text-zinc-700 transition cursor-pointer"
+                  className="p-1 rounded-full text-zinc-400 hover:text-white transition cursor-pointer"
                   aria-label="Close search"
                 >
                   <X className="w-4 h-4 stroke-[1.8]" />
                 </button>
               </div>
             ) : (
-              /* Collapsed Floating Dock: 4 items + Divider + Search (Video frame 00:00 - 00:02) */
+              /* Collapsed Floating Dock: 4 items + Divider + Search */
               <div className="flex items-center gap-1">
                 {navItems.map((item) => {
                   const Icon = item.icon;
@@ -190,11 +180,11 @@ export function Mobile3() {
                       className="relative w-9 h-9 flex items-center justify-center rounded-full transition cursor-pointer"
                       aria-label={item.label}
                     >
-                      {/* Black Solid Circle Active Pill with Spring Motion */}
+                      {/* Active Circle Pill: White circle pill with dark icon */}
                       {active && (
                         <motion.div
                           layoutId="mobile3-active-circle"
-                          className="absolute inset-0 rounded-full bg-zinc-950 shadow-sm"
+                          className="absolute inset-0 rounded-full bg-white shadow-sm"
                           transition={{ type: 'spring', stiffness: 480, damping: 35 }}
                         />
                       )}
@@ -202,22 +192,22 @@ export function Mobile3() {
                       <Icon
                         className={`relative z-10 w-4 h-4 transition-colors ${
                           active
-                            ? 'text-white stroke-[2]'
-                            : 'text-zinc-600 hover:text-zinc-950 stroke-[1.8]'
+                            ? 'text-zinc-950 stroke-[2]'
+                            : 'text-zinc-400 hover:text-white stroke-[1.8]'
                         }`}
                       />
                     </Link>
                   );
                 })}
 
-                {/* Vertical Divider (Exact match to video) */}
-                <div className="w-[1px] h-4 bg-zinc-200 mx-1 shrink-0" />
+                {/* Vertical Divider */}
+                <div className="w-[1px] h-4 bg-zinc-800 mx-1 shrink-0" />
 
                 {/* Search Trigger Button */}
                 <button
                   type="button"
                   onClick={() => setIsSearching(true)}
-                  className="w-9 h-9 flex items-center justify-center rounded-full text-zinc-600 hover:text-zinc-950 transition cursor-pointer"
+                  className="w-9 h-9 flex items-center justify-center rounded-full text-zinc-400 hover:text-white transition cursor-pointer"
                   aria-label="Search"
                 >
                   <Search className="w-4 h-4 stroke-[1.8]" />

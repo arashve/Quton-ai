@@ -87,9 +87,6 @@ export default function VoiceTestPage() {
       {/* 1. Desktop Navbar-12 */}
       <Navbar12 />
 
-      {/* 2. Mobile Bottom Dock (Mobile-3) */}
-      <Mobile3 />
-
       {/* Background Subtle Monochrome Mesh */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
         <div className="absolute inset-0 bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:24px_24px] opacity-30" />
@@ -285,6 +282,9 @@ export default function VoiceTestPage() {
           </div>
         </div>
       </main>
+
+      {/* Floating Mobile Dock */}
+      <Mobile3 />
     </div>
   );
 }
