@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { Mobile3 } from '@/components/reactbits';
 import {
   ArrowLeft,
   Sliders,
@@ -534,6 +535,9 @@ export default function SettingsPage() {
           </div>
         </div>
       </div>
+
+      {/* Floating Mobile Dock (Mobile-3) */}
+      <Mobile3 />
     </div>
   );
 }

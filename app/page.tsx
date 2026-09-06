@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { Navbar12, Mobile3 } from '@/components/reactbits';
 import {
   Sparkles,
   ArrowUp,
@@ -63,85 +64,11 @@ export default function LandingPortalPage() {
         <div className="absolute inset-0 bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:28px_28px] opacity-50" />
       </div>
 
-      {/* 2. Top Glassmorphic Navigation Bar */}
-      <header className="sticky top-0 z-50 w-full px-4 sm:px-8 py-3.5 backdrop-blur-xl bg-zinc-950/60 border-b border-white/10 transition-all">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-          {/* Brand Logo */}
-          <Link href="/" className="flex items-center gap-2.5 group cursor-pointer">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-purple-600 to-cyan-400 p-0.5 shadow-lg shadow-purple-500/20 group-hover:scale-105 transition duration-200">
-              <div className="w-full h-full bg-zinc-950 rounded-[10px] flex items-center justify-center">
-                <Sparkles className="w-4 h-4 text-purple-400" />
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-base sm:text-lg tracking-tight text-white">
-                AUTOFLOW
-              </span>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">
-                STUDIO v2.5
-              </span>
-            </div>
-          </Link>
-
-          {/* Navigation Links */}
-          <nav className="hidden md:flex items-center gap-1.5 text-xs font-medium text-zinc-400">
-            <a
-              href="#hero-prompt"
-              className="px-3 py-1.5 rounded-full hover:text-white hover:bg-white/5 transition"
-            >
-              Prompt Box
-            </a>
-            <a
-              href="#bento-features"
-              className="px-3 py-1.5 rounded-full hover:text-white hover:bg-white/5 transition"
-            >
-              Capabilities
-            </a>
-            <a
-              href="#arena-preview"
-              className="px-3 py-1.5 rounded-full hover:text-white hover:bg-white/5 transition"
-            >
-              Split Arena
-            </a>
-            <a
-              href="#models-matrix"
-              className="px-3 py-1.5 rounded-full hover:text-white hover:bg-white/5 transition"
-            >
-              Models
-            </a>
-            <Link
-              href="/settings"
-              className="flex items-center gap-1 px-3 py-1.5 rounded-full hover:text-white hover:bg-white/5 transition"
-            >
-              <Sliders className="w-3.5 h-3.5 text-zinc-400" />
-              <span>Settings</span>
-            </Link>
-          </nav>
-
-          {/* Actions & Launch Button */}
-          <div className="flex items-center gap-2.5">
-            <Link
-              href="/settings"
-              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-zinc-300 hover:text-white transition shadow-xs"
-              title="Global Settings"
-            >
-              <Sliders className="w-3.5 h-3.5 text-zinc-400" />
-              <span className="font-mono text-[11px]">Settings</span>
-            </Link>
-
-            <Link
-              href="/chat"
-              className="flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-gradient-to-r from-purple-600 via-indigo-600 to-cyan-500 hover:opacity-95 text-white font-semibold text-xs sm:text-sm transition shadow-lg shadow-purple-600/25 group cursor-pointer"
-            >
-              <span>Launch Studio</span>
-              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-            </Link>
-          </div>
-        </div>
-      </header>
+      {/* 2. Floating Glass Pill Navbar (ReactBits Navbar-12) */}
+      <Navbar12 />
 
       {/* 3. Hero Section with Prominent AI Prompt Input Box */}
-      <section id="hero-prompt" className="relative z-10 pt-12 sm:pt-20 pb-16 px-4 sm:px-6 max-w-5xl mx-auto text-center">
+      <section id="hero-prompt" className="relative z-10 pt-24 sm:pt-32 pb-16 px-4 sm:px-6 max-w-5xl mx-auto text-center">
         {/* Status Pill */}
         <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/5 border border-white/15 backdrop-blur-md text-xs text-purple-300 font-mono mb-6 shadow-xs animate-in fade-in duration-500">
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
@@ -623,6 +550,9 @@ export default function LandingPortalPage() {
           </div>
         </div>
       </footer>
+
+      {/* Floating Mobile Dock & Morphing Search (ReactBits Mobile-3) */}
+      <Mobile3 />
     </div>
   );
 }

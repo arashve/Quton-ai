@@ -9,3 +9,5 @@ export { AppSidebar, AppShell9 } from './AppShell9';
 export type { AppShell9Props, WorkspaceMember, ShellNotification } from './AppShell9';
 export { AIChatFlat } from './AIChatFlat';
 export { PixelBlast } from '../PixelBlast';
+export { Navbar12 } from './Navbar12';
+export { Mobile3 } from './Mobile3';
