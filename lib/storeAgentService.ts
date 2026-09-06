@@ -58,6 +58,9 @@ export interface StudioAgent {
   glowGradient: string;
   isEnabled: boolean;
   capabilities: string[];
+  description?: string;
+  category?: string;
+  version?: string;
 }
 
 export const ALL_STUDIO_AGENTS: Omit<StudioAgent, 'isEnabled'>[] = [
@@ -66,6 +69,9 @@ export const ALL_STUDIO_AGENTS: Omit<StudioAgent, 'isEnabled'>[] = [
     name: 'StoreFlow AI',
     titleFa: 'فروشگاه و صدور فاکتور',
     badge: 'E-Commerce v2.4',
+    category: 'فروشگاهی و حسابداری',
+    version: '2.4',
+    description: 'مدیریت محصولات انبار، صدور خودکار فاکتور رسمی دیجیتال و استعلام موجودی هوشمند.',
     descriptionFa: 'مدیریت محصولات انبار، صدور خودکار فاکتور رسمی دیجیتال و استعلام موجودی هوشمند.',
     icon: '🏪',
     accentColor: '#8B5CF6',
@@ -77,6 +83,9 @@ export const ALL_STUDIO_AGENTS: Omit<StudioAgent, 'isEnabled'>[] = [
     name: 'CodeFlow Architect',
     titleFa: 'معمار کد و توسعه',
     badge: 'Fullstack Dev v3.0',
+    category: 'برنامه‌نویسی و کد',
+    version: '3.0',
+    description: 'معماری مایکروسرویس، بررسی امنیت API، دیباگ خط‌به‌خط و تولید کدهای تایپ‌اسکریپت بهینه‌شده.',
     descriptionFa: 'معماری مایکروسرویس، بررسی امنیت API، دیباگ خط‌به‌خط و تولید کدهای تایپ‌اسکریپت بهینه‌شده.',
     icon: '⚡',
     accentColor: '#06B6D4',
@@ -88,6 +97,9 @@ export const ALL_STUDIO_AGENTS: Omit<StudioAgent, 'isEnabled'>[] = [
     name: 'DeepInsight Agent',
     titleFa: 'پژوهش و تحلیل عمیق',
     badge: 'Deep Research v2.1',
+    category: 'تحقیق و تحلیل داده',
+    version: '2.1',
+    description: 'سنتز اسناد پیچیده، ارزیابی داده‌های وب، مقایسه تخصصی مدل‌ها و استخراج رفرنس‌های معتبر.',
     descriptionFa: 'سنتز اسناد پیچیده، ارزیابی داده‌های وب، مقایسه تخصصی مدل‌ها و استخراج رفرنس‌های معتبر.',
     icon: '🔬',
     accentColor: '#F59E0B',

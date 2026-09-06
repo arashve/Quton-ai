@@ -228,18 +228,26 @@ export default function MarketplacePage() {
         {/* TAB 1: EXPLORE AGENTS */}
         {activeTab === 'explore' && (
           <div>
-            {agents.filter((a) =>
-              a.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-              a.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-              a.category.toLowerCase().includes(searchQuery.toLowerCase())
-            ).length > 0 ? (
+            {agents.filter((a) => {
+              const q = searchQuery.toLowerCase();
+              return (
+                (a.name || '').toLowerCase().includes(q) ||
+                (a.titleFa || '').toLowerCase().includes(q) ||
+                (a.descriptionFa || a.description || '').toLowerCase().includes(q) ||
+                (a.category || a.badge || '').toLowerCase().includes(q)
+              );
+            }).length > 0 ? (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {agents
-                  .filter((a) =>
-                    a.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    a.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    a.category.toLowerCase().includes(searchQuery.toLowerCase())
-                  )
+                  .filter((a) => {
+                    const q = searchQuery.toLowerCase();
+                    return (
+                      (a.name || '').toLowerCase().includes(q) ||
+                      (a.titleFa || '').toLowerCase().includes(q) ||
+                      (a.descriptionFa || a.description || '').toLowerCase().includes(q) ||
+                      (a.category || a.badge || '').toLowerCase().includes(q)
+                    );
+                  })
                   .map((agent) => (
                     <div
                       key={agent.id}
@@ -256,7 +264,7 @@ export default function MarketplacePage() {
                               رایگان • FREE
                             </span>
                             <span className="px-2.5 py-1 rounded-full text-[10px] font-mono bg-zinc-800/80 border border-zinc-700/60 text-zinc-300">
-                              {agent.category}
+                              {agent.badge || agent.category || 'Agent'}
                             </span>
                           </div>
 
@@ -297,7 +305,7 @@ export default function MarketplacePage() {
                               <Sparkles className="w-4 h-4 text-purple-400" />
                             </h3>
                             <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
-                              {agent.description}
+                              {agent.descriptionFa || agent.description}
                             </p>
                           </div>
                         </div>
@@ -336,7 +344,7 @@ export default function MarketplacePage() {
                         </div>
 
                         <div className="text-[11px] text-zinc-500 font-mono">
-                          نسخه {agent.version} • AUTOFLOW
+                          نسخه {agent.version || '1.0'} • AUTOFLOW
                         </div>
                       </div>
                     </div>
@@ -379,7 +387,7 @@ export default function MarketplacePage() {
                               </span>
                             </div>
                             <p className="text-xs text-zinc-400 mt-0.5 leading-relaxed">
-                              {agent.description}
+                              {agent.descriptionFa || agent.description}
                             </p>
                           </div>
                         </div>
@@ -401,11 +409,11 @@ export default function MarketplacePage() {
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                         <div className="p-4 rounded-2xl bg-black/40 border border-white/5 text-center">
                           <span className="text-[11px] text-zinc-400 block mb-1">دسته‌بندی</span>
-                          <span className="text-xs font-bold text-purple-300">{agent.category}</span>
+                          <span className="text-xs font-bold text-purple-300">{agent.badge || agent.category || 'Agent'}</span>
                         </div>
                         <div className="p-4 rounded-2xl bg-black/40 border border-white/5 text-center">
                           <span className="text-[11px] text-zinc-400 block mb-1">نسخه</span>
-                          <span className="text-xs font-bold font-mono text-zinc-200">v{agent.version}</span>
+                          <span className="text-xs font-bold font-mono text-zinc-200">v{agent.version || '1.0'}</span>
                         </div>
                         <div className="p-4 rounded-2xl bg-black/40 border border-white/5 text-center col-span-2 sm:col-span-1">
                           <span className="text-[11px] text-zinc-400 block mb-1">وضعیت</span>
