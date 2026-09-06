@@ -40,7 +40,7 @@ export function Navbar12() {
   return (
     <>
       {/* Floating Glass Pill Navbar (Desktop & Tablet) - Strict Monochrome Aesthetic */}
-      <header className="fixed top-4 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none">
+      <header className="fixed left-0 right-0 z-50 flex justify-center px-4 pt-[calc(env(safe-area-inset-top)+1rem)] pointer-events-none">
         <motion.nav
           initial={{ y: -24, opacity: 0, scale: 0.96 }}
           animate={{ y: 0, opacity: 1, scale: 1 }}

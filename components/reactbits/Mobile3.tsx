@@ -92,7 +92,7 @@ export function Mobile3() {
       </AnimatePresence>
 
       {/* Floating Bottom Dock Container */}
-      <div className="fixed bottom-5 inset-x-0 z-50 md:hidden flex flex-col items-center justify-end px-4 pointer-events-none">
+      <div className="fixed inset-x-0 z-50 md:hidden flex flex-col items-center justify-end px-4 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] pointer-events-none">
         <div className="w-full max-w-[340px] pointer-events-auto">
           {/* SEARCH SUGGESTIONS & RESULTS (Direct replica of video 00:03 - 00:06) */}
           <AnimatePresence>
