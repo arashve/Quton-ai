@@ -133,25 +133,22 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="min-h-[100dvh] relative w-full overflow-x-clip bg-zinc-950 text-zinc-100 selection:bg-purple-500/30 pb-[calc(env(safe-area-inset-bottom)+1.5rem)]">
-      {/* Background Aurora Mesh */}
+    <div className="min-h-[100dvh] relative w-full overflow-x-clip bg-zinc-950 text-zinc-100 selection:bg-zinc-800 pb-[calc(env(safe-area-inset-bottom)+1.5rem)]">
+      {/* Background Monochrome Mesh */}
       {enableAuroraGlow && (
         <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-          <div className="absolute -top-40 left-1/4 w-[650px] h-[650px] rounded-full bg-purple-600/15 blur-3xl" />
-          <div className="absolute top-1/3 -right-20 w-[550px] h-[550px] rounded-full bg-cyan-600/15 blur-3xl" />
-          <div className="absolute -bottom-20 left-1/3 w-[600px] h-[600px] rounded-full bg-amber-500/10 blur-3xl" />
-          <div className="absolute inset-0 bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:24px_24px] opacity-40" />
+          <div className="absolute inset-0 bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:24px_24px] opacity-30" />
         </div>
       )}
 
       {/* Main Container */}
       <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
         {/* Top Header Navigation */}
-        <div className="flex flex-wrap items-center justify-between gap-4 pb-8 border-b border-white/10">
+        <div className="flex flex-wrap items-center justify-between gap-4 pb-8 border-b border-zinc-800">
           <div className="flex items-center gap-3">
             <Link
               href="/"
-              className="p-2 sm:p-2.5 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-zinc-300 hover:text-white transition flex items-center justify-center cursor-pointer shadow-xs"
+              className="p-2 sm:p-2.5 rounded-2xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white transition flex items-center justify-center cursor-pointer shadow-xs"
               title="Return to Main Portal"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -161,7 +158,7 @@ export default function SettingsPage() {
                 <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
                   System Settings
                 </h1>
-                <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-300 border border-zinc-700">
                   v2.5
                 </span>
               </div>
@@ -174,7 +171,7 @@ export default function SettingsPage() {
           <div className="flex items-center gap-2.5">
             <Link
               href="/chat"
-              className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-purple-600 hover:bg-purple-500 text-white font-medium text-xs sm:text-sm transition shadow-lg shadow-purple-600/25 cursor-pointer"
+              className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-white hover:bg-zinc-200 text-zinc-950 font-bold text-xs sm:text-sm transition shadow-md cursor-pointer"
             >
               <MessageSquare className="w-4 h-4" />
               <span>Launch Chat Studio</span>
@@ -184,8 +181,8 @@ export default function SettingsPage() {
 
         {/* Status Toast */}
         {saveStatus && (
-          <div className="my-4 px-4 py-2.5 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs sm:text-sm flex items-center gap-2 animate-in fade-in duration-200">
-            <Check className="w-4 h-4 text-emerald-400" />
+          <div className="my-4 px-4 py-2.5 rounded-2xl bg-zinc-900 border border-zinc-700 text-white text-xs sm:text-sm flex items-center gap-2 animate-in fade-in duration-200 shadow-md">
+            <Check className="w-4 h-4 text-white" />
             <span>{saveStatus}</span>
           </div>
         )}
@@ -198,7 +195,7 @@ export default function SettingsPage() {
               { id: 'model', label: 'Models & Inference', icon: Cpu },
               { id: 'api', label: 'API Keys & Endpoints', icon: Key },
               { id: 'voice', label: 'Voice & Speech', icon: Mic },
-              { id: 'appearance', label: 'Theme & Aurora', icon: Palette },
+              { id: 'appearance', label: 'Theme & Appearance', icon: Palette },
               { id: 'data', label: 'Data & Privacy', icon: ShieldCheck },
             ].map((tab) => {
               const Icon = tab.icon;
@@ -209,20 +206,20 @@ export default function SettingsPage() {
                   onClick={() => setActiveTab(tab.id as any)}
                   className={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-2xl text-xs sm:text-sm font-medium transition cursor-pointer whitespace-nowrap text-left ${
                     isActive
-                      ? 'bg-white/15 text-white border border-white/20 shadow-md backdrop-blur-md'
-                      : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/5 border border-transparent'
+                      ? 'bg-white text-zinc-950 font-bold shadow-md'
+                      : 'text-zinc-400 hover:text-white hover:bg-zinc-900 border border-transparent'
                   }`}
                 >
-                  <Icon className={`w-4 h-4 ${isActive ? 'text-purple-400' : 'text-zinc-400'}`} />
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-zinc-950' : 'text-zinc-400'}`} />
                   <span>{tab.label}</span>
                 </button>
               );
             })}
 
-            <div className="hidden md:block mt-6 pt-6 border-t border-white/10">
-              <div className="p-4 rounded-[24px] bg-white/5 border border-white/10 text-xs text-zinc-400 space-y-2">
+            <div className="hidden md:block mt-6 pt-6 border-t border-zinc-800">
+              <div className="p-4 rounded-[24px] bg-zinc-900 border border-zinc-800 text-xs text-zinc-400 space-y-2">
                 <div className="font-semibold text-zinc-200 flex items-center gap-1.5">
-                  <Zap className="w-3.5 h-3.5 text-amber-400" />
+                  <Zap className="w-3.5 h-3.5 text-zinc-400" />
                   <span>Ultra-Low Latency</span>
                 </div>
                 <p className="text-[11px] leading-relaxed">
@@ -236,7 +233,7 @@ export default function SettingsPage() {
           <div className="md:col-span-9 space-y-6">
             {/* 1. Model & Inference Tab */}
             {activeTab === 'model' && (
-              <div className="p-6 sm:p-8 rounded-[32px] bg-white/5 dark:bg-zinc-900/40 backdrop-blur-xl border border-white/10 shadow-2xl space-y-6">
+              <div className="p-6 sm:p-8 rounded-[32px] bg-zinc-900 border border-zinc-800 shadow-2xl space-y-6">
                 <div>
                   <h2 className="text-lg font-semibold text-white">Default Model & Provider</h2>
                   <p className="text-xs text-zinc-400 mt-0.5">
@@ -256,13 +253,13 @@ export default function SettingsPage() {
                       onClick={() => setDefaultProvider(p.id)}
                       className={`p-4 rounded-[24px] border text-left transition cursor-pointer ${
                         defaultProvider === p.id
-                          ? 'bg-purple-500/15 border-purple-500/50 text-white shadow-xs'
-                          : 'bg-white/5 border-white/10 text-zinc-300 hover:bg-white/10'
+                          ? 'bg-white text-zinc-950 font-bold border-white shadow-md'
+                          : 'bg-zinc-950 border-zinc-800 text-zinc-300 hover:bg-zinc-900'
                       }`}
                     >
                       <div className="text-xs font-semibold">{p.name}</div>
-                      <div className="text-[11px] text-zinc-400 mt-1">{p.desc}</div>
-                      <span className="inline-block mt-3 text-[10px] font-mono px-2 py-0.5 rounded-full bg-white/10 text-zinc-300">
+                      <div className={`text-[11px] mt-1 ${defaultProvider === p.id ? 'text-zinc-700' : 'text-zinc-400'}`}>{p.desc}</div>
+                      <span className={`inline-block mt-3 text-[10px] font-mono px-2 py-0.5 rounded-full ${defaultProvider === p.id ? 'bg-zinc-200 text-zinc-900' : 'bg-zinc-800 text-zinc-300'}`}>
                         {p.tag}
                       </span>
                     </button>
@@ -274,7 +271,7 @@ export default function SettingsPage() {
                   <select
                     value={defaultModel}
                     onChange={(e) => setDefaultModel(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-2xl bg-zinc-900/80 border border-white/15 text-sm text-white focus:outline-hidden focus:border-purple-500"
+                    className="w-full px-4 py-2.5 rounded-2xl bg-zinc-950 border border-zinc-800 text-sm text-white focus:outline-hidden focus:border-zinc-400"
                   >
                     <option value="gemini-2.5-flash">gemini-2.5-flash (Recommended: Low Latency & High Speed)</option>
                     <option value="gemini-2.5-pro">gemini-2.5-pro (Deep Reasoning & Multimodal Precision)</option>
@@ -285,7 +282,7 @@ export default function SettingsPage() {
                 </div>
 
                 {/* Temperature Slider */}
-                <div className="space-y-2 pt-3 border-t border-white/10">
+                <div className="space-y-2 pt-3 border-t border-zinc-800">
                   <div className="flex justify-between text-xs">
                     <span className="font-medium text-zinc-300">Temperature: {temperature}</span>
                     <span className="text-zinc-400 text-[11px]">
@@ -299,7 +296,7 @@ export default function SettingsPage() {
                     step="0.05"
                     value={temperature}
                     onChange={(e) => setTemperature(parseFloat(e.target.value))}
-                    className="w-full accent-purple-500 cursor-pointer"
+                    className="w-full accent-white cursor-pointer"
                   />
                   <div className="flex justify-between text-[10px] text-zinc-500 font-mono">
                     <span>0.0 (Code / Strict)</span>
@@ -309,10 +306,10 @@ export default function SettingsPage() {
                 </div>
 
                 {/* Reasoning Mode Toggle */}
-                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/10">
+                <div className="flex items-center justify-between p-4 rounded-2xl bg-zinc-950 border border-zinc-800">
                   <div>
                     <div className="text-xs font-semibold text-white flex items-center gap-1.5">
-                      <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+                      <Sparkles className="w-3.5 h-3.5 text-zinc-400" />
                       <span>Deep Thought & Reasoning Trace</span>
                     </div>
                     <div className="text-[11px] text-zinc-400">
@@ -323,7 +320,7 @@ export default function SettingsPage() {
                     type="checkbox"
                     checked={enableThinking}
                     onChange={(e) => setEnableThinking(e.target.checked)}
-                    className="w-4 h-4 accent-purple-500 rounded cursor-pointer"
+                    className="w-4 h-4 accent-white rounded cursor-pointer"
                   />
                 </div>
               </div>
@@ -331,7 +328,7 @@ export default function SettingsPage() {
 
             {/* 2. API Keys & Endpoints Tab */}
             {activeTab === 'api' && (
-              <div className="p-6 sm:p-8 rounded-[32px] bg-white/5 dark:bg-zinc-900/40 backdrop-blur-xl border border-white/10 shadow-2xl space-y-6">
+              <div className="p-6 sm:p-8 rounded-[32px] bg-zinc-900 border border-zinc-800 shadow-2xl space-y-6">
                 <div>
                   <h2 className="text-lg font-semibold text-white">Custom API Keys & Endpoints</h2>
                   <p className="text-xs text-zinc-400 mt-0.5">
@@ -350,7 +347,7 @@ export default function SettingsPage() {
                       placeholder="gsk_..."
                       value={groqApiKey}
                       onChange={(e) => setGroqApiKey(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-2xl bg-zinc-900/80 border border-white/15 text-sm text-white font-mono placeholder:text-zinc-600 focus:outline-hidden focus:border-purple-500"
+                      className="w-full px-4 py-2.5 rounded-2xl bg-zinc-950 border border-zinc-800 text-sm text-white font-mono placeholder:text-zinc-600 focus:outline-hidden focus:border-zinc-400"
                     />
                   </div>
 
@@ -361,7 +358,7 @@ export default function SettingsPage() {
                       placeholder="http://localhost:11434"
                       value={ollamaBaseUrl}
                       onChange={(e) => setOllamaBaseUrl(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-2xl bg-zinc-900/80 border border-white/15 text-sm text-white font-mono placeholder:text-zinc-600 focus:outline-hidden focus:border-purple-500"
+                      className="w-full px-4 py-2.5 rounded-2xl bg-zinc-950 border border-zinc-800 text-sm text-white font-mono placeholder:text-zinc-600 focus:outline-hidden focus:border-zinc-400"
                     />
                   </div>
 
@@ -371,7 +368,7 @@ export default function SettingsPage() {
                       rows={4}
                       value={systemInstructions}
                       onChange={(e) => setSystemInstructions(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-2xl bg-zinc-900/80 border border-white/15 text-xs text-zinc-200 focus:outline-hidden focus:border-purple-500 resize-none"
+                      className="w-full px-4 py-2.5 rounded-2xl bg-zinc-950 border border-zinc-800 text-xs text-zinc-200 focus:outline-hidden focus:border-zinc-400 resize-none"
                     />
                   </div>
                 </div>
@@ -380,18 +377,18 @@ export default function SettingsPage() {
 
             {/* 3. Voice & Speech Tab */}
             {activeTab === 'voice' && (
-              <div className="p-6 sm:p-8 rounded-[32px] bg-white/5 dark:bg-zinc-900/40 backdrop-blur-xl border border-white/10 shadow-2xl space-y-6">
+              <div className="p-6 sm:p-8 rounded-[32px] bg-zinc-900 border border-zinc-800 shadow-2xl space-y-6">
                 <div>
-                  <h2 className="text-lg font-semibold text-white">AI Chat 8 Voice Assistant</h2>
+                  <h2 className="text-lg font-semibold text-white">AI Chat Voice Assistant</h2>
                   <p className="text-xs text-zinc-400 mt-0.5">
                     Tune speech synthesis, auto-read responses, and speech-to-text behaviors.
                   </p>
                 </div>
 
-                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/10">
+                <div className="flex items-center justify-between p-4 rounded-2xl bg-zinc-950 border border-zinc-800">
                   <div>
                     <div className="text-xs font-semibold text-white flex items-center gap-1.5">
-                      <Volume2 className="w-3.5 h-3.5 text-rose-400" />
+                      <Volume2 className="w-3.5 h-3.5 text-zinc-400" />
                       <span>Automatic Text-to-Speech (Auto-Read)</span>
                     </div>
                     <div className="text-[11px] text-zinc-400">
@@ -402,7 +399,7 @@ export default function SettingsPage() {
                     type="checkbox"
                     checked={autoSpeak}
                     onChange={(e) => setAutoSpeak(e.target.checked)}
-                    className="w-4 h-4 accent-rose-500 rounded cursor-pointer"
+                    className="w-4 h-4 accent-white rounded cursor-pointer"
                   />
                 </div>
 
@@ -417,7 +414,7 @@ export default function SettingsPage() {
                     step="0.05"
                     value={speechRate}
                     onChange={(e) => setSpeechRate(parseFloat(e.target.value))}
-                    className="w-full accent-rose-500 cursor-pointer"
+                    className="w-full accent-white cursor-pointer"
                   />
                 </div>
               </div>
@@ -425,11 +422,11 @@ export default function SettingsPage() {
 
             {/* 4. Appearance Tab */}
             {activeTab === 'appearance' && (
-              <div className="p-6 sm:p-8 rounded-[32px] bg-white/5 dark:bg-zinc-900/40 backdrop-blur-xl border border-white/10 shadow-2xl space-y-6">
+              <div className="p-6 sm:p-8 rounded-[32px] bg-zinc-900 border border-zinc-800 shadow-2xl space-y-6">
                 <div>
-                  <h2 className="text-lg font-semibold text-white">Theme & Aurora Visuals</h2>
+                  <h2 className="text-lg font-semibold text-white">Theme & Monochrome Styling</h2>
                   <p className="text-xs text-zinc-400 mt-0.5">
-                    Adjust interface styling, dark/light modes, and background glows.
+                    Adjust interface styling, dark/light modes, and background mesh.
                   </p>
                 </div>
 
@@ -448,8 +445,8 @@ export default function SettingsPage() {
                         onClick={() => setThemeMode(m.id as any)}
                         className={`p-4 rounded-2xl border text-center transition cursor-pointer ${
                           isSelected
-                            ? 'bg-purple-500/20 border-purple-500/50 text-white'
-                            : 'bg-white/5 border-white/10 text-zinc-400 hover:bg-white/10'
+                            ? 'bg-white text-zinc-950 font-bold border-white shadow-md'
+                            : 'bg-zinc-950 border-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-900'
                         }`}
                       >
                         <Icon className="w-5 h-5 mx-auto mb-1.5" />
@@ -459,18 +456,18 @@ export default function SettingsPage() {
                   })}
                 </div>
 
-                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/10">
+                <div className="flex items-center justify-between p-4 rounded-2xl bg-zinc-950 border border-zinc-800">
                   <div>
-                    <div className="text-xs font-semibold text-white">Aurora Glowing Mesh</div>
+                    <div className="text-xs font-semibold text-white">Subtle Grid Background</div>
                     <div className="text-[11px] text-zinc-400">
-                      Enable soft radial ambient blurs in the background canvas.
+                      Enable soft geometric dot grid in the background canvas.
                     </div>
                   </div>
                   <input
                     type="checkbox"
                     checked={enableAuroraGlow}
                     onChange={(e) => setEnableAuroraGlow(e.target.checked)}
-                    className="w-4 h-4 accent-purple-500 rounded cursor-pointer"
+                    className="w-4 h-4 accent-white rounded cursor-pointer"
                   />
                 </div>
               </div>
@@ -478,7 +475,7 @@ export default function SettingsPage() {
 
             {/* 5. Data & Privacy Tab */}
             {activeTab === 'data' && (
-              <div className="p-6 sm:p-8 rounded-[32px] bg-white/5 dark:bg-zinc-900/40 backdrop-blur-xl border border-white/10 shadow-2xl space-y-6">
+              <div className="p-6 sm:p-8 rounded-[32px] bg-zinc-900 border border-zinc-800 shadow-2xl space-y-6">
                 <div>
                   <h2 className="text-lg font-semibold text-white">Data Storage & Session Privacy</h2>
                   <p className="text-xs text-zinc-400 mt-0.5">
@@ -496,7 +493,7 @@ export default function SettingsPage() {
                         alert('All chat sessions cleared.');
                       }
                     }}
-                    className="px-4 py-2.5 rounded-2xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 text-xs font-medium transition cursor-pointer"
+                    className="px-4 py-2.5 rounded-2xl bg-zinc-950 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white text-xs font-medium transition cursor-pointer"
                   >
                     Clear Local History & Conversation Cache
                   </button>
@@ -505,11 +502,11 @@ export default function SettingsPage() {
             )}
 
             {/* Bottom Actions Bar */}
-            <div className="flex flex-wrap items-center justify-between gap-3 pt-6 border-t border-white/10">
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-6 border-t border-zinc-800">
               <button
                 type="button"
                 onClick={handleResetDefaults}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-zinc-300 hover:text-white transition cursor-pointer"
+                className="flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs text-zinc-300 hover:text-white transition cursor-pointer"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
                 <span>Reset to Defaults</span>
@@ -518,14 +515,14 @@ export default function SettingsPage() {
               <div className="flex items-center gap-3">
                 <Link
                   href="/chat"
-                  className="px-4 py-2 rounded-2xl bg-white/10 hover:bg-white/15 text-xs text-zinc-200 transition cursor-pointer"
+                  className="px-4 py-2 rounded-2xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs text-zinc-300 hover:text-white transition cursor-pointer"
                 >
                   Cancel
                 </Link>
                 <button
                   type="button"
                   onClick={handleSaveAll}
-                  className="flex items-center gap-1.5 px-5 py-2 rounded-2xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs sm:text-sm transition shadow-lg shadow-purple-600/25 cursor-pointer"
+                  className="flex items-center gap-1.5 px-5 py-2 rounded-2xl bg-white hover:bg-zinc-200 text-zinc-950 font-bold text-xs sm:text-sm transition shadow-md cursor-pointer"
                 >
                   <Check className="w-4 h-4" />
                   <span>Save Preferences</span>

@@ -145,10 +145,9 @@ export default function MarketplacePage() {
       dir="rtl"
       className="min-h-screen relative w-full overflow-x-clip bg-zinc-950 text-zinc-100 selection:bg-zinc-800 pb-[calc(env(safe-area-inset-bottom)+6rem)] md:pb-[calc(env(safe-area-inset-bottom)+3rem)] flex flex-col justify-between font-sans"
     >
-      {/* Background Subtle Monochrome Mesh & Aurora Glow */}
+      {/* Background Subtle Monochrome Mesh */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
         <div className="absolute inset-0 bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:24px_24px] opacity-30" />
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[350px] bg-purple-600/10 rounded-full blur-[120px]" />
       </div>
 
       {/* 1. Desktop Navbar */}
@@ -161,7 +160,7 @@ export default function MarketplacePage() {
         {/* Header Title */}
         <div className="text-center max-w-3xl mx-auto mb-8">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-300 font-mono text-xs mb-3 shadow-xs">
-            <Store className="w-3.5 h-3.5 text-purple-400" />
+            <Store className="w-3.5 h-3.5 text-zinc-400" />
             <span>مارکت‌پلیس و مخزن ایجنت‌های تخصصی • Agent Marketplace</span>
           </div>
           <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white mb-3">
@@ -173,7 +172,7 @@ export default function MarketplacePage() {
         </div>
 
         {/* Tab Switcher & Search Bar */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3 sm:p-4 rounded-[28px] bg-zinc-900/60 backdrop-blur-xl border border-zinc-800 shadow-2xl mb-8">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3 sm:p-4 rounded-[28px] bg-zinc-900 border border-zinc-800 shadow-2xl mb-8">
           {/* Tabs: Explore vs Installed */}
           <div className="flex items-center gap-1.5 w-full sm:w-auto">
             <button
@@ -198,7 +197,7 @@ export default function MarketplacePage() {
               }`}
             >
               <span>نصب‌شده در استودیوی من</span>
-              <span className={`px-1.5 py-0.2 rounded-md text-[10px] font-mono ${agents.some((a) => a.isEnabled) ? 'bg-emerald-500/20 text-emerald-300' : 'bg-zinc-800 text-zinc-400'}`}>
+              <span className={`px-1.5 py-0.2 rounded-md text-[10px] font-mono ${agents.some((a) => a.isEnabled) ? 'bg-zinc-800 text-white border border-zinc-700' : 'bg-zinc-800 text-zinc-400'}`}>
                 {agents.filter((a) => a.isEnabled).length}
               </span>
             </button>
@@ -251,19 +250,16 @@ export default function MarketplacePage() {
                   .map((agent) => (
                     <div
                       key={agent.id}
-                      className="group relative overflow-hidden rounded-[32px] bg-white/10 dark:bg-zinc-900/40 backdrop-blur-xl border border-white/15 dark:border-white/10 hover:border-purple-500/40 transition-all duration-300 p-6 sm:p-7 shadow-2xl flex flex-col justify-between"
+                      className="group relative overflow-hidden rounded-[32px] bg-zinc-900 border border-zinc-800 hover:border-zinc-700 transition-all duration-300 p-6 sm:p-7 shadow-2xl flex flex-col justify-between"
                     >
-                      {/* Ambient Radial Glow */}
-                      <div className="absolute -top-20 -right-20 w-48 h-48 bg-purple-600/15 rounded-full blur-3xl pointer-events-none group-hover:bg-purple-600/25 transition" />
-
                       <div>
                         {/* Top Badges & Switch */}
                         <div className="flex items-center justify-between gap-2 mb-4">
                           <div className="flex items-center gap-2">
-                            <span className="px-3 py-1 rounded-full text-[11px] font-bold font-mono bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
+                            <span className="px-3 py-1 rounded-full text-[11px] font-bold font-mono bg-zinc-800 border border-zinc-700 text-zinc-300">
                               رایگان • FREE
                             </span>
-                            <span className="px-2.5 py-1 rounded-full text-[10px] font-mono bg-zinc-800/80 border border-zinc-700/60 text-zinc-300">
+                            <span className="px-2.5 py-1 rounded-full text-[10px] font-mono bg-zinc-800 border border-zinc-700 text-zinc-300">
                               {agent.badge || agent.category || 'Agent'}
                             </span>
                           </div>
@@ -280,14 +276,14 @@ export default function MarketplacePage() {
                               onClick={() => handleToggleAgent(agent.id)}
                               className={`w-12 h-6.5 p-0.5 rounded-full transition-colors duration-200 ease-in-out cursor-pointer relative ${
                                 agent.isEnabled
-                                  ? 'bg-gradient-to-r from-purple-500 to-indigo-500 shadow-sm shadow-purple-500/30'
-                                  : 'bg-zinc-700/80 hover:bg-zinc-600'
+                                  ? 'bg-white'
+                                  : 'bg-zinc-800 hover:bg-zinc-700'
                               }`}
                               title={agent.isEnabled ? 'خاموش کردن ایجنت' : 'روشن کردن ایجنت'}
                             >
                               <div
-                                className={`w-5 h-5 rounded-full bg-white shadow-md transform transition-transform duration-200 ${
-                                  agent.isEnabled ? '-translate-x-5.5' : 'translate-x-0'
+                                className={`w-5 h-5 rounded-full shadow-md transform transition-transform duration-200 ${
+                                  agent.isEnabled ? '-translate-x-5.5 bg-zinc-950' : 'translate-x-0 bg-zinc-400'
                                 }`}
                               />
                             </button>
@@ -296,13 +292,13 @@ export default function MarketplacePage() {
 
                         {/* Agent Header */}
                         <div className="flex items-start gap-4 mb-4">
-                          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-white text-2xl shadow-lg shadow-purple-600/30 shrink-0">
+                          <div className="w-14 h-14 rounded-2xl bg-zinc-800 border border-zinc-700 flex items-center justify-center text-white text-2xl shadow-md shrink-0">
                             {agent.icon}
                           </div>
                           <div>
                             <h3 className="text-xl font-extrabold text-white tracking-tight flex items-center gap-2">
                               <span>{agent.name}</span>
-                              <Sparkles className="w-4 h-4 text-purple-400" />
+                              <Sparkles className="w-4 h-4 text-zinc-400" />
                             </h3>
                             <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
                               {agent.descriptionFa || agent.description}
@@ -311,10 +307,10 @@ export default function MarketplacePage() {
                         </div>
 
                         {/* Agent Capabilities Checklist */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 my-5 p-4 rounded-2xl bg-black/40 border border-white/5 text-xs text-zinc-300">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 my-5 p-4 rounded-2xl bg-zinc-950 border border-zinc-800 text-xs text-zinc-300">
                           {agent.capabilities.map((cap, idx) => (
                             <div key={idx} className="flex items-center gap-2">
-                              <CheckCircle2 className="w-4 h-4 text-purple-400 shrink-0" />
+                              <CheckCircle2 className="w-4 h-4 text-white shrink-0" />
                               <span>{cap}</span>
                             </div>
                           ))}
@@ -322,11 +318,11 @@ export default function MarketplacePage() {
                       </div>
 
                       {/* Actions */}
-                      <div className="pt-4 border-t border-white/10 flex flex-wrap items-center justify-between gap-3">
+                      <div className="pt-4 border-t border-zinc-800 flex flex-wrap items-center justify-between gap-3">
                         <div className="flex items-center gap-2 w-full sm:w-auto">
                           <Link
                             href={`/chat?agent=${agent.id}`}
-                            className="flex-1 sm:flex-initial px-5 py-2.5 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs transition shadow-lg flex items-center justify-center gap-2 cursor-pointer"
+                            className="flex-1 sm:flex-initial px-5 py-2.5 rounded-2xl bg-white hover:bg-zinc-200 text-zinc-950 font-bold text-xs transition shadow-md flex items-center justify-center gap-2 cursor-pointer"
                           >
                             <span>ورود به فضای استودیو</span>
                             <ArrowRight className="w-3.5 h-3.5 rotate-180" />
@@ -335,7 +331,7 @@ export default function MarketplacePage() {
                             <button
                               type="button"
                               onClick={handleOpenActivation}
-                              className="px-3.5 py-2.5 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/10 text-zinc-300 hover:text-white text-xs font-semibold transition cursor-pointer flex items-center gap-1.5"
+                              className="px-3.5 py-2.5 rounded-2xl bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-300 hover:text-white text-xs font-semibold transition cursor-pointer flex items-center gap-1.5"
                             >
                               <Settings2 className="w-3.5 h-3.5" />
                               <span>تنظیمات فروشگاه</span>
@@ -368,11 +364,11 @@ export default function MarketplacePage() {
                   .map((agent) => (
                     <div
                       key={agent.id}
-                      className="rounded-[32px] bg-zinc-900/80 backdrop-blur-2xl border border-white/15 p-6 sm:p-8 shadow-2xl space-y-6 flex flex-col justify-between"
+                      className="rounded-[32px] bg-zinc-900 border border-zinc-800 p-6 sm:p-8 shadow-2xl space-y-6 flex flex-col justify-between"
                     >
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-white/10">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-zinc-800">
                         <div className="flex items-center gap-3.5">
-                          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-2xl shadow-lg shrink-0">
+                          <div className="w-14 h-14 rounded-2xl bg-zinc-800 border border-zinc-700 flex items-center justify-center text-white text-2xl shadow-md shrink-0">
                             {agent.icon}
                           </div>
                           <div>
@@ -382,7 +378,7 @@ export default function MarketplacePage() {
                                   ? storeProfile.storeName
                                   : agent.name}
                               </h3>
-                              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-zinc-800 text-white border border-zinc-700">
                                 فعال در استودیو
                               </span>
                             </div>
@@ -398,31 +394,31 @@ export default function MarketplacePage() {
                           role="switch"
                           aria-checked={agent.isEnabled}
                           onClick={() => handleToggleAgent(agent.id)}
-                          className="w-12 h-6.5 p-0.5 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 shadow-sm shadow-purple-500/30 transition cursor-pointer self-start sm:self-center"
+                          className="w-12 h-6.5 p-0.5 rounded-full bg-white transition cursor-pointer self-start sm:self-center"
                           title="خاموش کردن ایجنت"
                         >
-                          <div className="w-5 h-5 rounded-full bg-white shadow-md transform -translate-x-5.5 transition-transform duration-200" />
+                          <div className="w-5 h-5 rounded-full bg-zinc-950 shadow-md transform -translate-x-5.5 transition-transform duration-200" />
                         </button>
                       </div>
 
                       {/* Quick Details */}
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                        <div className="p-4 rounded-2xl bg-black/40 border border-white/5 text-center">
+                        <div className="p-4 rounded-2xl bg-zinc-950 border border-zinc-800 text-center">
                           <span className="text-[11px] text-zinc-400 block mb-1">دسته‌بندی</span>
-                          <span className="text-xs font-bold text-purple-300">{agent.badge || agent.category || 'Agent'}</span>
+                          <span className="text-xs font-bold text-zinc-200">{agent.badge || agent.category || 'Agent'}</span>
                         </div>
-                        <div className="p-4 rounded-2xl bg-black/40 border border-white/5 text-center">
+                        <div className="p-4 rounded-2xl bg-zinc-950 border border-zinc-800 text-center">
                           <span className="text-[11px] text-zinc-400 block mb-1">نسخه</span>
                           <span className="text-xs font-bold font-mono text-zinc-200">v{agent.version || '1.0'}</span>
                         </div>
-                        <div className="p-4 rounded-2xl bg-black/40 border border-white/5 text-center col-span-2 sm:col-span-1">
+                        <div className="p-4 rounded-2xl bg-zinc-950 border border-zinc-800 text-center col-span-2 sm:col-span-1">
                           <span className="text-[11px] text-zinc-400 block mb-1">وضعیت</span>
-                          <span className="text-xs font-bold text-emerald-400">آماده تعامل</span>
+                          <span className="text-xs font-bold text-white">آماده تعامل</span>
                         </div>
                       </div>
 
                       {/* Settings & Direct Open */}
-                      <div className="pt-4 border-t border-white/10 flex items-center justify-between gap-3">
+                      <div className="pt-4 border-t border-zinc-800 flex items-center justify-between gap-3">
                         <Link
                           href={`/chat?agent=${agent.id}`}
                           className="px-5 py-2.5 rounded-2xl bg-white hover:bg-zinc-200 text-zinc-950 font-bold text-xs transition shadow-md flex items-center justify-center gap-2 cursor-pointer"
@@ -435,7 +431,7 @@ export default function MarketplacePage() {
                           <button
                             type="button"
                             onClick={handleOpenActivation}
-                            className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-medium text-zinc-300 transition cursor-pointer"
+                            className="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-xs font-medium text-zinc-300 hover:text-white transition cursor-pointer"
                           >
                             ویرایش مشخصات
                           </button>
@@ -445,8 +441,8 @@ export default function MarketplacePage() {
                   ))}
               </div>
             ) : (
-              <div className="rounded-[36px] bg-zinc-900/40 backdrop-blur-xl border border-zinc-800 p-10 sm:p-14 text-center max-w-xl mx-auto shadow-2xl">
-                <div className="w-14 h-14 rounded-2xl bg-zinc-900 border border-zinc-800 text-zinc-400 mx-auto flex items-center justify-center mb-4">
+              <div className="rounded-[36px] bg-zinc-900 border border-zinc-800 p-10 sm:p-14 text-center max-w-xl mx-auto shadow-2xl">
+                <div className="w-14 h-14 rounded-2xl bg-zinc-800 border border-zinc-700 text-white mx-auto flex items-center justify-center mb-4">
                   <Bot className="w-6 h-6" />
                 </div>
                 <h3 className="text-lg font-bold text-white mb-2">هنوز هیچ ایجنتی فعال نیست</h3>
@@ -456,7 +452,7 @@ export default function MarketplacePage() {
                 <button
                   type="button"
                   onClick={() => setActiveTab('explore')}
-                  className="px-5 py-2.5 rounded-2xl bg-white text-zinc-950 font-bold text-xs hover:bg-zinc-200 transition cursor-pointer"
+                  className="px-5 py-2.5 rounded-2xl bg-white text-zinc-950 font-bold text-xs hover:bg-zinc-200 transition cursor-pointer shadow-md"
                 >
                   مشاهده ایجنت‌های مارکت‌پلیس
                 </button>
@@ -466,29 +462,25 @@ export default function MarketplacePage() {
         )}
       </main>
 
-      {/* 3. Apple-Style Aurora Glassmorphic Activation Modal */}
+      {/* 3. Monochrome Activation Modal */}
       {isModalOpen && (
         <div
           dir="rtl"
           className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200"
         >
-          <div className="relative overflow-hidden w-full max-w-lg p-6 sm:p-8 rounded-[32px] bg-zinc-900/95 backdrop-blur-2xl border border-white/20 shadow-2xl text-zinc-100">
-            {/* Ambient Aurora Glow */}
-            <div className="absolute -top-24 -right-24 w-60 h-60 bg-purple-600/25 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-24 -left-24 w-60 h-60 bg-indigo-600/25 rounded-full blur-3xl pointer-events-none" />
-
+          <div className="relative overflow-hidden w-full max-w-lg p-6 sm:p-8 rounded-[32px] bg-zinc-900 border border-zinc-800 shadow-2xl text-zinc-100">
             {/* Close Button */}
             <button
               type="button"
               onClick={() => setIsModalOpen(false)}
-              className="absolute top-5 left-5 p-2 rounded-full bg-white/10 hover:bg-white/20 text-zinc-400 hover:text-white transition cursor-pointer"
+              className="absolute top-5 left-5 p-2 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white transition cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
 
             {activationSuccess ? (
               <div className="relative z-10 text-center py-6 space-y-4 animate-in zoom-in-95 duration-200">
-                <div className="w-16 h-16 rounded-3xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 mx-auto flex items-center justify-center shadow-lg">
+                <div className="w-16 h-16 rounded-3xl bg-zinc-800 border border-zinc-700 text-white mx-auto flex items-center justify-center shadow-lg">
                   <CheckCircle2 className="w-8 h-8" />
                 </div>
                 <h3 className="text-xl font-extrabold text-white">
@@ -501,7 +493,7 @@ export default function MarketplacePage() {
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 pt-4">
                   <Link
                     href="/chat?agent=shop"
-                    className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs transition shadow-lg flex items-center justify-center gap-2 cursor-pointer"
+                    className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-white hover:bg-zinc-200 text-zinc-950 font-bold text-xs transition shadow-md flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <span>ورود به چت با ایجنت در استودیو</span>
                     <ArrowRight className="w-4 h-4 rotate-180" />
@@ -509,7 +501,7 @@ export default function MarketplacePage() {
                   <button
                     type="button"
                     onClick={() => setIsModalOpen(false)}
-                    className="w-full sm:w-auto px-4 py-3 rounded-2xl bg-white/10 hover:bg-white/20 text-zinc-300 text-xs font-semibold transition cursor-pointer"
+                    className="w-full sm:w-auto px-4 py-3 rounded-2xl bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-300 text-xs font-semibold transition cursor-pointer"
                   >
                     بستن پنجره
                   </button>
@@ -518,7 +510,7 @@ export default function MarketplacePage() {
             ) : (
               <div className="relative z-10 space-y-5">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-2xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-300 text-xl shadow-sm">
+                  <div className="w-12 h-12 rounded-2xl bg-zinc-800 border border-zinc-700 flex items-center justify-center text-white text-xl shadow-sm">
                     🏪
                   </div>
                   <div>
@@ -535,7 +527,7 @@ export default function MarketplacePage() {
                   {/* Store Name */}
                   <div>
                     <label className="block text-xs text-zinc-300 font-semibold mb-1.5">
-                      نام فروشگاه / کسب‌وکار <span className="text-rose-400">*</span>
+                      نام فروشگاه / کسب‌وکار <span className="text-zinc-400">*</span>
                     </label>
                     <input
                       type="text"
@@ -543,14 +535,14 @@ export default function MarketplacePage() {
                       value={storeNameInput}
                       onChange={(e) => setStoreNameInput(e.target.value)}
                       placeholder="مثال: فروشگاه دیجی‌استایل یا آراش شاپ"
-                      className="w-full px-3.5 py-2.5 rounded-2xl bg-black/50 border border-white/15 text-xs sm:text-sm text-white placeholder:text-zinc-500 focus:outline-hidden focus:border-purple-500"
+                      className="w-full px-3.5 py-2.5 rounded-2xl bg-zinc-950 border border-zinc-800 text-xs sm:text-sm text-white placeholder:text-zinc-500 focus:outline-hidden focus:border-zinc-400"
                     />
                   </div>
 
                   {/* Owner Name */}
                   <div>
                     <label className="block text-xs text-zinc-300 font-semibold mb-1.5">
-                      نام و نام خانوادگی مدیر / مالک <span className="text-rose-400">*</span>
+                      نام و نام خانوادگی مدیر / مالک <span className="text-zinc-400">*</span>
                     </label>
                     <input
                       type="text"
@@ -558,7 +550,7 @@ export default function MarketplacePage() {
                       value={ownerNameInput}
                       onChange={(e) => setOwnerNameInput(e.target.value)}
                       placeholder="مثال: آرش وفایی"
-                      className="w-full px-3.5 py-2.5 rounded-2xl bg-black/50 border border-white/15 text-xs sm:text-sm text-white placeholder:text-zinc-500 focus:outline-hidden focus:border-purple-500"
+                      className="w-full px-3.5 py-2.5 rounded-2xl bg-zinc-950 border border-zinc-800 text-xs sm:text-sm text-white placeholder:text-zinc-500 focus:outline-hidden focus:border-zinc-400"
                     />
                   </div>
 
@@ -572,7 +564,7 @@ export default function MarketplacePage() {
                       value={phoneInput}
                       onChange={(e) => setPhoneInput(e.target.value)}
                       placeholder="مثال: ۰۹۱۲۳۴۵۶۷۸۹"
-                      className="w-full px-3.5 py-2.5 rounded-2xl bg-black/50 border border-white/15 text-xs sm:text-sm text-white placeholder:text-zinc-500 focus:outline-hidden focus:border-purple-500 font-mono"
+                      className="w-full px-3.5 py-2.5 rounded-2xl bg-zinc-950 border border-zinc-800 text-xs sm:text-sm text-white placeholder:text-zinc-500 focus:outline-hidden focus:border-zinc-400 font-mono"
                     />
                   </div>
 
@@ -584,7 +576,7 @@ export default function MarketplacePage() {
                     <select
                       value={categoryInput}
                       onChange={(e) => setCategoryInput(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-2xl bg-black/50 border border-white/15 text-xs sm:text-sm text-white focus:outline-hidden focus:border-purple-500 cursor-pointer"
+                      className="w-full px-3.5 py-2.5 rounded-2xl bg-zinc-950 border border-zinc-800 text-xs sm:text-sm text-white focus:outline-hidden focus:border-zinc-400 cursor-pointer"
                     >
                       {STORE_CATEGORIES.map((cat) => (
                         <option key={cat} value={cat} className="bg-zinc-900 text-white">
@@ -599,7 +591,7 @@ export default function MarketplacePage() {
                     <button
                       type="submit"
                       disabled={isSubmitting || !storeNameInput.trim() || !ownerNameInput.trim()}
-                      className="w-full py-3 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs sm:text-sm shadow-lg shadow-purple-600/30 transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full py-3 rounded-2xl bg-white hover:bg-zinc-200 text-zinc-950 font-bold text-xs sm:text-sm shadow-md transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <Sparkles className="w-4 h-4" />
                       <span>{isSubmitting ? 'در حال فعال‌سازی...' : 'تایید و فعال‌سازی در استودیو'}</span>
