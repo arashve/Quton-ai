@@ -5,279 +5,220 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
 import {
-  Sparkles,
+  Home,
   MessageSquare,
-  Columns,
-  Mic,
-  Cpu,
-  Sliders,
+  Calendar,
+  BarChart2,
   Search,
   X,
-  ArrowUp,
-  Zap,
-  Brain,
-  Code,
-  Globe,
-  CornerDownLeft,
+  Sliders,
+  Mic,
+  Columns,
+  Cpu,
 } from 'lucide-react';
+
+interface SearchItem {
+  id: string;
+  title: string;
+  category: string;
+  href: string;
+}
+
+const SEARCH_ITEMS: SearchItem[] = [
+  { id: '1', title: 'Chat Studio', category: 'Workspace', href: '/chat' },
+  { id: '2', title: 'Split Arena', category: 'Benchmark', href: '/arena' },
+  { id: '3', title: 'Voice 8 Studio', category: 'Audio', href: '/voice' },
+  { id: '4', title: 'Model Matrix', category: 'Engines', href: '/models' },
+  { id: '5', title: 'System Settings', category: 'Config', href: '/settings' },
+  { id: '6', title: 'Gemini 2.5 Pro', category: 'Model', href: '/chat?prompt=Benchmark%20Gemini%202.5%20Pro' },
+  { id: '7', title: 'Llama 3.3 70B', category: 'Groq LPU', href: '/chat?prompt=Test%20Llama%203.3' },
+];
 
 export function Mobile3() {
   const pathname = usePathname();
   const router = useRouter();
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
+  const [query, setQuery] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Focus input when morphing sheet opens
+  // Auto-focus when search bar morphs open
   useEffect(() => {
-    if (isExpanded) {
+    if (isSearching) {
       setTimeout(() => {
         inputRef.current?.focus();
-      }, 150);
+      }, 100);
     }
-  }, [isExpanded]);
+  }, [isSearching]);
 
-  const handleSearchSubmit = (text?: string) => {
-    const q = (text !== undefined ? text : searchQuery).trim();
-    setIsExpanded(false);
-    if (q) {
-      router.push(`/chat?q=${encodeURIComponent(q)}`);
-    } else {
-      router.push('/chat');
-    }
+  const navItems = [
+    { id: 'home', icon: Home, href: '/', label: 'Home', isActive: pathname === '/' },
+    { id: 'chat', icon: MessageSquare, href: '/chat', label: 'Chat', isActive: pathname.startsWith('/chat') },
+    { id: 'arena', icon: Calendar, href: '/arena', label: 'Arena', isActive: pathname.startsWith('/arena') },
+    { id: 'models', icon: BarChart2, href: '/models', label: 'Models', isActive: pathname.startsWith('/models') },
+  ];
+
+  const filteredResults = query.trim()
+    ? SEARCH_ITEMS.filter(
+        (item) =>
+          item.title.toLowerCase().includes(query.toLowerCase()) ||
+          item.category.toLowerCase().includes(query.toLowerCase())
+      )
+    : SEARCH_ITEMS.slice(0, 4);
+
+  const handleSelectResult = (href: string) => {
+    setIsSearching(false);
+    setQuery('');
+    router.push(href);
   };
-
-  const quickShortcuts = [
-    { title: 'Split Arena', href: '/arena', desc: 'Benchmark two models side-by-side', icon: Columns, color: 'text-purple-400 bg-purple-500/20' },
-    { title: 'Voice 8 Studio', href: '/voice', desc: 'Audio waves & speech-to-text', icon: Mic, color: 'text-rose-400 bg-rose-500/20' },
-    { title: 'Model Matrix', href: '/models', desc: 'TTFT, throughput & context benchmarks', icon: Cpu, color: 'text-cyan-400 bg-cyan-500/20' },
-    { title: 'System Settings', href: '/settings', desc: 'API keys, temperatures & models', icon: Sliders, color: 'text-amber-400 bg-amber-500/20' },
-  ];
-
-  const suggestedPrompts = [
-    { label: 'Compare Gemini 2.5 Flash vs Pro', query: 'Compare Gemini 2.5 Flash vs Pro on latency' },
-    { label: 'Deep reasoning trace on consensus algorithms', query: 'Deep reasoning trace on distributed consensus algorithms' },
-    { label: 'Explain quantum computing simply with voice', query: 'Explain quantum computing simply' },
-  ];
 
   return (
     <>
-      {/* Dim backdrop when Mobile-3 sheet is morph-expanded */}
+      {/* Dim overlay when search is active */}
       <AnimatePresence>
-        {isExpanded && (
+        {isSearching && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setIsExpanded(false)}
-            className="fixed inset-0 z-40 bg-zinc-950/80 backdrop-blur-md md:hidden"
+            onClick={() => setIsSearching(false)}
+            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-xs md:hidden"
           />
         )}
       </AnimatePresence>
 
-      {/* Expanded Search & Navigation Panel (Above Dock) */}
-      <AnimatePresence>
-        {isExpanded && (
+      <div className="fixed bottom-4 inset-x-4 z-50 md:hidden flex flex-col items-center justify-end pointer-events-none">
+        <div className="w-full max-w-sm pointer-events-auto">
+          {/* SEARCH RESULTS PANEL (Renders directly above search bar like video frame 00:03-00:06) */}
+          <AnimatePresence>
+            {isSearching && (
+              <motion.div
+                initial={{ opacity: 0, y: 12, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 12, scale: 0.98 }}
+                transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                className="mb-2 p-2 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-2xl overflow-hidden"
+              >
+                <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
+                  {filteredResults.map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => handleSelectResult(item.href)}
+                      className="w-full px-3.5 py-2.5 flex items-center justify-between text-left hover:bg-zinc-50 dark:hover:bg-zinc-800/60 rounded-xl transition cursor-pointer group"
+                    >
+                      <span className="text-xs font-medium text-zinc-900 dark:text-zinc-100 group-hover:text-black dark:group-hover:text-white">
+                        {item.title}
+                      </span>
+                      <span className="text-[11px] font-normal text-zinc-400 dark:text-zinc-500">
+                        {item.category}
+                      </span>
+                    </button>
+                  ))}
+                  {filteredResults.length === 0 && (
+                    <div className="px-3.5 py-4 text-center text-xs text-zinc-400">
+                      No results found
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* MORPHING DOCK / SEARCH BAR (Direct 1:1 match with pro.reactbits.dev/docs/app-ui/mobile/mobile-3 video) */}
           <motion.div
-            initial={{ y: '100%', opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: '100%', opacity: 0 }}
-            transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-            className="fixed inset-x-3 bottom-20 z-50 rounded-[32px] bg-zinc-900/95 backdrop-blur-2xl border border-white/15 p-4 shadow-2xl md:hidden max-h-[80vh] overflow-y-auto space-y-4"
+            layout
+            transition={{ type: 'spring', stiffness: 450, damping: 35 }}
+            className={`w-full overflow-hidden transition-colors shadow-2xl ${
+              isSearching
+                ? 'rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 px-3.5 py-2'
+                : 'rounded-full bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800/80 px-2 py-1.5 max-w-fit mx-auto'
+            }`}
           >
-            {/* Header & Close Pill */}
-            <div className="flex items-center justify-between pb-2 border-b border-white/10">
-              <div className="flex items-center gap-2">
-                <div className="p-1.5 rounded-xl bg-purple-500/20 text-purple-400">
-                  <Search className="w-4 h-4" />
-                </div>
-                <div>
-                  <div className="text-xs font-bold text-white">ReactBits Mobile-3</div>
-                  <div className="text-[10px] text-zinc-400">Morphing search & navigation sheet</div>
-                </div>
+            {isSearching ? (
+              /* Expanded Search Field */
+              <div className="flex items-center gap-2.5 w-full">
+                <Search className="w-4 h-4 text-zinc-400 dark:text-zinc-500 shrink-0 ml-0.5" />
+                <input
+                  ref={inputRef}
+                  type="text"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && filteredResults[0]) {
+                      handleSelectResult(filteredResults[0].href);
+                    } else if (e.key === 'Escape') {
+                      setIsSearching(false);
+                    }
+                  }}
+                  placeholder="Search accounts, views, invoices"
+                  className="flex-1 bg-transparent text-xs text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-hidden py-1"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (query) {
+                      setQuery('');
+                    } else {
+                      setIsSearching(false);
+                    }
+                  }}
+                  className="p-1 rounded-full text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition cursor-pointer"
+                  aria-label="Close search"
+                >
+                  <X className="w-4 h-4" />
+                </button>
               </div>
+            ) : (
+              /* Collapsed 5-Item Floating Pill Dock */
+              <div className="flex items-center gap-1">
+                {navItems.map((item) => {
+                  const Icon = item.icon;
+                  const active = item.isActive;
 
-              <button
-                onClick={() => setIsExpanded(false)}
-                className="p-1.5 rounded-full bg-white/10 text-zinc-400 hover:text-white transition cursor-pointer"
-                aria-label="Close search sheet"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Full-width Search Input Field */}
-            <div className="relative">
-              <input
-                ref={inputRef}
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    handleSearchSubmit();
-                  }
-                }}
-                placeholder="Ask AUTOFLOW or jump to destination..."
-                className="w-full pl-4 pr-12 py-3 rounded-2xl bg-zinc-950/80 border border-white/15 text-sm text-white placeholder:text-zinc-500 focus:outline-hidden focus:border-purple-500 transition"
-              />
-              <button
-                onClick={() => handleSearchSubmit()}
-                className="absolute right-2 top-2 p-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white transition cursor-pointer"
-                title="Send Prompt"
-              >
-                <ArrowUp className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Quick Destination Shortcut Tiles */}
-            <div>
-              <div className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 mb-2 px-1">
-                Shortcut Destinations
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                {quickShortcuts.map((s, idx) => {
-                  const Icon = s.icon;
                   return (
                     <Link
-                      key={idx}
-                      href={s.href}
-                      onClick={() => setIsExpanded(false)}
-                      className="p-3 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 transition cursor-pointer flex flex-col justify-between"
+                      key={item.id}
+                      href={item.href}
+                      className="relative w-9 h-9 flex items-center justify-center rounded-full transition cursor-pointer"
+                      aria-label={item.label}
                     >
-                      <div className="flex items-center gap-2 mb-1.5">
-                        <div className={`p-1.5 rounded-xl ${s.color}`}>
-                          <Icon className="w-3.5 h-3.5" />
-                        </div>
-                        <span className="text-xs font-semibold text-white truncate">{s.title}</span>
-                      </div>
-                      <p className="text-[10px] text-zinc-400 line-clamp-1">{s.desc}</p>
+                      {/* Black/White Solid Pill Indicator for Active Item (Exact match to video 00:00 - 00:02) */}
+                      {active && (
+                        <motion.div
+                          layoutId="mobile3-active-circle"
+                          className="absolute inset-0 rounded-full bg-zinc-900 dark:bg-white shadow-sm -z-10"
+                          transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                        />
+                      )}
+
+                      <Icon
+                        className={`w-4 h-4 transition-colors ${
+                          active
+                            ? 'text-white dark:text-zinc-950 stroke-[2.2]'
+                            : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 stroke-[1.8]'
+                        }`}
+                      />
                     </Link>
                   );
                 })}
-              </div>
-            </div>
 
-            {/* Quick Prompt Suggestions */}
-            <div>
-              <div className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 mb-2 px-1">
-                Suggested Prompts
+                {/* Subtle Vertical Divider (Exact match to video) */}
+                <div className="w-[1px] h-4 bg-zinc-200 dark:bg-zinc-800 mx-1 shrink-0" />
+
+                {/* Search Trigger Button */}
+                <button
+                  type="button"
+                  onClick={() => setIsSearching(true)}
+                  className="w-9 h-9 flex items-center justify-center rounded-full text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 transition cursor-pointer"
+                  aria-label="Search"
+                  title="Search"
+                >
+                  <Search className="w-4 h-4 stroke-[1.8]" />
+                </button>
               </div>
-              <div className="space-y-1.5">
-                {suggestedPrompts.map((p, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => handleSearchSubmit(p.query)}
-                    className="w-full text-left px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 text-xs text-zinc-300 hover:text-white transition flex items-center justify-between group cursor-pointer"
-                  >
-                    <span className="truncate pr-2">{p.label}</span>
-                    <CornerDownLeft className="w-3 h-3 text-zinc-500 group-hover:text-purple-400 flex-shrink-0" />
-                  </button>
-                ))}
-              </div>
-            </div>
+            )}
           </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Floating Bottom Dock (Mobile-3 Component) */}
-      <nav
-        id="mobile3-floating-dock"
-        className="fixed bottom-3 inset-x-4 z-40 md:hidden max-w-sm mx-auto"
-      >
-        <motion.div
-          layout
-          className="flex items-center justify-around px-3 py-2 rounded-[32px] bg-zinc-950/85 backdrop-blur-2xl border border-white/15 shadow-2xl shadow-purple-950/40"
-        >
-          {/* 1. Home */}
-          <Link
-            href="/"
-            className={`flex flex-col items-center justify-center p-2 rounded-2xl min-w-[48px] min-h-[44px] transition cursor-pointer relative ${
-              pathname === '/' ? 'text-white' : 'text-zinc-400 hover:text-zinc-200'
-            }`}
-            aria-label="Home"
-          >
-            {pathname === '/' && (
-              <motion.div
-                layoutId="mobile3-active-pill"
-                className="absolute inset-0 rounded-2xl bg-white/10 border border-white/15 -z-10"
-                transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-              />
-            )}
-            <Sparkles className={`w-5 h-5 ${pathname === '/' ? 'text-purple-400' : ''}`} />
-            <span className="text-[10px] font-medium mt-0.5">Home</span>
-          </Link>
-
-          {/* 2. Split Arena (Test Page 1) */}
-          <Link
-            href="/arena"
-            className={`flex flex-col items-center justify-center p-2 rounded-2xl min-w-[48px] min-h-[44px] transition cursor-pointer relative ${
-              pathname === '/arena' ? 'text-white' : 'text-zinc-400 hover:text-zinc-200'
-            }`}
-            aria-label="Arena"
-          >
-            {pathname === '/arena' && (
-              <motion.div
-                layoutId="mobile3-active-pill"
-                className="absolute inset-0 rounded-2xl bg-white/10 border border-white/15 -z-10"
-                transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-              />
-            )}
-            <Columns className={`w-5 h-5 ${pathname === '/arena' ? 'text-purple-400' : ''}`} />
-            <span className="text-[10px] font-medium mt-0.5">Arena</span>
-          </Link>
-
-          {/* 3. MORPHING SEARCH TRIGGER (Mobile-3 Signature Element) */}
-          <button
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="flex flex-col items-center justify-center p-2.5 rounded-full bg-gradient-to-tr from-purple-600 to-cyan-500 text-white shadow-lg shadow-purple-600/30 hover:scale-105 active:scale-95 transition-transform cursor-pointer"
-            aria-label="Open Search and Shortcuts"
-            title="Tap to search and open quick navigation"
-          >
-            {isExpanded ? <X className="w-5 h-5" /> : <Search className="w-5 h-5" />}
-          </button>
-
-          {/* 4. Voice Studio (Test Page 2) */}
-          <Link
-            href="/voice"
-            className={`flex flex-col items-center justify-center p-2 rounded-2xl min-w-[48px] min-h-[44px] transition cursor-pointer relative ${
-              pathname === '/voice' ? 'text-white' : 'text-zinc-400 hover:text-zinc-200'
-            }`}
-            aria-label="Voice"
-          >
-            {pathname === '/voice' && (
-              <motion.div
-                layoutId="mobile3-active-pill"
-                className="absolute inset-0 rounded-2xl bg-white/10 border border-white/15 -z-10"
-                transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-              />
-            )}
-            <Mic className={`w-5 h-5 ${pathname === '/voice' ? 'text-rose-400' : ''}`} />
-            <span className="text-[10px] font-medium mt-0.5">Voice</span>
-          </Link>
-
-          {/* 5. Chat Studio */}
-          <Link
-            href="/chat"
-            className={`flex flex-col items-center justify-center p-2 rounded-2xl min-w-[48px] min-h-[44px] transition cursor-pointer relative ${
-              pathname.startsWith('/chat') ? 'text-white' : 'text-zinc-400 hover:text-zinc-200'
-            }`}
-            aria-label="Chat Studio"
-          >
-            {pathname.startsWith('/chat') && (
-              <motion.div
-                layoutId="mobile3-active-pill"
-                className="absolute inset-0 rounded-2xl bg-white/10 border border-white/15 -z-10"
-                transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-              />
-            )}
-            <MessageSquare className={`w-5 h-5 ${pathname.startsWith('/chat') ? 'text-cyan-400' : ''}`} />
-            <span className="text-[10px] font-medium mt-0.5">Chat</span>
-          </Link>
-        </motion.div>
-      </nav>
+        </div>
+      </div>
     </>
   );
 }

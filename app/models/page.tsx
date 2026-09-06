@@ -6,16 +6,8 @@ import { useRouter } from 'next/navigation';
 import { Navbar12, Mobile3 } from '@/components/reactbits';
 import {
   Cpu,
-  Zap,
-  Clock,
-  Gauge,
-  Layers,
   ArrowRight,
-  Sparkles,
-  ShieldCheck,
-  Check,
   Search,
-  Filter,
 } from 'lucide-react';
 
 interface ModelInfo {
@@ -23,7 +15,6 @@ interface ModelInfo {
   name: string;
   provider: 'gemini' | 'groq' | 'ollama';
   providerLabel: string;
-  badgeColor: string;
   ttft: string;
   throughput: string;
   contextWindow: string;
@@ -38,7 +29,6 @@ const MODELS_DATA: ModelInfo[] = [
     name: 'Gemini 2.5 Flash',
     provider: 'gemini',
     providerLabel: 'Google Gemini',
-    badgeColor: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
     ttft: '140 - 160ms',
     throughput: '135 - 150 tok/s',
     contextWindow: '1,048,576 tokens',
@@ -51,7 +41,6 @@ const MODELS_DATA: ModelInfo[] = [
     name: 'Gemini 2.5 Pro',
     provider: 'gemini',
     providerLabel: 'Google Gemini',
-    badgeColor: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30',
     ttft: '250 - 300ms',
     throughput: '80 - 95 tok/s',
     contextWindow: '2,097,152 tokens',
@@ -64,7 +53,6 @@ const MODELS_DATA: ModelInfo[] = [
     name: 'Llama 3.3 70B',
     provider: 'groq',
     providerLabel: 'Groq LPU',
-    badgeColor: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
     ttft: '170 - 200ms',
     throughput: '450 - 520 tok/s',
     contextWindow: '131,072 tokens',
@@ -77,7 +65,6 @@ const MODELS_DATA: ModelInfo[] = [
     name: 'Gemini 1.5 Flash',
     provider: 'gemini',
     providerLabel: 'Google Gemini',
-    badgeColor: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
     ttft: '180 - 220ms',
     throughput: '110 - 130 tok/s',
     contextWindow: '1,048,576 tokens',
@@ -90,7 +77,6 @@ const MODELS_DATA: ModelInfo[] = [
     name: 'DeepSeek R1',
     provider: 'ollama',
     providerLabel: 'Local Ollama',
-    badgeColor: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30',
     ttft: 'Hardware Dependent',
     throughput: 'Hardware Dependent',
     contextWindow: '65,536 tokens',
@@ -115,26 +101,24 @@ export default function ModelsMatrixPage() {
   });
 
   return (
-    <div className="min-h-screen relative w-full overflow-x-hidden bg-zinc-950 text-zinc-100 selection:bg-purple-500/30 pb-24 md:pb-12">
+    <div className="min-h-screen relative w-full overflow-x-hidden bg-zinc-950 text-zinc-100 selection:bg-zinc-800 pb-24 md:pb-12">
       {/* 1. Desktop Navbar-12 */}
       <Navbar12 />
 
       {/* 2. Mobile Bottom Dock (Mobile-3) */}
       <Mobile3 />
 
-      {/* Background Aurora Mesh */}
+      {/* Background Subtle Monochrome Mesh */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute top-20 left-1/3 w-[600px] h-[600px] rounded-full bg-cyan-600/15 blur-3xl" />
-        <div className="absolute top-1/2 -right-20 w-[500px] h-[500px] rounded-full bg-purple-600/15 blur-3xl" />
-        <div className="absolute inset-0 bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:24px_24px] opacity-40" />
+        <div className="absolute inset-0 bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:24px_24px] opacity-30" />
       </div>
 
       {/* Page Content */}
       <main className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 pt-24 sm:pt-28">
         {/* Header Title */}
         <div className="text-center max-w-3xl mx-auto mb-8">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 font-mono text-xs mb-3">
-            <Cpu className="w-3.5 h-3.5 text-cyan-400" />
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-300 font-mono text-xs mb-3">
+            <Cpu className="w-3.5 h-3.5 text-white" />
             <span>Interactive Test Page • Model Matrix</span>
           </div>
           <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white mb-3">
@@ -146,7 +130,7 @@ export default function ModelsMatrixPage() {
         </div>
 
         {/* Search & Provider Filter Bar */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3 sm:p-4 rounded-[28px] bg-white/5 backdrop-blur-xl border border-white/15 shadow-2xl mb-8">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3 sm:p-4 rounded-[28px] bg-zinc-900/60 backdrop-blur-xl border border-zinc-800 shadow-2xl mb-8">
           {/* Filter Pills */}
           <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
             {[
@@ -161,8 +145,8 @@ export default function ModelsMatrixPage() {
                 onClick={() => setFilterProvider(tab.id as any)}
                 className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition cursor-pointer whitespace-nowrap ${
                   filterProvider === tab.id
-                    ? 'bg-purple-600 text-white shadow-md shadow-purple-600/25'
-                    : 'bg-white/5 hover:bg-white/10 text-zinc-300'
+                    ? 'bg-white text-zinc-950 font-semibold shadow-xs'
+                    : 'bg-zinc-950 hover:bg-zinc-800 text-zinc-300 border border-zinc-800'
                 }`}
               >
                 {tab.label}
@@ -178,7 +162,7 @@ export default function ModelsMatrixPage() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Filter by name or tag..."
-              className="w-full pl-9 pr-4 py-2 rounded-2xl bg-zinc-900/80 border border-white/10 text-xs text-white placeholder:text-zinc-500 focus:outline-hidden focus:border-purple-500"
+              className="w-full pl-9 pr-4 py-2 rounded-2xl bg-zinc-950 border border-zinc-800 text-xs text-white placeholder:text-zinc-500 focus:outline-hidden focus:border-zinc-500"
             />
           </div>
         </div>
@@ -188,17 +172,17 @@ export default function ModelsMatrixPage() {
           {filteredModels.map((m) => (
             <div
               key={m.id}
-              className="p-6 rounded-[32px] bg-white/5 backdrop-blur-xl border border-white/15 shadow-2xl flex flex-col justify-between hover:border-white/30 transition duration-200 group"
+              className="p-6 rounded-[32px] bg-zinc-900/40 backdrop-blur-xl border border-zinc-800 shadow-2xl flex flex-col justify-between hover:border-zinc-600 transition duration-200 group"
             >
               <div>
                 <div className="flex items-center justify-between gap-2 mb-3">
-                  <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full border ${m.badgeColor}`}>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full border bg-zinc-800 text-zinc-300 border-zinc-700">
                     {m.providerLabel}
                   </span>
                   <span className="text-[10px] font-mono text-zinc-400">v2.5 Ready</span>
                 </div>
 
-                <h3 className="text-lg font-bold text-white mb-2 group-hover:text-purple-300 transition-colors">
+                <h3 className="text-lg font-bold text-white mb-2 group-hover:text-zinc-200 transition-colors">
                   {m.name}
                 </h3>
                 <p className="text-xs text-zinc-400 leading-relaxed mb-4">
@@ -206,18 +190,18 @@ export default function ModelsMatrixPage() {
                 </p>
 
                 {/* Benchmark Metrics */}
-                <div className="space-y-2 p-3 rounded-2xl bg-zinc-950/60 border border-white/10 text-xs font-mono mb-4">
+                <div className="space-y-2 p-3 rounded-2xl bg-zinc-950 border border-zinc-800 text-xs font-mono mb-4">
                   <div className="flex justify-between">
                     <span className="text-zinc-500">Latency (TTFT):</span>
-                    <span className="text-emerald-400 font-semibold">{m.ttft}</span>
+                    <span className="text-white font-semibold">{m.ttft}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-zinc-500">Throughput:</span>
-                    <span className="text-purple-300 font-semibold">{m.throughput}</span>
+                    <span className="text-white font-semibold">{m.throughput}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-zinc-500">Context Limit:</span>
-                    <span className="text-cyan-300">{m.contextWindow}</span>
+                    <span className="text-zinc-300">{m.contextWindow}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-zinc-500">Reasoning:</span>
@@ -230,7 +214,7 @@ export default function ModelsMatrixPage() {
                   {m.tags.map((tag, i) => (
                     <span
                       key={i}
-                      className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-white/5 text-zinc-400 border border-white/5"
+                      className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-zinc-900 text-zinc-400 border border-zinc-800"
                     >
                       {tag}
                     </span>
@@ -239,7 +223,7 @@ export default function ModelsMatrixPage() {
               </div>
 
               {/* Action */}
-              <div className="pt-3 border-t border-white/10 flex items-center justify-between">
+              <div className="pt-3 border-t border-zinc-800 flex items-center justify-between">
                 <Link
                   href="/arena"
                   className="text-xs text-zinc-400 hover:text-white transition"
@@ -249,10 +233,10 @@ export default function ModelsMatrixPage() {
                 <button
                   type="button"
                   onClick={() => router.push(`/chat?prompt=Test%20and%20benchmark%20${encodeURIComponent(m.name)}`)}
-                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-medium transition cursor-pointer shadow-md shadow-purple-600/20"
+                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white hover:bg-zinc-200 text-zinc-950 text-xs font-semibold transition cursor-pointer shadow-xs"
                 >
                   <span>Test in Chat</span>
-                  <ArrowRight className="w-3 h-3" />
+                  <ArrowRight className="w-3 h-3 text-zinc-950" />
                 </button>
               </div>
             </div>
