@@ -133,7 +133,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="min-h-[100dvh] relative w-full overflow-x-hidden bg-zinc-950 text-zinc-100 selection:bg-purple-500/30 pb-[calc(env(safe-area-inset-bottom)+1.5rem)]">
+    <div className="min-h-[100dvh] relative w-full overflow-x-clip bg-zinc-950 text-zinc-100 selection:bg-purple-500/30 pb-[calc(env(safe-area-inset-bottom)+1.5rem)]">
       {/* Background Aurora Mesh */}
       {enableAuroraGlow && (
         <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">

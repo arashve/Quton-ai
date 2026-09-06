@@ -1911,7 +1911,7 @@ export const Chat: React.FC<ChatProps> = ({ initialPrompt, initialAgent }) => {
         )}
 
         {/* Top Header - Translucent / Flat */}
-        <header className={`h-12 sm:h-14 flex items-center justify-between px-2.5 sm:px-6 z-20 flex-shrink-0 transition-colors duration-200 ${
+        <header className={`pt-[env(safe-area-inset-top)] h-[calc(3rem+env(safe-area-inset-top))] sm:h-[calc(3.5rem+env(safe-area-inset-top))] flex items-center justify-between px-2.5 sm:px-6 z-20 flex-shrink-0 transition-colors duration-200 ${
           hasMessages ? 'bg-[var(--panel-strong)] backdrop-blur-md border-b border-[var(--panel-muted)]' : 'bg-transparent'
         }`}>
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
@@ -2328,7 +2328,7 @@ export const Chat: React.FC<ChatProps> = ({ initialPrompt, initialAgent }) => {
         )}
 
         {/* Floating Bottom Input Bar - Full-bleed transparency, NO solid cutoff */}
-        <footer className="p-3 sm:p-6 pt-0 mt-auto flex-shrink-0 relative z-20 bg-transparent">
+        <footer className="p-3 sm:p-6 pt-0 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] sm:pb-6 mt-auto flex-shrink-0 relative z-20 bg-transparent">
           <div className="max-w-3xl mx-auto relative">
             {/* AI Chat 7 Split Pane Comparison Mode Active Banner */}
             {isCompareMode && (

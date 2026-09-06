@@ -128,7 +128,7 @@ export default function MarketplacePage() {
   return (
     <div
       dir="rtl"
-      className="min-h-screen relative w-full overflow-x-hidden bg-zinc-950 text-zinc-100 selection:bg-zinc-800 pb-24 md:pb-12 flex flex-col justify-between font-sans"
+      className="min-h-screen relative w-full overflow-x-clip bg-zinc-950 text-zinc-100 selection:bg-zinc-800 pb-[calc(env(safe-area-inset-bottom)+6rem)] md:pb-[calc(env(safe-area-inset-bottom)+3rem)] flex flex-col justify-between font-sans"
     >
       {/* Background Subtle Monochrome Mesh & Aurora Glow */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">

@@ -47,7 +47,7 @@ export default function LandingPortalPage() {
   ];
 
   return (
-    <div className="min-h-[100dvh] relative w-full overflow-x-hidden bg-zinc-950 text-zinc-100 selection:bg-zinc-800 pb-[calc(env(safe-area-inset-bottom)+6rem)] md:pb-[calc(env(safe-area-inset-bottom)+3rem)]">
+    <div className="min-h-[100dvh] relative w-full overflow-x-clip bg-zinc-950 text-zinc-100 selection:bg-zinc-800 pb-[calc(env(safe-area-inset-bottom)+6rem)] md:pb-[calc(env(safe-area-inset-bottom)+3rem)]">
       {/* Subtle Monochrome Mesh Background */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
         <div className="absolute inset-0 bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:24px_24px] opacity-40" />

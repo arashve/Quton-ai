@@ -24,10 +24,15 @@
   --pixel-bg: rgba(17, 17, 17, 0.08);
 }
 
+html {
+  background-color: #09090b;
+  color-scheme: dark;
+  -webkit-text-size-adjust: 100%;
+}
+
 html, body {
   min-height: 100%;
-  height: 100%;
-  background: #020202;
+  background-color: #09090b;
 }
 
 :root {
@@ -41,16 +46,10 @@ body {
   margin: 0;
   min-height: 100vh;
   min-height: 100dvh;
-  min-height: 100svh;
-  min-height: -webkit-fill-available;
   box-sizing: border-box;
-  background: #020202;
-}
-
-@supports (-webkit-touch-callout: none) {
-  body {
-    min-height: -webkit-fill-available;
-  }
+  background-color: #09090b;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .dark {
