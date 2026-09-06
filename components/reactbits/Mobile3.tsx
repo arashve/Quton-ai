@@ -24,11 +24,13 @@ const SEARCH_ITEMS: SearchItem[] = [
   { id: '1', title: 'Renewal pipeline', category: 'Saved view', href: '/chat?q=Renewal%20pipeline' },
   { id: '2', title: 'Invoice 4192', category: 'Billing', href: '/chat?q=Invoice%204192' },
   { id: '3', title: 'Ana Reyes', category: 'Teammate', href: '/chat?q=Ana%20Reyes' },
-  { id: '4', title: 'Split Arena', category: 'Benchmark', href: '/arena' },
-  { id: '5', title: 'Chat Studio', category: 'Workspace', href: '/chat' },
-  { id: '6', title: 'Voice 8 Studio', category: 'Audio', href: '/voice' },
-  { id: '7', title: 'Model Matrix', category: 'Engines', href: '/models' },
-  { id: '8', title: 'System Settings', category: 'Config', href: '/settings' },
+  { id: '4', title: 'Agent Marketplace', category: 'Extensions', href: '/marketplace' },
+  { id: '5', title: 'Sign In / Account', category: 'Auth', href: '/auth' },
+  { id: '6', title: 'Split Arena', category: 'Benchmark', href: '/arena' },
+  { id: '7', title: 'Chat Studio', category: 'Workspace', href: '/chat' },
+  { id: '8', title: 'Voice 8 Studio', category: 'Audio', href: '/voice' },
+  { id: '9', title: 'Model Matrix', category: 'Engines', href: '/models' },
+  { id: '10', title: 'System Settings', category: 'Config', href: '/settings' },
 ];
 
 export function Mobile3() {

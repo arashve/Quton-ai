@@ -1,0 +1,21 @@
+{
+  "entities": {
+    "User": {
+      "fields": {
+        "id": { "type": "string", "description": "User UID" },
+        "email": { "type": "string", "description": "User email" },
+        "displayName": { "type": "string", "description": "Display name" },
+        "photoURL": { "type": "string", "description": "Avatar URL" },
+        "createdAt": { "type": "string", "description": "Creation timestamp" }
+      }
+    },
+    "UserAgent": {
+      "fields": {
+        "id": { "type": "string", "description": "Agent install ID" },
+        "userId": { "type": "string", "description": "User UID who added the agent" },
+        "agentId": { "type": "string", "description": "Agent identifier" },
+        "addedAt": { "type": "string", "description": "Addition timestamp" }
+      }
+    }
+  }
+}

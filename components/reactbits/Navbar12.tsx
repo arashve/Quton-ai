@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
+import { useAuth } from '@/context/AuthContext';
 import {
   Sparkles,
   MessageSquare,
@@ -14,6 +15,8 @@ import {
   ArrowRight,
   Menu,
   X,
+  Store,
+  User as UserIcon,
 } from 'lucide-react';
 
 export interface NavItem {
@@ -28,12 +31,14 @@ const NAV_ITEMS: NavItem[] = [
   { name: 'Chat Studio', href: '/chat', icon: MessageSquare },
   { name: 'Split Arena', href: '/arena', icon: Columns },
   { name: 'Voice Studio', href: '/voice', icon: Mic },
+  { name: 'Marketplace', href: '/marketplace', icon: Store },
   { name: 'Models', href: '/models', icon: Cpu },
   { name: 'Settings', href: '/settings', icon: Sliders },
 ];
 
 export function Navbar12() {
   const pathname = usePathname();
+  const { user } = useAuth();
   const [hoveredPath, setHoveredPath] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -109,15 +114,42 @@ export function Navbar12() {
             })}
           </div>
 
-          {/* Right Action Buttons */}
+          {/* Right Action Buttons: Auth & Studio Launch */}
           <div className="flex items-center gap-2 pr-1">
-            <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-[11px] font-mono text-zinc-300">
-              <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-              <span>v2.5 Ready</span>
-            </div>
+            {user ? (
+              <Link
+                href="/auth"
+                className="flex items-center gap-2 px-2.5 py-1 rounded-full bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs text-zinc-300 transition cursor-pointer"
+                title="Account Settings"
+              >
+                {user.photoURL ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={user.photoURL}
+                    alt={user.displayName || 'Account'}
+                    className="w-5 h-5 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="w-5 h-5 rounded-full bg-white text-zinc-950 flex items-center justify-center font-bold text-[10px]">
+                    {(user.displayName || user.email || 'U')[0].toUpperCase()}
+                  </div>
+                )}
+                <span className="hidden sm:inline max-w-[80px] truncate">
+                  {user.displayName?.split(' ')[0] || 'Account'}
+                </span>
+              </Link>
+            ) : (
+              <Link
+                href="/auth"
+                className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs text-zinc-300 transition cursor-pointer"
+              >
+                <UserIcon className="w-3.5 h-3.5" />
+                <span>Sign In</span>
+              </Link>
+            )}
 
             <Link
-              href="/chat"
+              href={user ? '/chat' : '/auth?redirect=/chat'}
               className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-white hover:bg-zinc-200 text-zinc-950 text-xs font-semibold shadow-md transition-all hover:scale-102 active:scale-98 cursor-pointer"
             >
               <span>Launch Studio</span>
@@ -148,9 +180,14 @@ export function Navbar12() {
           >
             <div className="flex items-center justify-between pb-3 border-b border-zinc-800 px-2">
               <span className="text-xs font-mono text-zinc-400 uppercase tracking-wider">Navigation</span>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-zinc-900 text-zinc-300 border border-zinc-800">
-                Navbar-12
-              </span>
+              <Link
+                href="/auth"
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-xs font-medium text-white hover:underline flex items-center gap-1"
+              >
+                <UserIcon className="w-3 h-3" />
+                <span>{user ? user.displayName || 'Profile' : 'Sign In'}</span>
+              </Link>
             </div>
             <div className="grid grid-cols-2 gap-2 pt-1">
               {NAV_ITEMS.map((item) => {

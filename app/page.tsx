@@ -523,6 +523,8 @@ export default function LandingPortalPage() {
           <div className="flex items-center gap-6 text-xs text-zinc-400">
             <Link href="/" className="hover:text-white transition">Home</Link>
             <Link href="/chat" className="hover:text-white transition">Chat Workspace</Link>
+            <Link href="/marketplace" className="hover:text-white transition">Marketplace</Link>
+            <Link href="/auth" className="hover:text-white transition">Sign In</Link>
             <Link href="/settings" className="hover:text-white transition">Settings</Link>
             <span className="flex items-center gap-1.5 text-zinc-300 font-mono text-[11px]">
               <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
