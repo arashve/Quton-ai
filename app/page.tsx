@@ -83,7 +83,7 @@ export default function LandingPortalPage() {
                 >
                   {[
                     { id: 'default', label: 'Fast Chat', icon: Zap },
-                    { id: 'compare', label: 'Split Arena', icon: Columns },
+                    { id: 'compare', label: 'Side-by-Side', icon: Columns },
                     { id: 'reasoning', label: 'Deep Reasoning', icon: Brain },
                     { id: 'voice', label: 'Voice Mode', icon: Mic },
                   ].map((mode) => {
@@ -232,7 +232,7 @@ export default function LandingPortalPage() {
               <div className="mt-8 flex items-center justify-between">
                 <span className="text-xs text-white/50">Compare Gemini, Groq & Ollama</span>
                 <Link
-                  href="/arena"
+                    href="/chat"
                   className="min-h-[44px] inline-flex items-center gap-1.5 text-xs font-semibold text-white hover:underline cursor-pointer"
                 >
                   <span>Launch Arena</span>

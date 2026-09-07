@@ -29,7 +29,7 @@ export interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { name: 'Home', href: '/', icon: Sparkles },
   { name: 'Chat Studio', href: '/chat', icon: MessageSquare },
-  { name: 'Split Arena', href: '/arena', icon: Columns },
+  // Split Arena removed
   { name: 'Voice Studio', href: '/voice', icon: Mic },
   { name: 'Marketplace', href: '/marketplace', icon: Store },
   { name: 'Models', href: '/models', icon: Cpu },

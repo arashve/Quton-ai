@@ -25,7 +25,6 @@ export interface PublicHeaderProps {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { name: 'Arena', href: '/arena', icon: Columns },
   { name: 'Voice', href: '/voice', icon: Mic },
   { name: 'Models', href: '/models', icon: Cpu },
   { name: 'Marketplace', href: '/marketplace', icon: Store },
@@ -71,19 +70,15 @@ export function PublicHeader({ className = '' }: PublicHeaderProps) {
           initial={false}
           animate={{
             maxWidth: isScrolled ? '52rem' : '76rem',
-            borderRadius: isScrolled ? '9999px' : '9999px',
-            backgroundColor: isScrolled ? '#1C1C1E' : '#000000',
+            borderRadius: '9999px',
+            backgroundColor: isScrolled ? 'rgba(12,12,14,0.72)' : 'rgba(0,0,0,0.6)',
             boxShadow: isScrolled
-              ? '0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.12)'
+              ? '0 30px 60px -20px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.06)'
               : '0 0 0 0 transparent',
+            scale: isScrolled ? 0.995 : 1,
           }}
-          transition={{
-            type: 'spring',
-            stiffness: 380,
-            damping: 32,
-            mass: 0.8,
-          }}
-          className={`pointer-events-auto flex items-center justify-between w-full transition-all duration-300 ${
+          transition={{ type: 'spring', stiffness: 120, damping: 28, mass: 1.1 }}
+          className={`pointer-events-auto flex items-center justify-between w-full transition-all duration-300 backdrop-blur-sm bg-opacity-70 ${
             isScrolled
               ? 'py-2 px-3 sm:px-5'
               : 'py-3 sm:py-3.5 px-4 sm:px-6'

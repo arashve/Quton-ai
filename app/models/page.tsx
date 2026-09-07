@@ -216,12 +216,12 @@ export default function ModelsMatrixPage() {
 
               {/* Action */}
               <div className="pt-3 border-t border-zinc-800 flex items-center justify-between">
-                <Link
-                  href="/arena"
-                  className="text-xs text-zinc-400 hover:text-white transition"
-                >
-                  Arena Duel
-                </Link>
+                  <Link
+                    href="/chat"
+                    className="text-xs text-zinc-400 hover:text-white transition"
+                  >
+                    Compare in Studio
+                  </Link>
                 <button
                   type="button"
                   onClick={() => router.push(`/chat?prompt=Test%20and%20benchmark%20${encodeURIComponent(m.name)}`)}

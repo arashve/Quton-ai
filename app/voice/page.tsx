@@ -261,10 +261,10 @@ export default function VoiceTestPage() {
 
             <div className="pt-4 border-t border-zinc-800 flex items-center justify-between">
               <Link
-                href="/arena"
+                href="/chat"
                 className="text-xs text-zinc-400 hover:text-white flex items-center gap-1 cursor-pointer"
               >
-                <span>Arena Duel</span>
+                <span>Compare in Studio</span>
                 <ArrowRight className="w-3 h-3" />
               </Link>
               <Link

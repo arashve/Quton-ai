@@ -27,7 +27,7 @@ const SEARCH_ITEMS: SearchItem[] = [
   { id: '3', title: 'Ana Reyes', category: 'Teammate', href: '/chat?q=Ana%20Reyes' },
   { id: '4', title: 'Chat Studio • استودیو چت', category: 'Workspace', href: '/chat' },
   { id: '5', title: 'Agent Marketplace • مارکت‌پلیس', category: 'Extensions', href: '/marketplace' },
-  { id: '6', title: 'Model Arena • مقایسه مدل‌ها', category: 'Benchmark', href: '/arena' },
+  // Model Arena removed
   { id: '7', title: 'Engines Matrix • ماتریس موتورها', category: 'Models', href: '/models' },
   { id: '8', title: 'Voice 8 Studio • استودیو صوتی', category: 'Audio', href: '/voice' },
   { id: '9', title: 'System Settings • تنظیمات سیستم', category: 'Config', href: '/settings' },
