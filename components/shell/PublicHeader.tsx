@@ -77,7 +77,7 @@ export function PublicHeader({ className = '' }: PublicHeaderProps) {
               : '0 0 0 0 transparent',
             scale: isScrolled ? 0.995 : 1,
           }}
-          transition={{ type: 'spring', stiffness: 420, damping: 22, mass: 0.8 }}
+          transition={{ type: 'spring', stiffness: 560, damping: 20, mass: 0.8 }}
           className={`pointer-events-auto flex items-center justify-between w-full transition-all duration-300 backdrop-blur-sm bg-opacity-70 ${
             isScrolled
               ? 'py-2 px-3 sm:px-5'
@@ -126,7 +126,7 @@ export function PublicHeader({ className = '' }: PublicHeaderProps) {
                     <motion.div
                       layoutId="public-header-active-pill"
                       className="absolute inset-0 rounded-full bg-white/10 -z-10"
-                      transition={{ type: 'spring', stiffness: 540, damping: 28 }}
+                      transition={{ type: 'spring', stiffness: 640, damping: 20 }}
                     />
                   )}
 
@@ -135,7 +135,7 @@ export function PublicHeader({ className = '' }: PublicHeaderProps) {
                     <motion.div
                       layoutId="public-header-hover-pill"
                       className="absolute inset-0 rounded-full bg-white/5 -z-10"
-                      transition={{ type: 'spring', stiffness: 520, damping: 30 }}
+                      transition={{ type: 'spring', stiffness: 600, damping: 24 }}
                     />
                   )}
 
