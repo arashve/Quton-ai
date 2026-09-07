@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Mobile3 } from '@/components/reactbits';
+import { PageContainer } from '@/components/shell';
 import {
   ArrowLeft,
   Sliders,
@@ -133,7 +133,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="min-h-[100dvh] relative w-full overflow-x-clip bg-zinc-950 text-zinc-100 selection:bg-zinc-800 pb-[calc(env(safe-area-inset-bottom)+1.5rem)]">
+    <PageContainer variant="public" maxWidth="xl">
       {/* Background Monochrome Mesh */}
       {enableAuroraGlow && (
         <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
@@ -142,7 +142,7 @@ export default function SettingsPage() {
       )}
 
       {/* Main Container */}
-      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+      <div className="relative z-10 w-full">
         {/* Top Header Navigation */}
         <div className="flex flex-wrap items-center justify-between gap-4 pb-8 border-b border-zinc-800">
           <div className="flex items-center gap-3">
@@ -532,9 +532,6 @@ export default function SettingsPage() {
           </div>
         </div>
       </div>
-
-      {/* Floating Mobile Dock (Mobile-3) */}
-      <Mobile3 />
-    </div>
+    </PageContainer>
   );
 }

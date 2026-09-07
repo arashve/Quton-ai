@@ -40,6 +40,16 @@ html, body {
   --safe-right: env(safe-area-inset-right, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --safe-left: env(safe-area-inset-left, 0px);
+  --shell-header-height: 4rem;
+  --shell-bottom-nav-height: 4.25rem;
+  --shell-sidebar-width: 280px;
+  --shell-rail-width: 64px;
+  --radius-card: 28px;
+  --radius-card-lg: 32px;
+  --radius-btn: 14px;
+  --radius-pill: 9999px;
+  --glass-surface: rgba(24, 24, 27, 0.75);
+  --glass-border: rgba(255, 255, 255, 0.08);
 }
 
 body {

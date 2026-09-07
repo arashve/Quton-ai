@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Navbar12, Mobile3 } from '@/components/reactbits';
+import { PageContainer } from '@/components/shell';
 import {
   Store,
   Search,
@@ -141,22 +141,15 @@ export default function MarketplacePage() {
       .includes(searchQuery.toLowerCase());
 
   return (
-    <div
-      dir="rtl"
-      className="min-h-screen relative w-full overflow-x-clip bg-zinc-950 text-zinc-100 selection:bg-zinc-800 pb-[calc(env(safe-area-inset-bottom)+6rem)] md:pb-[calc(env(safe-area-inset-bottom)+3rem)] flex flex-col justify-between font-sans"
-    >
-      {/* Background Subtle Monochrome Mesh */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute inset-0 bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:24px_24px] opacity-30" />
-      </div>
+    <PageContainer variant="public" maxWidth="xl">
+      <div dir="rtl" className="w-full">
+        {/* Background Subtle Monochrome Mesh */}
+        <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+          <div className="absolute inset-0 bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:24px_24px] opacity-30" />
+        </div>
 
-      {/* 1. Desktop Navbar */}
-      <div dir="ltr">
-        <Navbar12 />
-      </div>
-
-      {/* 2. Main Marketplace Container */}
-      <main className="relative z-10 flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 pt-24 sm:pt-28">
+        {/* 2. Main Marketplace Container */}
+        <div className="relative z-10 w-full">
         {/* Header Title */}
         <div className="text-center max-w-3xl mx-auto mb-8">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-300 font-mono text-xs mb-3 shadow-xs">
@@ -460,7 +453,7 @@ export default function MarketplacePage() {
             )}
           </div>
         )}
-      </main>
+      </div>
 
       {/* 3. Monochrome Activation Modal */}
       {isModalOpen && (
@@ -603,9 +596,7 @@ export default function MarketplacePage() {
           </div>
         </div>
       )}
-
-      {/* 4. Floating Mobile Bottom Dock */}
-      <Mobile3 />
-    </div>
+      </div>
+    </PageContainer>
   );
 }

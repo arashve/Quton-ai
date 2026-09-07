@@ -2315,7 +2315,7 @@ export const Chat: React.FC<ChatProps> = ({ initialPrompt, initialAgent }) => {
         )}
 
         {/* Floating Bottom Input Bar - Full-bleed transparency, NO solid cutoff */}
-        <footer className="p-3 sm:p-6 pt-0 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] sm:pb-6 mt-auto flex-shrink-0 relative z-20 bg-transparent">
+        <footer className="p-3 sm:p-6 pt-0 pb-[calc(var(--shell-bottom-nav-height,4.25rem)+env(safe-area-inset-bottom,0px)+0.5rem)] md:pb-6 mt-auto flex-shrink-0 relative z-20 bg-transparent">
           <div className="max-w-3xl mx-auto relative">
             {/* AI Chat 7 Split Pane Comparison Mode Active Banner */}
             {isCompareMode && (

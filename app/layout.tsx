@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Pixelify_Sans } from 'next/font/google';
 import './globals.css'; // Global styles
 import { AuthProvider } from '@/context/AuthContext';
+import { AppShell } from '@/components/shell';
 
 const pixelFont = Pixelify_Sans({
   subsets: ['latin'],
@@ -57,7 +58,9 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
         className={`${pixelFont.variable} min-h-[100dvh] bg-[#09090b] text-zinc-100 antialiased selection:bg-zinc-800 selection:text-white transition-colors duration-200 overflow-x-clip`}
       >
         <AuthProvider>
-          {children}
+          <AppShell>
+            {children}
+          </AppShell>
         </AuthProvider>
       </body>
     </html>

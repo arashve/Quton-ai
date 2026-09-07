@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Navbar12, Mobile3 } from '@/components/reactbits';
 import {
   Sparkles,
   ArrowUp,
@@ -53,10 +52,7 @@ export default function LandingPortalPage() {
         <div className="absolute inset-0 bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:24px_24px] opacity-40" />
       </div>
 
-      {/* 1. Desktop Navbar-12 */}
-      <Navbar12 />
-
-      {/* 2. Hero Section with Prominent AI Prompt Input Box */}
+      {/* Hero Section with Prominent AI Prompt Input Box */}
       <section id="hero-prompt" className="relative z-10 pt-24 sm:pt-32 pb-16 px-4 sm:px-6 max-w-5xl mx-auto text-center">
         {/* Status Pill (Monochrome) */}
         <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs text-zinc-300 font-mono mb-6 shadow-xs">
@@ -533,9 +529,6 @@ export default function LandingPortalPage() {
           </div>
         </div>
       </footer>
-
-      {/* Floating Mobile Dock (Exact Match to ReactBits Mobile-3) */}
-      <Mobile3 />
     </div>
   );
 }

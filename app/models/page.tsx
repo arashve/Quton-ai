@@ -3,12 +3,12 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Navbar12, Mobile3 } from '@/components/reactbits';
 import {
   Cpu,
   ArrowRight,
   Search,
 } from 'lucide-react';
+import { PageContainer } from '@/components/shell';
 
 interface ModelInfo {
   id: string;
@@ -101,30 +101,25 @@ export default function ModelsMatrixPage() {
   });
 
   return (
-    <div className="min-h-[100dvh] relative w-full overflow-x-clip bg-zinc-950 text-zinc-100 selection:bg-zinc-800 pb-[calc(env(safe-area-inset-bottom)+6rem)] md:pb-[calc(env(safe-area-inset-bottom)+3rem)]">
-      {/* 1. Desktop Navbar-12 */}
-      <Navbar12 />
-
+    <PageContainer variant="public" maxWidth="xl">
       {/* Background Subtle Monochrome Mesh */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
         <div className="absolute inset-0 bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:24px_24px] opacity-30" />
       </div>
 
-      {/* Page Content */}
-      <main className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 pt-24 sm:pt-28">
-        {/* Header Title */}
-        <div className="text-center max-w-3xl mx-auto mb-8">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-300 font-mono text-xs mb-3">
-            <Cpu className="w-3.5 h-3.5 text-white" />
-            <span>Interactive Test Page • Model Matrix</span>
-          </div>
-          <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white mb-3">
-            Foundation Engines & Benchmark Matrix
-          </h1>
-          <p className="text-xs sm:text-sm text-zinc-400">
-            Compare token latency, processing throughput, reasoning depths, and memory context windows across all connected providers.
-          </p>
+      {/* Header Title */}
+      <div className="text-center max-w-3xl mx-auto mb-8">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-300 font-mono text-xs mb-3">
+          <Cpu className="w-3.5 h-3.5 text-white" />
+          <span>Interactive Test Page • Model Matrix</span>
         </div>
+        <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white mb-3">
+          Foundation Engines & Benchmark Matrix
+        </h1>
+        <p className="text-xs sm:text-sm text-zinc-400">
+          Compare token latency, processing throughput, reasoning depths, and memory context windows across all connected providers.
+        </p>
+      </div>
 
         {/* Search & Provider Filter Bar */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3 sm:p-4 rounded-[28px] bg-zinc-900/60 backdrop-blur-xl border border-zinc-800 shadow-2xl mb-8">
@@ -239,10 +234,6 @@ export default function ModelsMatrixPage() {
             </div>
           ))}
         </div>
-      </main>
-
-      {/* Floating Mobile Dock */}
-      <Mobile3 />
-    </div>
+    </PageContainer>
   );
 }
