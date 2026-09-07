@@ -1,20 +1,18 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence, useScroll, useTransform } from 'motion/react';
 import {
   Sparkles,
   ArrowRight,
   Menu,
   X,
   User as UserIcon,
-  Columns,
   Mic,
   Cpu,
   Store,
-  BookOpen,
   Sliders,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
@@ -34,62 +32,46 @@ const NAV_ITEMS: NavItem[] = [
 export function PublicHeader({ className = '' }: PublicHeaderProps) {
   const pathname = usePathname();
   const { user } = useAuth();
-  const [isScrolled, setIsScrolled] = useState(false);
   const [hoveredPath, setHoveredPath] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Track window scroll to trigger HeroUI Pro style floating capsule transition
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollPosition = window.scrollY;
-      if (scrollPosition > 32) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
-    };
+  // ۱. دریافت پیوسته موقعیت اسکرول
+  const { scrollY } = useScroll();
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll(); // Initial check
-
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  // ۲. تبدیل مقادیر اسکرول (از ۰ تا ۶۰ پیکسل) به استایل‌های پیوسته و نرم
+  const navMaxWidth = useTransform(scrollY, [0, 60], ['76rem', '52rem']);
+  const navBg = useTransform(scrollY, [0, 60], ['rgba(0,0,0,0.5)', 'rgba(12,12,14,0.85)']);
+  const navScale = useTransform(scrollY, [0, 60], [1, 0.995]);
+  const navBoxShadow = useTransform(scrollY, [0, 60], [
+    '0 0 0 0 rgba(0,0,0,0)',
+    '0 30px 60px -20px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.08)'
+  ]);
+  const navPadding = useTransform(scrollY, [0, 60], ['14px 24px', '8px 16px']);
 
   return (
     <>
       <header
         id="app-public-header"
-        className={`fixed top-0 inset-x-0 z-50 flex items-center justify-center transition-all duration-300 pointer-events-none ${
-          isScrolled
-            ? 'pt-3 sm:pt-4 px-3 sm:px-6'
-            : 'pt-3 sm:pt-6 px-4 sm:px-8'
-        } ${className}`}
+        className={`fixed top-0 inset-x-0 z-50 flex items-center justify-center pointer-events-none pt-4 px-4 sm:px-6 ${className}`}
       >
         <motion.nav
-          layout
-          initial={false}
-          animate={{
-            maxWidth: isScrolled ? '52rem' : '76rem',
+          // اعمال مستقیم مقادیر پویا به جای استفاده از className های شرطی
+          style={{
+            maxWidth: navMaxWidth,
+            backgroundColor: navBg,
+            scale: navScale,
+            boxShadow: navBoxShadow,
+            padding: navPadding,
             borderRadius: '9999px',
-            backgroundColor: isScrolled ? 'rgba(12,12,14,0.72)' : 'rgba(0,0,0,0.6)',
-            boxShadow: isScrolled
-              ? '0 30px 60px -20px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.06)'
-              : '0 0 0 0 transparent',
-            scale: isScrolled ? 0.995 : 1,
           }}
-          transition={{ type: 'spring', stiffness: 560, damping: 20, mass: 0.8 }}
-          className={`pointer-events-auto flex items-center justify-between w-full transition-all duration-300 backdrop-blur-sm bg-opacity-70 ${
-            isScrolled
-              ? 'py-2 px-3 sm:px-5'
-              : 'py-3 sm:py-3.5 px-4 sm:px-6'
-          }`}
+          className="pointer-events-auto flex items-center justify-between w-full backdrop-blur-md"
         >
-          {/* Left: Brand Logo + Pro Badge (HeroUI Pro Style) */}
+          {/* Left: Brand Logo + Pro Badge */}
           <Link
             href="/"
-            className="flex items-center gap-2.5 py-1 rounded-full group cursor-pointer shrink-0"
+            className="flex items-center gap-2.5 rounded-full group cursor-pointer shrink-0"
           >
-            <div className="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center font-bold text-xs shadow-xs group-hover:scale-105 transition-transform">
+            <div className="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center font-bold text-xs shadow-xs group-hover:scale-105 transition-transform duration-300">
               <Sparkles className="w-4 h-4 text-black" />
             </div>
             <div className="flex items-center gap-2">
@@ -126,7 +108,7 @@ export function PublicHeader({ className = '' }: PublicHeaderProps) {
                     <motion.div
                       layoutId="public-header-active-pill"
                       className="absolute inset-0 rounded-full bg-white/10 -z-10"
-                      transition={{ type: 'spring', stiffness: 640, damping: 20 }}
+                      transition={{ type: 'spring', stiffness: 560, damping: 20, mass: 0.8 }}
                     />
                   )}
 
@@ -135,7 +117,7 @@ export function PublicHeader({ className = '' }: PublicHeaderProps) {
                     <motion.div
                       layoutId="public-header-hover-pill"
                       className="absolute inset-0 rounded-full bg-white/5 -z-10"
-                      transition={{ type: 'spring', stiffness: 600, damping: 24 }}
+                      transition={{ type: 'spring', stiffness: 560, damping: 20, mass: 0.8 }}
                     />
                   )}
 
@@ -179,7 +161,7 @@ export function PublicHeader({ className = '' }: PublicHeaderProps) {
               </Link>
             )}
 
-            {/* Prominent White Pill CTA Button (HeroUI Pro Style) */}
+            {/* Prominent White Pill CTA Button */}
             <Link
               href={user ? '/chat' : '/auth?redirect=/chat'}
               className="min-h-[38px] flex items-center gap-1.5 px-4 sm:px-5 py-2 rounded-full bg-white hover:bg-white/90 active:scale-96 text-black text-xs font-bold transition-all shadow-md cursor-pointer whitespace-nowrap"
@@ -201,15 +183,15 @@ export function PublicHeader({ className = '' }: PublicHeaderProps) {
         </motion.nav>
       </header>
 
-      {/* Mobile Dropdown Sheet (Apple HIG borderless elevated surface) */}
+      {/* Mobile Dropdown Sheet - Enhanced with Glassmorphism */}
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
             initial={{ opacity: 0, y: -12, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -12, scale: 0.98 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-x-3 sm:inset-x-6 top-20 z-50 p-5 rounded-3xl bg-[#1C1C1E] shadow-2xl md:hidden space-y-4"
+            transition={{ type: 'spring', stiffness: 560, damping: 24, mass: 0.8 }}
+            className="fixed inset-x-3 sm:inset-x-6 top-24 z-50 p-5 rounded-3xl bg-[#1C1C1E]/90 backdrop-blur-xl border border-white/10 shadow-2xl md:hidden space-y-4"
           >
             <div className="flex items-center justify-between pb-3 px-1">
               <span className="text-xs font-mono uppercase tracking-wider text-white/50 font-semibold">
@@ -236,8 +218,8 @@ export function PublicHeader({ className = '' }: PublicHeaderProps) {
                     onClick={() => setMobileMenuOpen(false)}
                     className={`min-h-[44px] flex items-center gap-2.5 p-3 rounded-2xl text-xs font-medium transition cursor-pointer ${
                       isActive
-                        ? 'bg-white text-black font-semibold'
-                        : 'bg-[#2C2C2E] text-white/80 hover:bg-[#3A3A3C] hover:text-white'
+                        ? 'bg-white text-black font-semibold shadow-sm'
+                        : 'bg-[#2C2C2E]/60 text-white/80 hover:bg-[#3A3A3C] hover:text-white'
                     }`}
                   >
                     <Icon className={`w-4 h-4 ${isActive ? 'text-black' : 'text-white/60'}`} />
