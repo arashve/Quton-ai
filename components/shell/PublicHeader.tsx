@@ -3,7 +3,8 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { motion, AnimatePresence, useScroll, useTransform } from 'motion/react';
+import { motion, AnimatePresence, useScroll, useTransform, useSpring } from 'motion/react';
+
 import {
   Sparkles,
   ArrowRight,
@@ -38,15 +39,22 @@ export function PublicHeader({ className = '' }: PublicHeaderProps) {
   // ۱. دریافت پیوسته موقعیت اسکرول
   const { scrollY } = useScroll();
 
-  // ۲. تبدیل مقادیر اسکرول (از ۰ تا ۶۰ پیکسل) به استایل‌های پیوسته و نرم
-  const navMaxWidth = useTransform(scrollY, [0, 60], ['76rem', '52rem']);
-  const navBg = useTransform(scrollY, [0, 60], ['rgba(0,0,0,0.5)', 'rgba(12,12,14,0.85)']);
-  const navScale = useTransform(scrollY, [0, 60], [1, 0.995]);
-  const navBoxShadow = useTransform(scrollY, [0, 60], [
+  // ۲. اعمال افکت فنری (Spring) برای نرم کردن مقادیر خام اسکرول
+  const smoothScrollY = useSpring(scrollY, {
+    stiffness: 150, // سختی فنر (هرچه کمتر، نرم‌تر و کندتر)
+    damping: 25,    // مقاومت (جلوگیری از لرزش و نوسان بیش از حد)
+    mass: 0.5       // جرم (وزن انیمیشن)
+  });
+
+  // ۳. استفاده از smoothScrollY به جای scrollY در useTransform
+  const navMaxWidth = useTransform(smoothScrollY, [0, 60], ['76rem', '52rem']);
+  const navBg = useTransform(smoothScrollY, [0, 60], ['rgba(0,0,0,0.5)', 'rgba(12,12,14,0.85)']);
+  const navScale = useTransform(smoothScrollY, [0, 60], [1, 0.995]);
+  const navBoxShadow = useTransform(smoothScrollY, [0, 60], [
     '0 0 0 0 rgba(0,0,0,0)',
     '0 30px 60px -20px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.08)'
   ]);
-  const navPadding = useTransform(scrollY, [0, 60], ['14px 24px', '8px 16px']);
+  const navPadding = useTransform(smoothScrollY, [0, 60], ['14px 24px', '8px 16px']);
 
   return (
     <>
