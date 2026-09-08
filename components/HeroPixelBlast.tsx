@@ -20,8 +20,8 @@ export default function HeroPixelBlast({
 
   return (
     <section className={`relative w-full h-screen overflow-hidden ${className}`} aria-label="Hero PixelBlast">
-      {/* Pixel background, fixed to start at top of page */}
-      <div className="absolute inset-0 -z-10">
+      {/* Pixel background: full-viewport fixed layer starting at top */}
+      <div className="fixed inset-0 -z-20 pointer-events-none">
         <PixelBlast
           variant={variant}
           color={color}
