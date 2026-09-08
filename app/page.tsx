@@ -18,6 +18,7 @@ import {
   Lock,
 } from 'lucide-react';
 import { PageContainer } from '@/components/shell';
+import HeroPixelBlast from '@/components/HeroPixelBlast';
 
 export default function LandingPortalPage() {
   const router = useRouter();
@@ -50,115 +51,108 @@ export default function LandingPortalPage() {
   return (
     <div className="bg-black min-h-screen text-white">
       <PageContainer variant="public" maxWidth="xl">
-        {/* Hero Section */}
-        <section
-          id="hero-prompt"
-          className="relative z-10 pt-16 sm:pt-24 pb-20 px-2 sm:px-4 max-w-5xl mx-auto text-center"
-        >
-          {/* Status Indicator Pill */}
-          <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-[#1C1C1E] text-xs text-white/80 font-mono mb-8">
-            <span className="w-2 h-2 rounded-full bg-emerald-400" aria-hidden="true" />
-            <span>Real-time SSE streaming • Dual-model arena & voice native</span>
-          </div>
+        {/* Hero Section (now powered by HeroPixelBlast) */}
+        <HeroPixelBlast>
+          <div id="hero-prompt" className="relative z-10 pt-16 sm:pt-24 pb-20 px-2 sm:px-4 max-w-5xl mx-auto text-center">
+            {/* Status Indicator Pill */}
+            <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-[#1C1C1E] text-xs text-white/80 font-mono mb-8">
+              <span className="w-2 h-2 rounded-full bg-emerald-400" aria-hidden="true" />
+              <span>Real-time SSE streaming • Dual-model arena & voice native</span>
+            </div>
 
-          {/* Primary Display Typography */}
-          <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight text-white mb-6 leading-[1.08]">
-            Intelligence at the <br className="hidden sm:inline" />
-            <span className="text-white/60">speed of thought.</span>
-          </h1>
+            <p className="max-w-2xl mx-auto text-base sm:text-lg text-white/60 leading-relaxed mb-12">
+              Experience ultra-low latency AI streaming, dual-model live benchmarking, deep cognitive reasoning inspection, and hands-free voice dialogue.
+            </p>
 
-          <p className="max-w-2xl mx-auto text-base sm:text-lg text-white/60 leading-relaxed mb-12">
-            Experience ultra-low latency AI streaming, dual-model live benchmarking, deep cognitive reasoning inspection, and hands-free voice dialogue.
-          </p>
+            {/* Solid Elevated Surface Prompt Box */}
+            <div className="max-w-3xl mx-auto text-left">
+              <div className="rounded-3xl bg-[#1C1C1E] p-6 sm:p-8 space-y-5">
+                {/* Mode Selector Segmented Control */}
+                <div className="flex items-center justify-between">
+                  <div
+                    role="tablist"
+                    aria-label="Prompt modes"
+                    className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0"
+                  >
+                    {[
+                      { id: 'default', label: 'Fast Chat', icon: Zap },
+                      { id: 'compare', label: 'Side-by-Side', icon: Columns },
+                      { id: 'reasoning', label: 'Deep Reasoning', icon: Brain },
+                      { id: 'voice', label: 'Voice Mode', icon: Mic },
+                    ].map((mode) => {
+                      const Icon = mode.icon;
+                      const isSelected = selectedMode === mode.id;
+                      return (
+                        <button
+                          key={mode.id}
+                          role="tab"
+                          aria-selected={isSelected}
+                          type="button"
+                          onClick={() => setSelectedMode(mode.id as any)}
+                          className={`min-h-[44px] flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-semibold transition cursor-pointer whitespace-nowrap ${
+                            isSelected
+                              ? 'bg-white text-black'
+                              : 'bg-[#2C2C2E] text-white/70 hover:text-white hover:bg-[#3A3A3C]'
+                          }`}
+                        >
+                          <Icon className="w-4 h-4" />
+                          <span>{mode.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
 
-          {/* Solid Elevated Surface Prompt Box */}
-          <div className="max-w-3xl mx-auto text-left">
-            <div className="rounded-3xl bg-[#1C1C1E] p-6 sm:p-8 space-y-5">
-              {/* Mode Selector Segmented Control */}
-              <div className="flex items-center justify-between">
-                <div
-                  role="tablist"
-                  aria-label="Prompt modes"
-                  className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0"
-                >
-                  {[
-                    { id: 'default', label: 'Fast Chat', icon: Zap },
-                    { id: 'compare', label: 'Side-by-Side', icon: Columns },
-                    { id: 'reasoning', label: 'Deep Reasoning', icon: Brain },
-                    { id: 'voice', label: 'Voice Mode', icon: Mic },
-                  ].map((mode) => {
-                    const Icon = mode.icon;
-                    const isSelected = selectedMode === mode.id;
-                    return (
-                      <button
-                        key={mode.id}
-                        role="tab"
-                        aria-selected={isSelected}
-                        type="button"
-                        onClick={() => setSelectedMode(mode.id as any)}
-                        className={`min-h-[44px] flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-semibold transition cursor-pointer whitespace-nowrap ${
-                          isSelected
-                            ? 'bg-white text-black'
-                            : 'bg-[#2C2C2E] text-white/70 hover:text-white hover:bg-[#3A3A3C]'
-                        }`}
-                      >
-                        <Icon className="w-4 h-4" />
-                        <span>{mode.label}</span>
-                      </button>
-                    );
-                  })}
+                  <div className="text-xs font-mono text-white/40 hidden sm:block">
+                    Press ↵ Enter
+                  </div>
                 </div>
 
-                <div className="text-xs font-mono text-white/40 hidden sm:block">
-                  Press ↵ Enter
+                {/* Input Field & Submit Button */}
+                <div className="flex items-end gap-4 pt-2">
+                  <textarea
+                    rows={2}
+                    value={heroPrompt}
+                    onChange={(e) => setHeroPrompt(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder="Ask anything, benchmark models, generate architecture, or debug code..."
+                    className="w-full bg-transparent text-base text-white placeholder:text-white/40 focus:outline-hidden resize-none leading-relaxed py-1"
+                    aria-label="Initial prompt input"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => handleLaunchChat()}
+                    aria-label="Send prompt and launch chat studio"
+                    className="shrink-0 min-w-[48px] min-h-[48px] w-12 h-12 rounded-2xl bg-white hover:bg-white/90 active:scale-95 text-black flex items-center justify-center transition cursor-pointer"
+                  >
+                    <ArrowUp className="w-5 h-5 stroke-[2.5]" />
+                  </button>
                 </div>
-              </div>
-
-              {/* Input Field & Submit Button */}
-              <div className="flex items-end gap-4 pt-2">
-                <textarea
-                  rows={2}
-                  value={heroPrompt}
-                  onChange={(e) => setHeroPrompt(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder="Ask anything, benchmark models, generate architecture, or debug code..."
-                  className="w-full bg-transparent text-base text-white placeholder:text-white/40 focus:outline-hidden resize-none leading-relaxed py-1"
-                  aria-label="Initial prompt input"
-                />
-
-                <button
-                  type="button"
-                  onClick={() => handleLaunchChat()}
-                  aria-label="Send prompt and launch chat studio"
-                  className="shrink-0 min-w-[48px] min-h-[48px] w-12 h-12 rounded-2xl bg-white hover:bg-white/90 active:scale-95 text-black flex items-center justify-center transition cursor-pointer"
-                >
-                  <ArrowUp className="w-5 h-5 stroke-[2.5]" />
-                </button>
               </div>
             </div>
-          </div>
 
-          {/* Quick Suggestion Chips */}
-          <div className="mt-8 max-w-3xl mx-auto flex flex-wrap items-center justify-center gap-3">
-            {sampleSuggestions.map((item, idx) => {
-              const Icon = item.icon;
-              return (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={() => handleLaunchChat(item.text)}
-                  className="min-h-[44px] flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-[#1C1C1E] hover:bg-[#2C2C2E] text-xs text-white/80 hover:text-white transition cursor-pointer"
-                >
-                  <Icon className="w-4 h-4 text-white/60" />
-                  <span className="max-w-[260px] sm:max-w-none truncate">{item.text}</span>
-                  <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-[#2C2C2E] text-white/70 font-semibold">
-                    {item.tag}
-                  </span>
-                </button>
-              );
-            })}
+            {/* Quick Suggestion Chips */}
+            <div className="mt-8 max-w-3xl mx-auto flex flex-wrap items-center justify-center gap-3">
+              {sampleSuggestions.map((item, idx) => {
+                const Icon = item.icon;
+                return (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => handleLaunchChat(item.text)}
+                    className="min-h-[44px] flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-[#1C1C1E] hover:bg-[#2C2C2E] text-xs text-white/80 hover:text-white transition cursor-pointer"
+                  >
+                    <Icon className="w-4 h-4 text-white/60" />
+                    <span className="max-w-[260px] sm:max-w-none truncate">{item.text}</span>
+                    <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-[#2C2C2E] text-white/70 font-semibold">
+                      {item.tag}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        </section>
+        </HeroPixelBlast>
 
         {/* Bento Grid Architecture Showcase */}
         <section
