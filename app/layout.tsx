@@ -24,21 +24,21 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: 'Chatbot - Ultra-Low Latency AI Assistant',
+  title: 'Quton',
   description: 'Real-time AI Chatbot streaming over Server-Sent Events (SSE) with ultra-low latency, supporting custom system models, Groq, local Ollama, and Gemini.',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'AUTOFLOW',
+    title: 'Quton',
   },
   openGraph: {
-    title: 'Chatbot - Ultra-Low Latency AI Assistant',
+    title: 'Quton',
     description: 'Real-time AI Chatbot streaming over Server-Sent Events (SSE) with ultra-low latency, supporting custom system models, Groq, local Ollama, and Gemini.',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Chatbot - Ultra-Low Latency AI Assistant',
+    title: 'Quton',
     description: 'Real-time AI Chatbot streaming over Server-Sent Events (SSE) with ultra-low latency, supporting custom system models, Groq, local Ollama, and Gemini.',
   },
 };

@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { Sparkles, ArrowLeft } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
+import { BrandMark } from '@/components/BrandMark';
 import { PublicHeader } from './PublicHeader';
 import { StudioHeader } from './StudioHeader';
 import { StudioSidebar } from './StudioSidebar';
@@ -110,10 +111,7 @@ export function AppShell({
             </Link>
 
             <Link href="/" className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-lg bg-white text-zinc-950 flex items-center justify-center font-bold text-xs">
-                <Sparkles className="w-3.5 h-3.5" />
-              </div>
-              <span className="font-extrabold text-sm tracking-tight text-white">AUTOFLOW</span>
+              <BrandMark theme="dark" compact showWordmark />
             </Link>
 
             <div className="w-20" />
@@ -125,7 +123,7 @@ export function AppShell({
 
           {/* Minimal bottom brand footnote */}
           <footer className="py-4 text-center text-xs text-zinc-600 font-mono">
-            AUTOFLOW AI Engine • Ultra-Low Latency Inference
+            Quton AI Engine • Ultra-Low Latency Inference
           </footer>
         </div>
       )}

@@ -6,7 +6,6 @@ import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence, useScroll, useTransform, useSpring } from 'motion/react';
 
 import {
-  Sparkles,
   ArrowRight,
   Menu,
   X,
@@ -17,6 +16,7 @@ import {
   Sliders,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { BrandMark } from '@/components/BrandMark';
 import { NavItem } from './types';
 
 export interface PublicHeaderProps {
@@ -79,17 +79,10 @@ export function PublicHeader({ className = '' }: PublicHeaderProps) {
             href="/"
             className="flex items-center gap-2.5 rounded-full group cursor-pointer shrink-0"
           >
-            <div className="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center font-bold text-xs shadow-xs group-hover:scale-105 transition-transform duration-300">
-              <Sparkles className="w-4 h-4 text-black" />
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-sm tracking-tight text-white group-hover:text-white/90 transition-colors">
-                AUTOFLOW
-              </span>
-              <span className="inline-flex items-center text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#0A84FF] text-white">
-                PRO
-              </span>
-            </div>
+            <BrandMark theme="dark" compact className="group-hover:scale-[1.02] transition-transform duration-300" />
+            <span className="inline-flex items-center text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#0A84FF] text-white">
+              PRO
+            </span>
           </Link>
 
           {/* Center / Middle Navigation Links (Desktop) */}
