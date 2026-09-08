@@ -559,6 +559,9 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
   const prevConfigRef = useRef<ReinitConfig | null>(null);
   useEffect(() => {
     const container = containerRef.current;
+    // Debug: confirm client-side mount
+    // eslint-disable-next-line no-console
+    console.log('PixelBlast useEffect mount, container:', container);
     if (!container) return;
     speedRef.current = speed;
     const needsReinitKeys: (keyof ReinitConfig)[] = ['antialias', 'liquid', 'noiseAmount'];
