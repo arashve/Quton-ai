@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { PixelBlast } from './PixelBlast';
+import { useEffect, useState } from 'react';
 
 type Props = {
   className?: string;
@@ -12,25 +13,33 @@ type Props = {
 
 export default function PixelBlastCorners({
   className = '',
-  cornerSize = 'w-1/4 h-1/4 md:w-1/3 md:h-1/3',
+  cornerSize = 'w-20 h-20 sm:w-1/6 sm:h-1/6 md:w-1/4 md:h-1/4',
   variant = 'square',
   color = '#ffffff'
 }: Props) {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const check = () => setIsMobile(typeof window !== 'undefined' ? window.innerWidth < 768 : false);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+
   const verticalMask = 'linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%)';
   return (
     <div className={`fixed inset-0 pointer-events-none ${className}`} aria-hidden>
       <div className={`absolute top-0 left-0 overflow-hidden ${cornerSize}`} style={{WebkitMaskImage: verticalMask as any, maskImage: verticalMask}}>
         <PixelBlast
           variant={variant}
-          pixelSize={4}
+          pixelSize={isMobile ? 2 : 4}
           color={color}
           bgColor="#0b0b0b"
           textColor="#ffffff"
           showText={false}
-          patternScale={2}
-          patternDensity={1}
+          patternScale={isMobile ? 1.2 : 2}
+          patternDensity={isMobile ? 0.6 : 1}
           pixelSizeJitter={0}
-          enableRipples
+          enableRipples={isMobile ? false : true}
           rippleSpeed={0.4}
           rippleThickness={0.12}
           rippleIntensityScale={1.5}
@@ -43,15 +52,15 @@ export default function PixelBlastCorners({
       <div className={`absolute top-0 right-0 overflow-hidden ${cornerSize}`} style={{WebkitMaskImage: verticalMask as any, maskImage: verticalMask}}>
         <PixelBlast
           variant={variant}
-          pixelSize={4}
+          pixelSize={isMobile ? 2 : 4}
           color={color}
           bgColor="#0b0b0b"
           textColor="#ffffff"
           showText={false}
-          patternScale={2}
-          patternDensity={1}
+          patternScale={isMobile ? 1.2 : 2}
+          patternDensity={isMobile ? 0.6 : 1}
           pixelSizeJitter={0}
-          enableRipples
+          enableRipples={isMobile ? false : true}
           rippleSpeed={0.4}
           rippleThickness={0.12}
           rippleIntensityScale={1.5}
@@ -64,15 +73,15 @@ export default function PixelBlastCorners({
       <div className={`absolute bottom-0 left-0 overflow-hidden ${cornerSize}`} style={{WebkitMaskImage: verticalMask as any, maskImage: verticalMask}}>
         <PixelBlast
           variant={variant}
-          pixelSize={4}
+          pixelSize={isMobile ? 2 : 4}
           color={color}
           bgColor="#0b0b0b"
           textColor="#ffffff"
           showText={false}
-          patternScale={2}
-          patternDensity={1}
+          patternScale={isMobile ? 1.2 : 2}
+          patternDensity={isMobile ? 0.6 : 1}
           pixelSizeJitter={0}
-          enableRipples
+          enableRipples={isMobile ? false : true}
           rippleSpeed={0.4}
           rippleThickness={0.12}
           rippleIntensityScale={1.5}
@@ -85,15 +94,15 @@ export default function PixelBlastCorners({
       <div className={`absolute bottom-0 right-0 overflow-hidden ${cornerSize}`} style={{WebkitMaskImage: verticalMask as any, maskImage: verticalMask}}>
         <PixelBlast
           variant={variant}
-          pixelSize={4}
+          pixelSize={isMobile ? 2 : 4}
           color={color}
           bgColor="#0b0b0b"
           textColor="#ffffff"
           showText={false}
-          patternScale={2}
-          patternDensity={1}
+          patternScale={isMobile ? 1.2 : 2}
+          patternDensity={isMobile ? 0.6 : 1}
           pixelSizeJitter={0}
-          enableRipples
+          enableRipples={isMobile ? false : true}
           rippleSpeed={0.4}
           rippleThickness={0.12}
           rippleIntensityScale={1.5}
