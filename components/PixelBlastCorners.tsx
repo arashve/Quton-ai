@@ -18,7 +18,7 @@ export default function PixelBlastCorners({
 }: Props) {
   const verticalMask = 'linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%)';
   return (
-    <div className={`absolute inset-0 pointer-events-none ${className}`} aria-hidden>
+    <div className={`fixed inset-0 pointer-events-none ${className}`} aria-hidden>
       <div className={`absolute top-0 left-0 overflow-hidden ${cornerSize}`} style={{WebkitMaskImage: verticalMask as any, maskImage: verticalMask}}>
         <PixelBlast
           variant={variant}
