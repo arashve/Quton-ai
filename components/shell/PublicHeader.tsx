@@ -81,7 +81,7 @@ export function PublicHeader({ className = '' }: PublicHeaderProps) {
           >
             <BrandMark theme="dark" compact className="group-hover:scale-[1.02] transition-transform duration-300" />
             <span className="inline-flex items-center text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#0A84FF] text-white">
-              PRO
+              BETA
             </span>
           </Link>
 
