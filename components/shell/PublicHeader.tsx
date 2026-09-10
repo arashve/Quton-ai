@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { BrandMark } from '@/components/BrandMark';
-import { MovingBorder } from '@/components/ui/moving-border';
+import { HoverBorderGradient } from '@/components/ui/hover-border-gradient';
 import { NavItem } from './types';
 
 export interface PublicHeaderProps {
@@ -162,23 +162,18 @@ export function PublicHeader({ className = '' }: PublicHeaderProps) {
                 <span>Login</span>
               </Link>
             )}
-<div className="relative h-10 w-auto overflow-hidden rounded-full bg-transparent p-[1px]">
-              <div
-                className="absolute inset-0 rounded-full"
-                style={{ borderRadius: 'calc(9999px * 0.96)' }}
-              >
-                <MovingBorder duration={3000} rx="30%" ry="30%">
-                  <div className="h-12 w-12 bg-[radial-gradient(#254EAF_40%,transparent_60%)] opacity-[0.6]" />
-                </MovingBorder>
-              </div>
-              <Link
-                href={user ? '/chat' : '/auth?redirect=/chat'}
-                className="relative flex h-full items-center gap-1.5 px-4 sm:px-5 py-2 rounded-full bg-white hover:bg-white/95 active:scale-95 text-black text-xs font-bold transition-all shadow-md cursor-pointer whitespace-nowrap border border-white/20"
+
+            {/* Prominent White Pill CTA Button with Hover Border Gradient */}
+            <Link href={user ? '/chat' : '/auth?redirect=/chat'} className="w-fit">
+              <HoverBorderGradient
+                containerClassName="rounded-full"
+                className="flex items-center gap-1.5 px-4 sm:px-5 py-2 rounded-full bg-white text-black text-xs font-bold whitespace-nowrap"
               >
                 <span>Launch Studio</span>
                 <ArrowRight className="w-3.5 h-3.5 text-black" />
-              </Link>
-            </div>
+              </HoverBorderGradient>
+            </Link>
+
             {/* Mobile Menu Toggle Button */}
             <button
               type="button"
