@@ -143,7 +143,7 @@ export function PublicHeader({ className = '' }: PublicHeaderProps) {
                       gridSize={1}
           ditherMode="bayer"
           colorMode="duotone"
-          primaryColor="#1e3a5f"
+          primaryColor="#254EAF"
           secondaryColor="#ffffff"
           threshold={0.45}
                       className="w-full h-full"
@@ -151,14 +151,12 @@ export function PublicHeader({ className = '' }: PublicHeaderProps) {
                   </div>
                 ) : (
                   <div className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center font-bold text-xs border border-white/20">
-                    {/* {(user.displayName || user.email || 'U')[0].toUpperCase()} */}
+                    {(user.displayName || user.email || 'U')[0].toUpperCase()}
                   </div>
                 )}
 
                 {/* User Name Text (Hidden on Mobile) */}
-                <span className="hidden sm:inline max-w-[80px] truncate text-white text-xs">
-                  {user.displayName?.split(' ')[0] || 'Account'}
-                </span>
+         
               </>
             ) : (
               <Link
