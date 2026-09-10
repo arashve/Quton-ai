@@ -19,6 +19,7 @@ import { useAuth } from '@/context/AuthContext';
 import { BrandMark } from '@/components/BrandMark';
 import { HoverBorderGradient } from '@/components/ui/hover-border-gradient';
 import { DitherShader } from '@/components/ui/dither-shader';
+import { UserProfilePopup } from './UserProfilePopup';
 import { NavItem } from './types';
 
 export interface PublicHeaderProps {
@@ -37,6 +38,7 @@ export function PublicHeader({ className = '' }: PublicHeaderProps) {
   const { user } = useAuth();
   const [hoveredPath, setHoveredPath] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   // ۱. دریافت پیوسته موقعیت اسکرول
   const { scrollY } = useScroll();
@@ -134,32 +136,33 @@ export function PublicHeader({ className = '' }: PublicHeaderProps) {
           {/* Right Actions: Login & Get Pro / Launch Studio Pill Button */}
           <div className="flex items-center gap-2.5 shrink-0">
             {user ? (
-              <>
+              <button
+                type="button"
+                onClick={() => setIsProfileOpen((prev) => !prev)}
+                className="relative rounded-full focus:outline-none focus:ring-2 focus:ring-[#254EAF] transition-transform active:scale-95 cursor-pointer hover:opacity-90 group"
+                title={user.displayName || user.email || 'حساب کاربری'}
+                aria-label="حساب کاربری و ویرایش پروفایل"
+              >
                 {/* User Profile with Dither Shader */}
                 {user.photoURL ? (
-                  <div className="w-10 h-10 rounded-full overflow-hidden border border-white/20">
+                  <div className="w-10 h-10 rounded-full overflow-hidden border border-white/20 group-hover:border-white/50 transition shadow-sm">
                     <DitherShader
                       src={user.photoURL}
                       gridSize={1}
-          ditherMode="bayer"
-          colorMode="duotone"
-          primaryColor="#1e3a5f"
-          secondaryColor="#f0e68c"
-          threshold={0.45}
+                      ditherMode="bayer"
+                      colorMode="duotone"
+                      primaryColor="#254EAF"
+                      secondaryColor="#4d6cb3"
+                      threshold={0.45}
                       className="w-full h-full"
                     />
                   </div>
                 ) : (
-                  <div className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center font-bold text-xs border border-white/20">
+                  <div className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center font-bold text-xs border border-white/20 group-hover:border-white/50 transition shadow-sm">
                     {(user.displayName || user.email || 'U')[0].toUpperCase()}
                   </div>
                 )}
-
-                {/* User Name Text (Hidden on Mobile) */}
-                <span className="hidden sm:inline max-w-[80px] truncate text-white text-xs">
-                  {user.displayName?.split(' ')[0] || 'Account'}
-                </span>
-              </>
+              </button>
             ) : (
               <Link
                 href="/auth"
@@ -207,14 +210,28 @@ export function PublicHeader({ className = '' }: PublicHeaderProps) {
               <span className="text-xs font-mono uppercase tracking-wider text-white/50 font-semibold">
                 Navigation
               </span>
-              <Link
-                href="/auth"
-                onClick={() => setMobileMenuOpen(false)}
-                className="text-xs font-medium text-white hover:underline flex items-center gap-1.5"
-              >
-                <UserIcon className="w-3.5 h-3.5 text-white/60" />
-                <span>{user ? user.displayName || 'Account' : 'Sign In'}</span>
-              </Link>
+              {user ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    setIsProfileOpen(true);
+                  }}
+                  className="text-xs font-medium text-white hover:underline flex items-center gap-1.5 cursor-pointer"
+                >
+                  <UserIcon className="w-3.5 h-3.5 text-blue-400" />
+                  <span>{user.displayName || 'پروفایل کاربری'}</span>
+                </button>
+              ) : (
+                <Link
+                  href="/auth"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-xs font-medium text-white hover:underline flex items-center gap-1.5"
+                >
+                  <UserIcon className="w-3.5 h-3.5 text-white/60" />
+                  <span>Sign In</span>
+                </Link>
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-2.5">
@@ -241,6 +258,12 @@ export function PublicHeader({ className = '' }: PublicHeaderProps) {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Google-Style User Profile Popup */}
+      <UserProfilePopup
+        isOpen={isProfileOpen}
+        onClose={() => setIsProfileOpen(false)}
+      />
     </>
   );
 }

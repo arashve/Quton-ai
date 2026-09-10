@@ -22,6 +22,7 @@ interface AuthContextType {
   signUpWithEmail: (email: string, pass: string, name?: string) => Promise<void>;
   sendPasswordReset: (email: string) => Promise<void>;
   signOutUser: () => Promise<void>;
+  updateUserProfile: (data: { displayName?: string; photoURL?: string }) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -32,6 +33,7 @@ const AuthContext = createContext<AuthContextType>({
   signUpWithEmail: async () => {},
   sendPasswordReset: async () => {},
   signOutUser: async () => {},
+  updateUserProfile: async () => {},
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -121,6 +123,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
   };
 
+  const updateUserProfile = async (data: { displayName?: string; photoURL?: string }) => {
+    if (!auth.currentUser) return;
+    await updateProfile(auth.currentUser, {
+      displayName: data.displayName !== undefined ? data.displayName : auth.currentUser.displayName,
+      photoURL: data.photoURL !== undefined ? data.photoURL : auth.currentUser.photoURL,
+    });
+    // Create new user reference clone to trigger reactive re-renders
+    setUser(Object.assign(Object.create(Object.getPrototypeOf(auth.currentUser)), auth.currentUser));
+
+    try {
+      const userRef = doc(db, 'users', auth.currentUser.uid);
+      await setDoc(
+        userRef,
+        {
+          ...(data.displayName !== undefined ? { displayName: data.displayName } : {}),
+          ...(data.photoURL !== undefined ? { photoURL: data.photoURL } : {}),
+          updatedAt: new Date().toISOString(),
+        },
+        { merge: true }
+      );
+    } catch (e) {
+      console.error('Failed to sync profile update to Firestore:', e);
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -131,6 +158,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         signUpWithEmail,
         sendPasswordReset,
         signOutUser,
+        updateUserProfile,
       }}
     >
       {children}

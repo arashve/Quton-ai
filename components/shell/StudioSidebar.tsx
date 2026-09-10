@@ -24,6 +24,9 @@ import {
   Download,
 } from 'lucide-react';
 import { StudioSession } from './types';
+import { useAuth } from '@/context/AuthContext';
+import { UserProfilePopup } from './UserProfilePopup';
+import { DitherShader } from '@/components/ui/dither-shader';
 
 export interface StudioSidebarProps {
   sessions?: StudioSession[];
@@ -55,6 +58,8 @@ export function StudioSidebar({
   onOpenSearch,
   className = '',
 }: StudioSidebarProps) {
+  const { user } = useAuth();
+  const [isProfilePopupOpen, setIsProfilePopupOpen] = useState(false);
   const [pinnedIds, setPinnedIds] = useState<string[]>([]);
   const [activeWorkspace, setActiveWorkspace] = useState('AutoFlow Production');
   const [isWorkspaceMenuOpen, setIsWorkspaceMenuOpen] = useState(false);
@@ -154,13 +159,27 @@ export function StudioSidebar({
         >
           <Sliders className="w-4 h-4" />
         </Link>
-        <Link
-          href="/auth"
-          className="w-9 h-9 rounded-xl bg-white text-zinc-950 flex items-center justify-center font-bold text-xs cursor-pointer shadow-xs"
-          title="Account"
+        <button
+          type="button"
+          onClick={() => setIsProfilePopupOpen(true)}
+          className="w-9 h-9 rounded-xl overflow-hidden bg-white text-zinc-950 flex items-center justify-center font-bold text-xs cursor-pointer shadow-xs hover:ring-2 hover:ring-blue-500 transition"
+          title={user?.displayName || user?.email || 'Account'}
         >
-          A
-        </Link>
+          {user?.photoURL ? (
+            <DitherShader
+              src={user.photoURL}
+              gridSize={1}
+              ditherMode="bayer"
+              colorMode="duotone"
+              primaryColor="#254EAF"
+              secondaryColor="#4d6cb3"
+              threshold={0.45}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            (user?.displayName || user?.email || 'A')[0].toUpperCase()
+          )}
+        </button>
       </div>
     </div>
   );
@@ -362,6 +381,11 @@ export function StudioSidebar({
           </div>
         )}
       </AnimatePresence>
+
+      <UserProfilePopup
+        isOpen={isProfilePopupOpen}
+        onClose={() => setIsProfilePopupOpen(false)}
+      />
     </>
   );
 }

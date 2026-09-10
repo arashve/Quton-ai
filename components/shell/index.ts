@@ -9,3 +9,4 @@ export * from './AuthCard';
 export * from './TabBar';
 export * from './SectionCard';
 export * from './ButtonGroup';
+export * from './UserProfilePopup';
