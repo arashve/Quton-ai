@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { BrandMark } from '@/components/BrandMark';
+import { MovingBorder } from '@/components/ui/moving-border';
 import { NavItem } from './types';
 
 export interface PublicHeaderProps {
@@ -162,14 +163,24 @@ export function PublicHeader({ className = '' }: PublicHeaderProps) {
               </Link>
             )}
 
-            {/* Prominent White Pill CTA Button */}
-            <Link
-              href={user ? '/chat' : '/auth?redirect=/chat'}
-              className="min-h-[38px] flex items-center gap-1.5 px-4 sm:px-5 py-2 rounded-full bg-white hover:bg-white/90 active:scale-96 text-black text-xs font-bold transition-all shadow-md cursor-pointer whitespace-nowrap"
-            >
-              <span>Launch Studio</span>
-              <ArrowRight className="w-3.5 h-3.5 text-black" />
-            </Link>
+            {/* Prominent White Pill CTA Button with Moving Border */}
+            <div className="relative h-10 w-auto overflow-hidden rounded-full bg-transparent p-[1px]">
+              <div
+                className="absolute inset-0 rounded-full"
+                style={{ borderRadius: 'calc(9999px * 0.96)' }}
+              >
+                <MovingBorder duration={3000} rx="30%" ry="30%">
+                  <div className="h-12 w-12 bg-[radial-gradient(#3b82f6_40%,transparent_60%)] opacity-[0.6]" />
+                </MovingBorder>
+              </div>
+              <Link
+                href={user ? '/chat' : '/auth?redirect=/chat'}
+                className="relative flex h-full items-center gap-1.5 px-4 sm:px-5 py-2 rounded-full bg-white hover:bg-white/95 active:scale-95 text-black text-xs font-bold transition-all shadow-md cursor-pointer whitespace-nowrap border border-white/20"
+              >
+                <span>Launch Studio</span>
+                <ArrowRight className="w-3.5 h-3.5 text-black" />
+              </Link>
+            </div>
 
             {/* Mobile Menu Toggle Button */}
             <button
