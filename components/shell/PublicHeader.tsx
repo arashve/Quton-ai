@@ -149,7 +149,11 @@ export function PublicHeader({ className = '' }: PublicHeaderProps) {
                       className="w-full h-full"
                     />
                   </div>
-                ) }
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center font-bold text-xs border border-white/20">
+                    {/* {(user.displayName || user.email || 'U')[0].toUpperCase()} */}
+                  </div>
+                )}
 
                 {/* User Name Text (Hidden on Mobile) */}
                 <span className="hidden sm:inline max-w-[80px] truncate text-white text-xs">
