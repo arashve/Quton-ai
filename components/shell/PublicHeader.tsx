@@ -144,7 +144,7 @@ export function PublicHeader({ className = '' }: PublicHeaderProps) {
           ditherMode="bayer"
           colorMode="duotone"
           primaryColor="#1e3a5f"
-          secondaryColor="#f0e68c"
+          secondaryColor="#ffffff"
           threshold={0.45}
                       className="w-full h-full"
                     />
