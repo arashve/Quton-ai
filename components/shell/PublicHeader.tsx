@@ -172,7 +172,7 @@ export function PublicHeader({ className = '' }: PublicHeaderProps) {
     {/* ضخامت گرادیان با افزایش rx و ry و اندازه div داخلی بیشتر شده است */}
     <MovingBorder duration={3000} rx="45%" ry="45%">
       {/* رنگ گرادیان به خاکستری تیره و مشکی تغییر کرده و اندازه div برای کلفتی بیشتر افزایش یافته است */}
-      <div className="h-20 w-20 bg-[radial-gradient(#1f2937_30%,#000000_70%,#254EAF_90%)] opacity-[0.8]" />
+      <div className="h-20 w-20 bg-[radial-gradient(#040A17_30%,#254EAF_70%,#254EAF_90%)] opacity-[0.8]" />
     </MovingBorder>
   </div>
   <Link
