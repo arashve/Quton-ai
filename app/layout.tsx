@@ -1,8 +1,11 @@
 import type { Metadata, Viewport } from 'next';
-import { Pixelify_Sans } from 'next/font/google';
+import { Pixelify_Sans, Geist } from 'next/font/google';
 import './globals.css'; // Global styles
 import { AuthProvider } from '@/context/AuthContext';
 import { AppShell } from '@/components/shell';
+import { cn } from "@/lib/utils";
+
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 const pixelFont = Pixelify_Sans({
   subsets: ['latin'],
@@ -45,7 +48,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({children}: {children: React.ReactNode}) {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
+    <html lang="en" className={cn("dark", "font-sans", geist.variable)} suppressHydrationWarning>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
