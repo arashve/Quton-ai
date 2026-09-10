@@ -18,6 +18,7 @@ import {
 import { useAuth } from '@/context/AuthContext';
 import { BrandMark } from '@/components/BrandMark';
 import { HoverBorderGradient } from '@/components/ui/hover-border-gradient';
+import { DitherShader } from '@/components/ui/dither-shader';
 import { NavItem } from './types';
 
 export interface PublicHeaderProps {
@@ -133,27 +134,31 @@ export function PublicHeader({ className = '' }: PublicHeaderProps) {
           {/* Right Actions: Login & Get Pro / Launch Studio Pill Button */}
           <div className="flex items-center gap-2.5 shrink-0">
             {user ? (
-              <Link
-                href="/auth"
-                className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#2C2C2E] hover:bg-[#3A3A3C] text-xs text-white/80 transition cursor-pointer"
-                title="Account Settings"
-              >
+              <>
+                {/* User Profile with Dither Shader */}
                 {user.photoURL ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={user.photoURL}
-                    alt={user.displayName || 'Account'}
-                    className="w-5 h-5 rounded-full object-cover"
-                  />
+                  <div className="w-10 h-10 rounded-full overflow-hidden border border-white/20">
+                    <DitherShader
+                      src={user.photoURL}
+                      gridSize={3}
+                      ditherMode="bayer"
+                      colorMode="duotone"
+                      primaryColor="#ffffff"
+                      secondaryColor="#000000"
+                      className="w-full h-full"
+                    />
+                  </div>
                 ) : (
-                  <div className="w-5 h-5 rounded-full bg-white text-black flex items-center justify-center font-bold text-[10px]">
+                  <div className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center font-bold text-xs border border-white/20">
                     {(user.displayName || user.email || 'U')[0].toUpperCase()}
                   </div>
                 )}
-                <span className="hidden sm:inline max-w-[80px] truncate text-white">
+
+                {/* User Name Text (Hidden on Mobile) */}
+                <span className="hidden sm:inline max-w-[80px] truncate text-white text-xs">
                   {user.displayName?.split(' ')[0] || 'Account'}
                 </span>
-              </Link>
+              </>
             ) : (
               <Link
                 href="/auth"
