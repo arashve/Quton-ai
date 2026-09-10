@@ -164,24 +164,25 @@ export function PublicHeader({ className = '' }: PublicHeaderProps) {
             )}
 
             {/* Prominent White Pill CTA Button with Moving Border */}
-            <div className="relative h-10 w-auto overflow-hidden rounded-full bg-transparent p-[1px]">
-              <div
-                className="absolute inset-0 rounded-full"
-                style={{ borderRadius: 'calc(9999px * 0.96)' }}
-              >
-                <MovingBorder duration={3000} rx="30%" ry="30%">
-                  <div className="h-12 w-12 bg-[radial-gradient(#3b82f6_40%,transparent_60%)] opacity-[0.6]" />
-                </MovingBorder>
-              </div>
-              <Link
-                href={user ? '/chat' : '/auth?redirect=/chat'}
-                className="relative flex h-full items-center gap-1.5 px-4 sm:px-5 py-2 rounded-full bg-white hover:bg-white/95 active:scale-95 text-black text-xs font-bold transition-all shadow-md cursor-pointer whitespace-nowrap border border-white/20"
-              >
-                <span>Launch Studio</span>
-                <ArrowRight className="w-3.5 h-3.5 text-black" />
-              </Link>
-            </div>
-
+           <div className="relative h-11 w-auto overflow-hidden rounded-full bg-transparent p-[1.5px]"> {/* ارتفاع کمی افزایش یافته تا حاشیه ضخیم‌تر جا بیفتد */}
+  <div
+    className="absolute inset-0 rounded-full"
+    style={{ borderRadius: 'calc(9999px * 0.96)' }}
+  >
+    {/* ضخامت گرادیان با افزایش rx و ry و اندازه div داخلی بیشتر شده است */}
+    <MovingBorder duration={3000} rx="45%" ry="45%">
+      {/* رنگ گرادیان به خاکستری تیره و مشکی تغییر کرده و اندازه div برای کلفتی بیشتر افزایش یافته است */}
+      <div className="h-20 w-20 bg-[radial-gradient(#1f2937_30%,#000000_70%,transparent_90%)] opacity-[0.8]" />
+    </MovingBorder>
+  </div>
+  <Link
+    href={user ? '/chat' : '/auth?redirect=/chat'}
+    className="relative flex h-full items-center gap-1.5 px-4 sm:px-5 py-2 rounded-full bg-white hover:bg-white/95 active:scale-95 text-black text-xs font-bold transition-all shadow-md cursor-pointer whitespace-nowrap border border-white/10"
+  >
+    <span>Launch Studio</span>
+    <ArrowRight className="w-3.5 h-3.5 text-black" />
+  </Link>
+</div>
             {/* Mobile Menu Toggle Button */}
             <button
               type="button"
