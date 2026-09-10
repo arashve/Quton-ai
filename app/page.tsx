@@ -51,33 +51,33 @@ export default function LandingPortalPage() {
   return (
     <div className="bg-black min-h-screen text-white relative overflow-hidden">
       {/* Aceternity Interactive Background Ripple Effect */}
-      <BackgroundRippleEffect rows={10} cols={30} cellSize={54} />
+      <BackgroundRippleEffect rows={12} cols={34} cellSize={52} />
 
-      <PageContainer variant="public" maxWidth="xl">
+      <PageContainer variant="public" maxWidth="xl" className="pointer-events-none">
         {/* Hero Section */}
         <section
           id="hero-prompt"
-          className="relative z-10 pt-16 sm:pt-24 pb-20 px-2 sm:px-4 max-w-5xl mx-auto text-center"
+          className="relative z-10 pt-16 sm:pt-24 pb-20 px-2 sm:px-4 max-w-5xl mx-auto text-center pointer-events-none select-none"
         >
           {/* Status Indicator Pill */}
-          <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-[#1C1C1E] text-xs text-white/80 font-mono mb-8">
+          <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-[#1C1C1E] text-xs text-white/80 font-mono mb-8 pointer-events-auto">
             <span className="w-2 h-2 rounded-full bg-emerald-400" aria-hidden="true" />
             <span>Real-time SSE streaming • Dual-model arena & voice native</span>
           </div>
 
           {/* Primary Display Typography */}
-          <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight text-white mb-6 leading-[1.08]">
+          <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight text-white mb-6 leading-[1.08] pointer-events-none">
             Intelligence at the <br className="hidden sm:inline" />
             <span className="text-white/60">speed of thought.</span>
           </h1>
 
-          <p className="max-w-2xl mx-auto text-base sm:text-lg text-white/60 leading-relaxed mb-12">
-            Experience ultra-low latency AI streaming, dual-model live benchmarking, deep cognitive reasoning inspection, and hands-free voice dialogue.
+          <p className="max-w-2xl mx-auto text-base sm:text-lg text-white/60 leading-relaxed mb-12 pointer-events-none">
+            Hover over the background boxes and click to generate ripples. Experience ultra-low latency AI streaming, dual-model live benchmarking, deep cognitive reasoning inspection, and hands-free voice dialogue.
           </p>
 
           {/* Solid Elevated Surface Prompt Box */}
-          <div className="max-w-3xl mx-auto text-left">
-            <div className="rounded-3xl bg-[#1C1C1E] p-6 sm:p-8 space-y-5">
+          <div className="max-w-3xl mx-auto text-left pointer-events-auto select-text">
+            <div className="rounded-3xl bg-[#1C1C1E] p-6 sm:p-8 space-y-5 shadow-2xl border border-white/5">
               {/* Mode Selector Segmented Control */}
               <div className="flex items-center justify-between">
                 <div
@@ -143,7 +143,7 @@ export default function LandingPortalPage() {
           </div>
 
           {/* Quick Suggestion Chips */}
-          <div className="mt-8 max-w-3xl mx-auto flex flex-wrap items-center justify-center gap-3">
+          <div className="mt-8 max-w-3xl mx-auto flex flex-wrap items-center justify-center gap-3 pointer-events-auto">
             {sampleSuggestions.map((item, idx) => {
               const Icon = item.icon;
               return (
@@ -151,7 +151,7 @@ export default function LandingPortalPage() {
                   key={idx}
                   type="button"
                   onClick={() => handleLaunchChat(item.text)}
-                  className="min-h-[44px] flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-[#1C1C1E] hover:bg-[#2C2C2E] text-xs text-white/80 hover:text-white transition cursor-pointer"
+                  className="min-h-[44px] flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-[#1C1C1E] hover:bg-[#2C2C2E] text-xs text-white/80 hover:text-white transition cursor-pointer border border-white/5"
                 >
                   <Icon className="w-4 h-4 text-white/60" />
                   <span className="max-w-[260px] sm:max-w-none truncate">{item.text}</span>
@@ -167,7 +167,7 @@ export default function LandingPortalPage() {
         {/* Bento Grid Architecture Showcase */}
         <section
           id="bento-features"
-          className="relative z-10 max-w-7xl mx-auto px-2 sm:px-4 py-20"
+          className="relative z-10 max-w-7xl mx-auto px-2 sm:px-4 py-20 pointer-events-auto"
         >
           <div className="text-center max-w-3xl mx-auto mb-16">
             <div className="text-xs font-mono uppercase tracking-wider text-white/50 mb-3 font-semibold">
