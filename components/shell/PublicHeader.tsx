@@ -138,17 +138,16 @@ export function PublicHeader({ className = '' }: PublicHeaderProps) {
                 {/* User Profile with Dither Shader */}
                 {user.photoURL ? (
                   <div className="w-10 h-10 rounded-full overflow-hidden border border-white/20">
-                  <DitherShader
-  src={user.photoURL}
-  ditherMode="halftone" // تغییر به هالف‌تون
-  gridSize={2} // کمی درشت‌تر برای دیده شدن افکت
-  colorMode="duotone"
-  primaryColor="#1e3a5f" // رنگ تیره شما
-  secondaryColor="#f0e68c" // رنگ روشن شما
-  contrast={1.2} // افزایش کنتراست برای وضوح چهره
-  threshold={0.5} 
-  className="w-full h-full rounded-full overflow-hidden" // گرد کردن عکس پروفایل
-/>
+                    <DitherShader
+                      src={user.photoURL}
+                      gridSize={1}
+          ditherMode="bayer"
+          colorMode="duotone"
+          primaryColor="#1e3a5f"
+          secondaryColor="#f0e68c"
+          threshold={0.45}
+                      className="w-full h-full"
+                    />
                   </div>
                 ) : (
                   <div className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center font-bold text-xs border border-white/20">
