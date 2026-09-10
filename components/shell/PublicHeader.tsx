@@ -171,7 +171,7 @@ export function PublicHeader({ className = '' }: PublicHeaderProps) {
             <Link href={user ? '/chat' : '/auth?redirect=/chat'} className="w-fit">
               <HoverBorderGradient
                 containerClassName="rounded-full"
-                className="flex items-center gap-1.5 px-4 sm:px-5 py-5 rounded-full bg-white text-black text-xs font-bold whitespace-nowrap"
+                className="flex items-center gap-1.5 px-4 sm:px-5 py-3.5 rounded-full bg-white text-black text-xs font-bold whitespace-nowrap"
               >
                 <span>Launch Studio</span>
                 <ArrowRight className="w-3.5 h-3.5 text-black" />
