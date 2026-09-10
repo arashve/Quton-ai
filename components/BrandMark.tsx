@@ -25,6 +25,7 @@ export function BrandMark({
       <div
         className={`relative ${iconSize} rounded-xl shadow-sm flex items-center justify-center font-black select-none ${iconClass}`}
       >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={isDarkTheme ?'/assets/quton-dark.png': '/assets/quton-light.png'}
           alt="Quton"

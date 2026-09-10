@@ -35,7 +35,7 @@ export function MobileBottomNav({ className = '' }: MobileBottomNavProps) {
   const primaryTabs = [
     { id: 'home', label: 'Home', href: '/', icon: Sparkles, isActive: pathname === '/' },
     { id: 'chat', label: 'Chat', href: '/chat', icon: MessageSquare, isActive: pathname === '/chat' },
-    // Arena removed: merged into Chat Studio
+    { id: 'arena', label: 'Arena', href: '/arena', icon: Columns, isActive: pathname === '/arena' },
     { id: 'voice', label: 'Voice', href: '/voice', icon: Mic, isActive: pathname === '/voice' },
   ];
 

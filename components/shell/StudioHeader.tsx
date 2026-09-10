@@ -46,7 +46,7 @@ export function StudioHeader({
 
   const studioTabs: TabItem[] = [
     { id: '/chat', label: 'Chat', icon: MessageSquare },
-    // Arena intentionally removed from Studio header
+    { id: '/arena', label: 'Arena', icon: Columns },
     { id: '/voice', label: 'Voice', icon: Mic },
   ];
 

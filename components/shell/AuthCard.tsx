@@ -19,6 +19,7 @@ import {
   LogOut,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { BrandMark } from '@/components/BrandMark';
 import { TabBar } from './TabBar';
 import { TabItem } from './types';
 
