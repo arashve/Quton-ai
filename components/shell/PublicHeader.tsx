@@ -81,7 +81,7 @@ export function PublicHeader({ className = '' }: PublicHeaderProps) {
             className="flex items-center gap-2.5 rounded-full group cursor-pointer shrink-0"
           >
             <BrandMark theme="dark" compact className="group-hover:scale-[1.02] transition-transform duration-300" />
-            <span className="inline-flex items-center text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#0A84FF] text-white">
+            <span className="inline-flex items-center text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#254EAF] text-white">
               BETA
             </span>
           </Link>
@@ -164,7 +164,7 @@ export function PublicHeader({ className = '' }: PublicHeaderProps) {
             )}
 
             {/* Prominent White Pill CTA Button with Moving Border */}
-           <div className="relative h-11 w-auto overflow-hidden rounded-full bg-transparent p-[1.5px]"> {/* ارتفاع کمی افزایش یافته تا حاشیه ضخیم‌تر جا بیفتد */}
+           <div className="relative h-12 w-auto overflow-hidden rounded-full bg-transparent p-[1.5px]"> {/* ارتفاع کمی افزایش یافته تا حاشیه ضخیم‌تر جا بیفتد */}
   <div
     className="absolute inset-0 rounded-full"
     style={{ borderRadius: 'calc(9999px * 0.96)' }}
@@ -172,7 +172,7 @@ export function PublicHeader({ className = '' }: PublicHeaderProps) {
     {/* ضخامت گرادیان با افزایش rx و ry و اندازه div داخلی بیشتر شده است */}
     <MovingBorder duration={3000} rx="45%" ry="45%">
       {/* رنگ گرادیان به خاکستری تیره و مشکی تغییر کرده و اندازه div برای کلفتی بیشتر افزایش یافته است */}
-      <div className="h-20 w-20 bg-[radial-gradient(#1f2937_30%,#000000_70%,transparent_90%)] opacity-[0.8]" />
+      <div className="h-20 w-20 bg-[radial-gradient(#1f2937_30%,#000000_70%,#254EAF_90%)] opacity-[0.8]" />
     </MovingBorder>
   </div>
   <Link
