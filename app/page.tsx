@@ -51,7 +51,7 @@ export default function LandingPortalPage() {
   return (
     <div className="bg-black min-h-screen text-white relative overflow-hidden">
       {/* Aceternity Interactive Background Ripple Effect */}
-      <BackgroundRippleEffect rows={12} cols={34} cellSize={52} />
+      <BackgroundRippleEffect rows={8} cols={27} cellSize={56} />
 
       <PageContainer variant="public" maxWidth="xl" className="pointer-events-none">
         {/* Hero Section */}
@@ -72,7 +72,7 @@ export default function LandingPortalPage() {
           </h1>
 
           <p className="max-w-2xl mx-auto text-base sm:text-lg text-white/60 leading-relaxed mb-12 pointer-events-none">
-            Hover over the background boxes and click to generate ripples. Experience ultra-low latency AI streaming, dual-model live benchmarking, deep cognitive reasoning inspection, and hands-free voice dialogue.
+            Experience ultra-low latency AI streaming, dual-model live benchmarking, deep cognitive reasoning inspection, and hands-free voice dialogue.
           </p>
 
           {/* Solid Elevated Surface Prompt Box */}

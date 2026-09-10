@@ -1,11 +1,12 @@
 "use client";
+
 import React, { useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 export const BackgroundRippleEffect = ({
-  rows = 10,
-  cols = 30,
-  cellSize = 54,
+  rows = 8,
+  cols = 27,
+  cellSize = 56,
   className,
 }: {
   rows?: number;
@@ -25,21 +26,21 @@ export const BackgroundRippleEffect = ({
       ref={ref}
       className={cn(
         "absolute inset-0 h-full w-full overflow-hidden flex items-start justify-center",
-        "[--cell-border-color:var(--color-neutral-300,#d4d4d4)] [--cell-fill-color:var(--color-neutral-100,#f5f5f5)] [--cell-shadow-color:var(--color-neutral-500,#737373)]",
-        "dark:[--cell-border-color:var(--color-neutral-800,#27272a)] dark:[--cell-fill-color:var(--color-neutral-900,#111114)] dark:[--cell-shadow-color:var(--color-neutral-800,#18181b)]",
+        "[--cell-border-color:var(--color-neutral-300,#e5e5e5)] [--cell-fill-color:var(--color-neutral-100,#f5f5f5)] [--cell-shadow-color:var(--color-neutral-500,#737373)]",
+        "dark:[--cell-border-color:var(--color-neutral-800,#262626)] dark:[--cell-fill-color:var(--color-neutral-900,#0f0f12)] dark:[--cell-shadow-color:var(--color-neutral-800,#18181b)]",
         className,
       )}
     >
-      <div className="relative h-auto w-auto overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 z-[2] h-full w-full overflow-hidden [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
+      <div className="relative h-full w-full overflow-hidden flex items-start justify-center">
+        <div className="pointer-events-none absolute inset-0 z-[2] h-full w-full overflow-hidden" />
         <DivGrid
           key={`base-${rippleKey}`}
-          className="mask-radial-from-20% mask-radial-at-top [mask-image:radial-gradient(ellipse_70%_60%_at_50%_30%,#000_65%,transparent_100%)] opacity-85"
+          className="[mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-80"
           rows={rows}
           cols={cols}
           cellSize={cellSize}
-          borderColor="var(--cell-border-color)"
-          fillColor="var(--cell-fill-color)"
+          borderColor="#27272a"
+          fillColor="rgba(14,165,233,0.15)"
           clickedCell={clickedCell}
           onCellClick={(row, col) => {
             setClickedCell({ row, col });
@@ -71,11 +72,11 @@ type CellStyle = React.CSSProperties & {
 
 const DivGrid = ({
   className,
-  rows = 10,
-  cols = 30,
-  cellSize = 54,
+  rows = 8,
+  cols = 27,
+  cellSize = 56,
   borderColor = "#27272a",
-  fillColor = "#111114",
+  fillColor = "rgba(14,165,233,0.15)",
   clickedCell = null,
   onCellClick = () => {},
   interactive = true,
@@ -95,7 +96,7 @@ const DivGrid = ({
   };
 
   return (
-    <div className={cn("relative z-[3]", className)} style={gridStyle}>
+    <div className={cn("relative z-[3] pointer-events-auto", className)} style={gridStyle}>
       {cells.map((idx) => {
         const rowIdx = Math.floor(idx / cols);
         const colIdx = idx % cols;
@@ -116,7 +117,7 @@ const DivGrid = ({
           <div
             key={idx}
             className={cn(
-              "cell relative border-[0.5px] opacity-40 transition-all duration-150 will-change-transform hover:opacity-100 hover:border-white/40 cursor-pointer dark:shadow-[0px_0px_40px_1px_var(--cell-shadow-color)_inset]",
+              "cell relative border-[0.5px] opacity-40 transition-opacity duration-150 will-change-transform hover:opacity-90 dark:shadow-[0px_0px_40px_1px_var(--cell-shadow-color)_inset] cursor-pointer",
               clickedCell && "animate-cell-ripple [animation-fill-mode:none]",
               !interactive && "pointer-events-none",
             )}
@@ -152,4 +153,5 @@ export function BackgroundRippleEffectDemo() {
     </div>
   );
 }
+
 
