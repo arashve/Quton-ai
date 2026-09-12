@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { motion, AnimatePresence } from 'motion/react';
 import {
   Sparkles,
   ArrowUp,
@@ -16,6 +17,9 @@ import {
   ShieldCheck,
   Code,
   Lock,
+  Paperclip,
+  AudioLines,
+  CornerDownLeft,
 } from 'lucide-react';
 import { PageContainer } from '@/components/shell';
 import { BackgroundRippleEffect } from '@/components/ui/background-ripple-effect';
@@ -24,11 +28,34 @@ export default function LandingPortalPage() {
   const router = useRouter();
   const [heroPrompt, setHeroPrompt] = useState('');
   const [selectedMode, setSelectedMode] = useState<'default' | 'compare' | 'reasoning' | 'voice'>('default');
+  const [isFocused, setIsFocused] = useState(false);
+  const [webSearch, setWebSearch] = useState(false);
 
-  const handleLaunchChat = (promptText?: string) => {
+  const placeholders: Record<string, string> = {
+    default: 'Ask anything, brainstorm code, or paste architecture requirements...',
+    compare: 'Enter a prompt to compare Gemini 2.5 Flash vs Pro live in dual split arena...',
+    reasoning: 'Ask a complex multi-step challenge to inspect cognitive reasoning steps...',
+    voice: 'Type a topic or click the mic for ultra-fast bidirectional voice streaming...',
+  };
+
+  const handleLaunchChat = (promptText?: string, modeOverride?: string) => {
     const text = (promptText !== undefined ? promptText : heroPrompt).trim();
+    const mode = modeOverride || selectedMode;
+
+    if (mode === 'compare') {
+      router.push(`/arena${text ? `?q=${encodeURIComponent(text)}` : ''}`);
+      return;
+    }
+    if (mode === 'voice') {
+      router.push(`/voice${text ? `?q=${encodeURIComponent(text)}` : ''}`);
+      return;
+    }
+
+    const searchParam = webSearch ? '&search=true' : '';
+    const reasoningParam = mode === 'reasoning' ? '&reasoning=true' : '';
+
     if (text) {
-      router.push(`/chat?q=${encodeURIComponent(text)}`);
+      router.push(`/chat?q=${encodeURIComponent(text)}${searchParam}${reasoningParam}`);
     } else {
       router.push('/chat');
     }
@@ -42,10 +69,38 @@ export default function LandingPortalPage() {
   };
 
   const sampleSuggestions = [
-    { text: 'Compare Gemini 2.5 Flash vs Pro on latency & reasoning', icon: Columns, tag: 'Arena' },
-    { text: 'Architect an ultra-low latency SSE streaming API in Node.js', icon: Code, tag: 'Architecture' },
-    { text: 'Inspect step-by-step reasoning trace on distributed consensus', icon: Brain, tag: 'Reasoning' },
-    { text: 'Explain quantum error correction step-by-step with voice', icon: Mic, tag: 'Voice 8' },
+    {
+      title: 'Split Arena',
+      text: 'Compare Gemini 2.5 Flash vs Pro on latency & reasoning',
+      icon: Columns,
+      tag: 'Arena',
+      mode: 'compare' as const,
+      color: 'from-blue-500/20 to-indigo-500/20 text-blue-400 border-blue-500/30',
+    },
+    {
+      title: 'Architecture',
+      text: 'Architect an ultra-low latency SSE streaming API in Node.js',
+      icon: Code,
+      tag: 'Code',
+      mode: 'default' as const,
+      color: 'from-emerald-500/20 to-teal-500/20 text-emerald-400 border-emerald-500/30',
+    },
+    {
+      title: 'Deep Reasoning',
+      text: 'Inspect step-by-step reasoning trace on distributed consensus',
+      icon: Brain,
+      tag: 'Reasoning',
+      mode: 'reasoning' as const,
+      color: 'from-purple-500/20 to-pink-500/20 text-purple-400 border-purple-500/30',
+    },
+    {
+      title: 'Voice Native',
+      text: 'Explain quantum error correction step-by-step with voice',
+      icon: Mic,
+      tag: 'Voice',
+      mode: 'voice' as const,
+      color: 'from-amber-500/20 to-orange-500/20 text-amber-400 border-amber-500/30',
+    },
   ];
 
   return (
@@ -59,31 +114,68 @@ export default function LandingPortalPage() {
           id="hero-prompt"
           className="relative z-10 pt-16 sm:pt-24 pb-20 px-2 sm:px-4 max-w-5xl mx-auto text-center"
         >
+          {/* Subtle Ambient Aurora Mesh Glow */}
+          <div
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] sm:w-[750px] h-[360px] bg-gradient-to-tr from-[#254EAF]/25 via-[#8B5CF6]/20 to-[#06B6D4]/20 rounded-full blur-3xl pointer-events-none -z-10"
+            aria-hidden="true"
+          />
+
           {/* Status Indicator Pill */}
-          <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-[#1C1C1E] text-xs text-white/80 font-mono mb-8">
-            <span className="w-2 h-2 rounded-full bg-emerald-400" aria-hidden="true" />
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: 'easeOut' }}
+            className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/[0.06] border border-white/10 text-xs text-white/80 font-mono mb-8 backdrop-blur-md shadow-inner"
+          >
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+            </span>
             <span>Real-time SSE streaming • Dual-model arena & voice native</span>
-          </div>
+          </motion.div>
 
           {/* Primary Display Typography */}
-          <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight text-white mb-6 leading-[1.08]">
+          <motion.h1
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1, ease: 'easeOut' }}
+            className="text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight text-white mb-6 leading-[1.08]"
+          >
             Intelligence at the <br className="hidden sm:inline" />
-            <span className="text-white/60">speed of thought.</span>
-          </h1>
+            <span className="bg-gradient-to-r from-white via-white/90 to-white/60 bg-clip-text text-transparent">
+              speed of thought.
+            </span>
+          </motion.h1>
 
-          <p className="max-w-2xl mx-auto text-base sm:text-lg text-white/60 leading-relaxed mb-12">
+          <motion.p
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.18, ease: 'easeOut' }}
+            className="max-w-2xl mx-auto text-base sm:text-lg text-white/60 leading-relaxed mb-10"
+          >
             Experience ultra-low latency AI streaming, dual-model live benchmarking, deep cognitive reasoning inspection, and hands-free voice dialogue.
-          </p>
+          </motion.p>
 
-          {/* Solid Elevated Surface Prompt Box */}
-          <div className="max-w-3xl mx-auto text-left">
-            <div className="rounded-3xl bg-[#1C1C1E] p-6 sm:p-8 space-y-5">
-              {/* Mode Selector Segmented Control */}
-              <div className="flex items-center justify-between">
+          {/* ChatGPT-Style Elevated Glassmorphic Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ type: 'spring', damping: 28, stiffness: 320, delay: 0.25 }}
+            className="max-w-3xl mx-auto text-left"
+          >
+            <div
+              className={`relative rounded-[32px] p-4 sm:p-6 transition-all duration-300 backdrop-blur-2xl border ${
+                isFocused
+                  ? 'bg-[#151619]/95 border-white/25 shadow-[0_24px_70px_-12px_rgba(37,78,175,0.35),0_0_0_1px_rgba(255,255,255,0.15)] ring-4 ring-[#254EAF]/15'
+                  : 'bg-[#141518]/80 hover:bg-[#17181c]/90 border-white/10 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.85),0_0_0_1px_rgba(255,255,255,0.06)]'
+              }`}
+            >
+              {/* Mode Selector Segmented Control with Smooth Sliding Pill */}
+              <div className="flex items-center justify-between pb-3 border-b border-white/5">
                 <div
                   role="tablist"
                   aria-label="Prompt modes"
-                  className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0"
+                  className="flex items-center gap-1.5 overflow-x-auto no-scrollbar"
                 >
                   {[
                     { id: 'default', label: 'Fast Chat', icon: Zap },
@@ -100,65 +192,149 @@ export default function LandingPortalPage() {
                         aria-selected={isSelected}
                         type="button"
                         onClick={() => setSelectedMode(mode.id as any)}
-                        className={`min-h-[44px] flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-semibold transition cursor-pointer whitespace-nowrap ${
-                          isSelected
-                            ? 'bg-white text-black'
-                            : 'bg-[#2C2C2E] text-white/70 hover:text-white hover:bg-[#3A3A3C]'
+                        className={`relative min-h-[38px] flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 cursor-pointer whitespace-nowrap ${
+                          isSelected ? 'text-white' : 'text-white/60 hover:text-white hover:bg-white/5'
                         }`}
                       >
-                        <Icon className="w-4 h-4" />
-                        <span>{mode.label}</span>
+                        {isSelected && (
+                          <motion.div
+                            layoutId="hero-prompt-active-mode-pill"
+                            transition={{ type: 'spring', stiffness: 450, damping: 35 }}
+                            className="absolute inset-0 rounded-full bg-white/10 border border-white/15 shadow-inner"
+                          />
+                        )}
+                        <Icon className={`w-3.5 h-3.5 relative z-10 ${isSelected ? 'text-blue-400' : 'text-white/60'}`} />
+                        <span className="relative z-10">{mode.label}</span>
                       </button>
                     );
                   })}
                 </div>
 
-                <div className="text-xs font-mono text-white/40 hidden sm:block">
-                  Press ↵ Enter
+                <div className="hidden sm:flex items-center gap-1 text-[11px] font-mono text-white/40">
+                  <CornerDownLeft className="w-3 h-3" />
+                  <span>Enter to send</span>
                 </div>
               </div>
 
-              {/* Input Field & Submit Button */}
-              <div className="flex items-end gap-4 pt-2">
+              {/* Textarea Input Field */}
+              <div className="pt-3 pb-2">
                 <textarea
                   rows={2}
                   value={heroPrompt}
                   onChange={(e) => setHeroPrompt(e.target.value)}
+                  onFocus={() => setIsFocused(true)}
+                  onBlur={() => setIsFocused(false)}
                   onKeyDown={handleKeyDown}
-                  placeholder="Ask anything, benchmark models, generate architecture, or debug code..."
-                  className="w-full bg-transparent text-base text-white placeholder:text-white/40 focus:outline-hidden resize-none leading-relaxed py-1"
+                  placeholder={placeholders[selectedMode]}
+                  className="w-full bg-transparent text-base sm:text-lg text-white placeholder:text-white/35 focus:outline-hidden resize-none leading-relaxed py-1 selection:bg-[#254EAF]/40"
                   aria-label="Initial prompt input"
                 />
+              </div>
 
-                <button
-                  type="button"
-                  onClick={() => handleLaunchChat()}
-                  aria-label="Send prompt and launch chat studio"
-                  className="shrink-0 min-w-[48px] min-h-[48px] w-12 h-12 rounded-2xl bg-white hover:bg-white/90 active:scale-95 text-black flex items-center justify-center transition cursor-pointer"
-                >
-                  <ArrowUp className="w-5 h-5 stroke-[2.5]" />
-                </button>
+              {/* ChatGPT Bottom Action Toolbar */}
+              <div className="flex items-center justify-between pt-2">
+                {/* Left Controls: Model Badge, Web Search, Attach */}
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  {/* Model Chip */}
+                  <div
+                    onClick={() => router.push('/models')}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-mono text-white/80 transition cursor-pointer select-none"
+                    title="Engine: Gemini 2.5 Flash"
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    <span className="font-semibold">Gemini 2.5 Flash</span>
+                  </div>
+
+                  {/* Web Search Toggle */}
+                  <button
+                    type="button"
+                    onClick={() => setWebSearch(!webSearch)}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition cursor-pointer ${
+                      webSearch
+                        ? 'bg-blue-500/20 text-blue-300 border border-blue-500/40 shadow-xs'
+                        : 'bg-white/5 text-white/60 hover:text-white hover:bg-white/10 border border-white/5'
+                    }`}
+                    title="Toggle Web Search"
+                  >
+                    <Globe className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">Search</span>
+                  </button>
+
+                  {/* Attachment Icon */}
+                  <button
+                    type="button"
+                    onClick={() => handleLaunchChat()}
+                    className="p-2 rounded-full text-white/50 hover:text-white hover:bg-white/10 transition cursor-pointer"
+                    title="Attach snippet or document"
+                  >
+                    <Paperclip className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {/* Right Controls: Voice button & Circular ChatGPT Send button */}
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => router.push('/voice')}
+                    className="p-2 rounded-full text-white/60 hover:text-white hover:bg-white/10 transition cursor-pointer group"
+                    title="Voice Mode"
+                  >
+                    <AudioLines className="w-4 h-4 group-hover:text-cyan-400 group-hover:scale-110 transition-all" />
+                  </button>
+
+                  <motion.button
+                    whileHover={heroPrompt.trim() ? { scale: 1.05 } : {}}
+                    whileTap={heroPrompt.trim() ? { scale: 0.95 } : {}}
+                    type="button"
+                    disabled={!heroPrompt.trim()}
+                    onClick={() => handleLaunchChat()}
+                    aria-label="Send prompt"
+                    className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all cursor-pointer ${
+                      heroPrompt.trim()
+                        ? 'bg-white text-black hover:bg-white/95 shadow-md shadow-white/20'
+                        : 'bg-white/10 text-white/30 cursor-not-allowed'
+                    }`}
+                  >
+                    <ArrowUp className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5]" />
+                  </motion.button>
+                </div>
               </div>
             </div>
-          </div>
+          </motion.div>
 
-          {/* Quick Suggestion Chips */}
-          <div className="mt-8 max-w-3xl mx-auto flex flex-wrap items-center justify-center gap-3">
+          {/* ChatGPT-Style Quick Suggestions Grid */}
+          <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 max-w-4xl mx-auto">
             {sampleSuggestions.map((item, idx) => {
               const Icon = item.icon;
               return (
-                <button
+                <motion.button
                   key={idx}
                   type="button"
-                  onClick={() => handleLaunchChat(item.text)}
-                  className="min-h-[44px] flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-[#1C1C1E] hover:bg-[#2C2C2E] text-xs text-white/80 hover:text-white transition cursor-pointer"
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.3 + idx * 0.08 }}
+                  whileHover={{ y: -3, scale: 1.01 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => handleLaunchChat(item.text, item.mode)}
+                  className="group relative flex flex-col justify-between p-4 rounded-2xl bg-[#141518]/70 hover:bg-[#1c1d22]/90 border border-white/8 hover:border-white/20 backdrop-blur-xl text-left transition-all duration-200 shadow-lg cursor-pointer overflow-hidden"
                 >
-                  <Icon className="w-4 h-4 text-white/60" />
-                  <span className="max-w-[260px] sm:max-w-none truncate">{item.text}</span>
-                  <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-[#2C2C2E] text-white/70 font-semibold">
-                    {item.tag}
-                  </span>
-                </button>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className={`p-2 rounded-xl bg-gradient-to-br ${item.color} border`}>
+                      <Icon className="w-4 h-4" />
+                    </div>
+                    <span className="text-[10px] font-mono uppercase tracking-wider text-white/50 group-hover:text-white/80 font-semibold px-2 py-0.5 rounded-full bg-white/5 border border-white/5">
+                      {item.tag}
+                    </span>
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-semibold text-white/90 group-hover:text-white mb-1">
+                      {item.title}
+                    </h4>
+                    <p className="text-[11px] text-white/50 group-hover:text-white/70 line-clamp-2 leading-relaxed">
+                      {item.text}
+                    </p>
+                  </div>
+                </motion.button>
               );
             })}
           </div>
