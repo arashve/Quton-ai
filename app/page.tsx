@@ -105,6 +105,9 @@ export default function LandingPortalPage() {
 
   return (
     <div className="bg-black min-h-screen text-white relative overflow-hidden">
+      {/* Subtle Figma Blueprint Grid Overlay */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.035)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.035)_1px,transparent_1px)] bg-[size:44px_44px] [mask-image:radial-gradient(ellipse_70%_60%_at_50%_30%,#000_65%,transparent_100%)] pointer-events-none" />
+
       {/* Aceternity Interactive Background Ripple Effect */}
       <BackgroundRippleEffect rows={10} cols={30} cellSize={54} />
 
@@ -116,58 +119,55 @@ export default function LandingPortalPage() {
         >
           {/* Subtle Ambient Aurora Mesh Glow */}
           <div
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] sm:w-[750px] h-[360px] bg-gradient-to-tr from-[#254EAF]/25 via-[#8B5CF6]/20 to-[#06B6D4]/20 rounded-full blur-3xl pointer-events-none -z-10"
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] sm:w-[750px] h-[360px] bg-gradient-to-tr from-[#254EAF]/25 via-[#8B5CF6]/15 to-[#06B6D4]/15 rounded-full blur-3xl pointer-events-none -z-10"
             aria-hidden="true"
           />
 
-          {/* Status Indicator Pill */}
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, ease: 'easeOut' }}
-            className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/[0.06] border border-white/10 text-xs text-white/80 font-mono mb-8 backdrop-blur-md shadow-inner"
-          >
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-            </span>
-            <span>Real-time SSE streaming • Dual-model arena & voice native</span>
-          </motion.div>
-
-          {/* Primary Display Typography */}
+          {/* Primary Display Typography matching Figma */}
           <motion.h1
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1, ease: 'easeOut' }}
-            className="text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight text-white mb-6 leading-[1.08]"
+            transition={{ duration: 0.5, ease: 'easeOut' }}
+            className="text-3xl sm:text-5xl md:text-6xl font-medium tracking-tight text-white mb-8 sm:mb-12 leading-tight"
           >
-            Intelligence at the <br className="hidden sm:inline" />
-            <span className="bg-gradient-to-r from-white via-white/90 to-white/60 bg-clip-text text-transparent">
-              speed of thought.
-            </span>
+            What should we work on ?
           </motion.h1>
 
-          <motion.p
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.18, ease: 'easeOut' }}
-            className="max-w-2xl mx-auto text-base sm:text-lg text-white/60 leading-relaxed mb-10"
-          >
-            Experience ultra-low latency AI streaming, dual-model live benchmarking, deep cognitive reasoning inspection, and hands-free voice dialogue.
-          </motion.p>
-
-          {/* ChatGPT-Style Elevated Glassmorphic Card */}
+          {/* The Special Layered 3D Floating Input Capsule from Figma */}
           <motion.div
             initial={{ opacity: 0, y: 20, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ type: 'spring', damping: 28, stiffness: 320, delay: 0.25 }}
-            className="max-w-3xl mx-auto text-left"
+            transition={{ type: 'spring', damping: 28, stiffness: 300, delay: 0.15 }}
+            className="relative max-w-3xl mx-auto text-left mb-16 sm:mb-20"
           >
+            {/* Base / Bottom Shelf Layer (Stepped 3D Pedestal from Figma) */}
             <div
-              className={`relative rounded-[32px] p-4 sm:p-6 transition-all duration-300 backdrop-blur-2xl border ${
+              className="absolute inset-x-0 -bottom-6 sm:-bottom-8 h-28 sm:h-32 rounded-[30px] sm:rounded-[36px] bg-[#1E1E22] border border-white/5 shadow-[0_24px_60px_rgba(0,0,0,0.9)] flex items-end justify-between px-5 sm:px-8 pb-2.5 sm:pb-3.5 transition-all pointer-events-auto"
+            >
+              {/* Bottom Shelf Metadata & Capabilities */}
+              <div className="flex items-center gap-2 sm:gap-3 text-[11px] sm:text-xs text-white/45 font-mono overflow-x-auto no-scrollbar py-0.5">
+                <span className="flex items-center gap-1.5 whitespace-nowrap">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>AutoFlow 4.5 Neural Engine</span>
+                </span>
+                <span className="text-white/20 hidden sm:inline">•</span>
+                <span className="hidden sm:inline whitespace-nowrap text-white/40">Ultra-low latency SSE</span>
+                <span className="text-white/20 hidden md:inline">•</span>
+                <span className="hidden md:inline whitespace-nowrap text-white/40">Dual Arena & Voice Native</span>
+              </div>
+
+              <div className="hidden sm:flex items-center gap-1.5 text-[11px] font-mono text-white/35">
+                <CornerDownLeft className="w-3 h-3" />
+                <span>Enter to send</span>
+              </div>
+            </div>
+
+            {/* Top / Main Input Card (Elevated Dark Slate Surface from Figma) */}
+            <div
+              className={`relative z-10 rounded-[26px] sm:rounded-[32px] p-4 sm:p-6 transition-all duration-300 backdrop-blur-2xl border ${
                 isFocused
-                  ? 'bg-[#151619]/95 border-white/25 shadow-[0_24px_70px_-12px_rgba(37,78,175,0.35),0_0_0_1px_rgba(255,255,255,0.15)] ring-4 ring-[#254EAF]/15'
-                  : 'bg-[#141518]/80 hover:bg-[#17181c]/90 border-white/10 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.85),0_0_0_1px_rgba(255,255,255,0.06)]'
+                  ? 'bg-[#28282B]/98 border-white/25 shadow-[0_20px_50px_-10px_rgba(37,99,235,0.35),0_0_0_1px_rgba(255,255,255,0.12)] ring-4 ring-[#2563EB]/15'
+                  : 'bg-[#262629]/95 hover:bg-[#2A2A2E]/95 border-white/10 shadow-[0_18px_45px_rgba(0,0,0,0.85),0_0_0_1px_rgba(255,255,255,0.06)]'
               }`}
             >
               {/* Mode Selector Segmented Control with Smooth Sliding Pill */}
@@ -175,12 +175,12 @@ export default function LandingPortalPage() {
                 <div
                   role="tablist"
                   aria-label="Prompt modes"
-                  className="flex items-center gap-1.5 overflow-x-auto no-scrollbar"
+                  className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto no-scrollbar -mx-1 px-1"
                 >
                   {[
                     { id: 'default', label: 'Fast Chat', icon: Zap },
                     { id: 'compare', label: 'Split Arena', icon: Columns },
-                    { id: 'reasoning', label: 'Deep Reasoning', icon: Brain },
+                    { id: 'reasoning', label: 'Deep Reason', icon: Brain },
                     { id: 'voice', label: 'Voice Mode', icon: Mic },
                   ].map((mode) => {
                     const Icon = mode.icon;
@@ -192,7 +192,7 @@ export default function LandingPortalPage() {
                         aria-selected={isSelected}
                         type="button"
                         onClick={() => setSelectedMode(mode.id as any)}
-                        className={`relative min-h-[38px] flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 cursor-pointer whitespace-nowrap ${
+                        className={`relative min-h-[36px] sm:min-h-[38px] flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 cursor-pointer whitespace-nowrap ${
                           isSelected ? 'text-white' : 'text-white/60 hover:text-white hover:bg-white/5'
                         }`}
                       >
@@ -200,19 +200,14 @@ export default function LandingPortalPage() {
                           <motion.div
                             layoutId="hero-prompt-active-mode-pill"
                             transition={{ type: 'spring', stiffness: 450, damping: 35 }}
-                            className="absolute inset-0 rounded-full bg-white/10 border border-white/15 shadow-inner"
+                            className="absolute inset-0 rounded-full bg-white/12 border border-white/15 shadow-inner"
                           />
                         )}
-                        <Icon className={`w-3.5 h-3.5 relative z-10 ${isSelected ? 'text-blue-400' : 'text-white/60'}`} />
+                        <Icon className={`w-3.5 h-3.5 relative z-10 ${isSelected ? 'text-[#60A5FA]' : 'text-white/60'}`} />
                         <span className="relative z-10">{mode.label}</span>
                       </button>
                     );
                   })}
-                </div>
-
-                <div className="hidden sm:flex items-center gap-1 text-[11px] font-mono text-white/40">
-                  <CornerDownLeft className="w-3 h-3" />
-                  <span>Enter to send</span>
                 </div>
               </div>
 
@@ -231,14 +226,14 @@ export default function LandingPortalPage() {
                 />
               </div>
 
-              {/* ChatGPT Bottom Action Toolbar */}
+              {/* Bottom Action Toolbar */}
               <div className="flex items-center justify-between pt-2">
-                {/* Left Controls: Model Badge, Web Search, Attach */}
-                <div className="flex items-center gap-1.5 sm:gap-2">
+                {/* Left Controls: Model Badge, Web Search, Attach, Voice */}
+                <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
                   {/* Model Chip */}
                   <div
                     onClick={() => router.push('/models')}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-mono text-white/80 transition cursor-pointer select-none"
+                    className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full bg-white/6 hover:bg-white/12 border border-white/10 text-[11px] sm:text-xs font-mono text-white/85 transition cursor-pointer select-none"
                     title="Engine: Gemini 2.5 Flash"
                   >
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
@@ -249,10 +244,10 @@ export default function LandingPortalPage() {
                   <button
                     type="button"
                     onClick={() => setWebSearch(!webSearch)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition cursor-pointer ${
+                    className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-medium transition cursor-pointer ${
                       webSearch
                         ? 'bg-blue-500/20 text-blue-300 border border-blue-500/40 shadow-xs'
-                        : 'bg-white/5 text-white/60 hover:text-white hover:bg-white/10 border border-white/5'
+                        : 'bg-white/6 text-white/65 hover:text-white hover:bg-white/12 border border-white/5'
                     }`}
                     title="Toggle Web Search"
                   >
@@ -264,45 +259,43 @@ export default function LandingPortalPage() {
                   <button
                     type="button"
                     onClick={() => handleLaunchChat()}
-                    className="p-2 rounded-full text-white/50 hover:text-white hover:bg-white/10 transition cursor-pointer"
+                    className="p-2 rounded-full text-white/55 hover:text-white hover:bg-white/10 transition cursor-pointer"
                     title="Attach snippet or document"
+                    aria-label="Attach file"
                   >
                     <Paperclip className="w-4 h-4" />
                   </button>
-                </div>
 
-                {/* Right Controls: Voice button & Circular ChatGPT Send button */}
-                <div className="flex items-center gap-2">
+                  {/* Voice Icon */}
                   <button
                     type="button"
                     onClick={() => router.push('/voice')}
-                    className="p-2 rounded-full text-white/60 hover:text-white hover:bg-white/10 transition cursor-pointer group"
-                    title="Voice Mode"
+                    className="p-2 rounded-full text-white/55 hover:text-cyan-400 hover:bg-white/10 transition cursor-pointer group"
+                    title="Voice Dialogue"
+                    aria-label="Voice Dialogue"
                   >
-                    <AudioLines className="w-4 h-4 group-hover:text-cyan-400 group-hover:scale-110 transition-all" />
+                    <AudioLines className="w-4 h-4 group-hover:scale-110 transition-transform" />
                   </button>
+                </div>
 
+                {/* Right Control: The Distinctive Vibrant Royal Blue Circle from Figma */}
+                <div className="flex items-center pl-2">
                   <motion.button
-                    whileHover={heroPrompt.trim() ? { scale: 1.05 } : {}}
-                    whileTap={heroPrompt.trim() ? { scale: 0.95 } : {}}
+                    whileHover={{ scale: 1.06 }}
+                    whileTap={{ scale: 0.94 }}
                     type="button"
-                    disabled={!heroPrompt.trim()}
                     onClick={() => handleLaunchChat()}
                     aria-label="Send prompt"
-                    className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all cursor-pointer ${
-                      heroPrompt.trim()
-                        ? 'bg-white text-black hover:bg-white/95 shadow-md shadow-white/20'
-                        : 'bg-white/10 text-white/30 cursor-not-allowed'
-                    }`}
+                    className="min-w-[44px] min-h-[44px] w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#2563EB] hover:bg-[#1D4ED8] text-white flex items-center justify-center shadow-[0_6px_20px_rgba(37,99,235,0.45)] transition-all cursor-pointer group"
                   >
-                    <ArrowUp className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5]" />
+                    <ArrowUp className="w-5 h-5 sm:w-5.5 sm:h-5.5 stroke-[2.5] group-hover:-translate-y-0.5 transition-transform" />
                   </motion.button>
                 </div>
               </div>
             </div>
           </motion.div>
 
-          {/* ChatGPT-Style Quick Suggestions Grid */}
+          {/* Prompt Suggestions Grid */}
           <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 max-w-4xl mx-auto">
             {sampleSuggestions.map((item, idx) => {
               const Icon = item.icon;
@@ -312,7 +305,7 @@ export default function LandingPortalPage() {
                   type="button"
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.3 + idx * 0.08 }}
+                  transition={{ duration: 0.4, delay: 0.25 + idx * 0.08 }}
                   whileHover={{ y: -3, scale: 1.01 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => handleLaunchChat(item.text, item.mode)}
