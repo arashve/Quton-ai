@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
 import {
   Sparkles,
   ArrowUp,
@@ -12,14 +12,11 @@ import {
   Mic,
   Brain,
   Globe,
-  Zap,
   ChevronRight,
   ShieldCheck,
-  Code,
   Lock,
   Paperclip,
   AudioLines,
-  CornerDownLeft,
 } from 'lucide-react';
 import { PageContainer } from '@/components/shell';
 import { BackgroundRippleEffect } from '@/components/ui/background-ripple-effect';
@@ -33,9 +30,9 @@ export default function LandingPortalPage() {
 
   const placeholders: Record<string, string> = {
     default: 'Ask anything, brainstorm code, or paste architecture requirements...',
-    compare: 'Enter a prompt to compare Gemini 2.5 Flash vs Pro live in dual split arena...',
-    reasoning: 'Ask a complex multi-step challenge to inspect cognitive reasoning steps...',
-    voice: 'Type a topic or click the mic for ultra-fast bidirectional voice streaming...',
+    compare: 'Enter a prompt to compare Gemini vs Pro live in dual split arena...',
+    reasoning: 'Ask a complex multi-step challenge to inspect cognitive reasoning...',
+    voice: 'Type a topic or click the mic for ultra-fast bidirectional voice...',
   };
 
   const handleLaunchChat = (promptText?: string, modeOverride?: string) => {
@@ -68,41 +65,6 @@ export default function LandingPortalPage() {
     }
   };
 
-  const sampleSuggestions = [
-    {
-      title: 'Split Arena',
-      text: 'Compare Gemini 2.5 Flash vs Pro on latency & reasoning',
-      icon: Columns,
-      tag: 'Arena',
-      mode: 'compare' as const,
-      color: 'from-blue-500/20 to-indigo-500/20 text-blue-400 border-blue-500/30',
-    },
-    {
-      title: 'Architecture',
-      text: 'Architect an ultra-low latency SSE streaming API in Node.js',
-      icon: Code,
-      tag: 'Code',
-      mode: 'default' as const,
-      color: 'from-emerald-500/20 to-teal-500/20 text-emerald-400 border-emerald-500/30',
-    },
-    {
-      title: 'Deep Reasoning',
-      text: 'Inspect step-by-step reasoning trace on distributed consensus',
-      icon: Brain,
-      tag: 'Reasoning',
-      mode: 'reasoning' as const,
-      color: 'from-purple-500/20 to-pink-500/20 text-purple-400 border-purple-500/30',
-    },
-    {
-      title: 'Voice Native',
-      text: 'Explain quantum error correction step-by-step with voice',
-      icon: Mic,
-      tag: 'Voice',
-      mode: 'voice' as const,
-      color: 'from-amber-500/20 to-orange-500/20 text-amber-400 border-amber-500/30',
-    },
-  ];
-
   return (
     <div className="bg-black min-h-screen text-white relative overflow-hidden">
       {/* Subtle Figma Blueprint Grid Overlay */}
@@ -115,222 +77,136 @@ export default function LandingPortalPage() {
         {/* Hero Section */}
         <section
           id="hero-prompt"
-          className="relative z-10 pt-16 sm:pt-24 pb-20 px-2 sm:px-4 max-w-5xl mx-auto text-center"
+          className="relative z-10 pt-20 sm:pt-32 pb-24 px-4 max-w-4xl mx-auto text-center"
         >
           {/* Subtle Ambient Aurora Mesh Glow */}
           <div
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] sm:w-[750px] h-[360px] bg-gradient-to-tr from-[#254EAF]/25 via-[#8B5CF6]/15 to-[#06B6D4]/15 rounded-full blur-3xl pointer-events-none -z-10"
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] sm:w-[750px] h-[360px] bg-gradient-to-tr from-[#254EAF]/20 via-[#8B5CF6]/10 to-[#06B6D4]/10 rounded-full blur-3xl pointer-events-none -z-10"
             aria-hidden="true"
           />
 
-          {/* Primary Display Typography matching Figma */}
+          {/* Primary Display Typography */}
           <motion.h1
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: 'easeOut' }}
-            className="text-3xl sm:text-5xl md:text-6xl font-medium tracking-tight text-white mb-8 sm:mb-12 leading-tight"
+            className="text-3xl sm:text-5xl font-medium tracking-tight text-white/90 mb-10 sm:mb-14 leading-tight"
           >
             What should we work on ?
           </motion.h1>
 
-          {/* The Special Layered 3D Floating Input Capsule from Figma */}
+          {/* The Stacked Layered Input Box */}
           <motion.div
             initial={{ opacity: 0, y: 20, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ type: 'spring', damping: 28, stiffness: 300, delay: 0.15 }}
-            className="relative max-w-3xl mx-auto text-left mb-16 sm:mb-20"
+            className="relative w-full max-w-2xl mx-auto text-left"
           >
-            {/* Base / Bottom Shelf Layer (Stepped 3D Pedestal from Figma) */}
-            <div
-              className="absolute inset-x-0 -bottom-6 sm:-bottom-8 h-28 sm:h-32 rounded-[30px] sm:rounded-[36px] bg-[#1E1E22] border border-white/5 shadow-[0_24px_60px_rgba(0,0,0,0.9)] flex items-end justify-between px-5 sm:px-8 pb-2.5 sm:pb-3.5 transition-all pointer-events-auto"
-            >
-              {/* Bottom Shelf Metadata & Capabilities */}
-              <div className="flex items-center gap-2 sm:gap-3 text-[11px] sm:text-xs text-white/45 font-mono overflow-x-auto no-scrollbar py-0.5">
-                <span className="flex items-center gap-1.5 whitespace-nowrap">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  <span>AutoFlow 4.5 Neural Engine</span>
-                </span>
-                <span className="text-white/20 hidden sm:inline">•</span>
-                <span className="hidden sm:inline whitespace-nowrap text-white/40">Ultra-low latency SSE</span>
-                <span className="text-white/20 hidden md:inline">•</span>
-                <span className="hidden md:inline whitespace-nowrap text-white/40">Dual Arena & Voice Native</span>
-              </div>
+            {/* Bottom Shadow / Layer (Darker, offset downwards) */}
+            <div className="absolute left-4 right-4 top-8 -bottom-5 rounded-[28px] sm:rounded-[32px] bg-[#141415] shadow-2xl pointer-events-none" />
 
-              <div className="hidden sm:flex items-center gap-1.5 text-[11px] font-mono text-white/35">
-                <CornerDownLeft className="w-3 h-3" />
-                <span>Enter to send</span>
-              </div>
-            </div>
-
-            {/* Top / Main Input Card (Elevated Dark Slate Surface from Figma) */}
+            {/* Top Main Input Layer */}
             <div
-              className={`relative z-10 rounded-[26px] sm:rounded-[32px] p-4 sm:p-6 transition-all duration-300 backdrop-blur-2xl border ${
+              className={`relative z-10 flex flex-col justify-between w-full min-h-[160px] rounded-[28px] sm:rounded-[32px] p-5 sm:p-6 transition-all duration-300 ${
                 isFocused
-                  ? 'bg-[#28282B]/98 border-white/25 shadow-[0_20px_50px_-10px_rgba(37,99,235,0.35),0_0_0_1px_rgba(255,255,255,0.12)] ring-4 ring-[#2563EB]/15'
-                  : 'bg-[#262629]/95 hover:bg-[#2A2A2E]/95 border-white/10 shadow-[0_18px_45px_rgba(0,0,0,0.85),0_0_0_1px_rgba(255,255,255,0.06)]'
+                  ? 'bg-[#29292B] border border-white/10 shadow-[0_20px_50px_-10px_rgba(37,99,235,0.15)] ring-2 ring-white/5'
+                  : 'bg-[#262628] border border-transparent shadow-[0_18px_45px_rgba(0,0,0,0.6)] hover:bg-[#28282A]'
               }`}
             >
-              {/* Mode Selector Segmented Control with Smooth Sliding Pill */}
-              <div className="flex items-center justify-between pb-3 border-b border-white/5">
-                <div
-                  role="tablist"
-                  aria-label="Prompt modes"
-                  className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto no-scrollbar -mx-1 px-1"
-                >
+              {/* Textarea Input Field */}
+              <textarea
+                rows={3}
+                value={heroPrompt}
+                onChange={(e) => setHeroPrompt(e.target.value)}
+                onFocus={() => setIsFocused(true)}
+                onBlur={() => setIsFocused(false)}
+                onKeyDown={handleKeyDown}
+                placeholder={placeholders[selectedMode]}
+                className="w-full flex-grow bg-transparent text-lg sm:text-xl text-white placeholder:text-white/30 focus:outline-hidden resize-none leading-relaxed selection:bg-[#254EAF]/40"
+                aria-label="Initial prompt input"
+              />
+
+              {/* Bottom Action Toolbar inside the Box */}
+              <div className="flex items-end justify-between pt-4 mt-auto border-t border-white/5">
+                {/* Left Controls: Modes and Tools */}
+                <div className="flex items-center gap-1 flex-wrap">
+                  {/* Web Search Toggle */}
+                  <button
+                    type="button"
+                    onClick={() => setWebSearch(!webSearch)}
+                    className={`p-2 sm:px-3 sm:py-2 rounded-full text-[11px] sm:text-xs font-medium transition flex items-center gap-1.5 cursor-pointer ${
+                      webSearch
+                        ? 'bg-blue-500/15 text-blue-400'
+                        : 'text-white/40 hover:text-white hover:bg-white/5'
+                    }`}
+                    title="Toggle Web Search"
+                  >
+                    <Globe className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
+                    <span className="hidden sm:inline">Search</span>
+                  </button>
+
+                  {/* Mode Toggles */}
                   {[
-                    { id: 'default', label: 'Fast Chat', icon: Zap },
-                    { id: 'compare', label: 'Split Arena', icon: Columns },
-                    { id: 'reasoning', label: 'Deep Reason', icon: Brain },
-                    { id: 'voice', label: 'Voice Mode', icon: Mic },
+                    { id: 'compare', icon: Columns, title: 'Split Arena' },
+                    { id: 'reasoning', icon: Brain, title: 'Deep Reason' },
                   ].map((mode) => {
                     const Icon = mode.icon;
                     const isSelected = selectedMode === mode.id;
                     return (
                       <button
                         key={mode.id}
-                        role="tab"
-                        aria-selected={isSelected}
                         type="button"
-                        onClick={() => setSelectedMode(mode.id as any)}
-                        className={`relative min-h-[36px] sm:min-h-[38px] flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 cursor-pointer whitespace-nowrap ${
-                          isSelected ? 'text-white' : 'text-white/60 hover:text-white hover:bg-white/5'
+                        onClick={() => setSelectedMode(isSelected ? 'default' : (mode.id as any))}
+                        className={`p-2 sm:px-3 sm:py-2 rounded-full text-[11px] sm:text-xs font-medium transition flex items-center gap-1.5 cursor-pointer ${
+                          isSelected
+                            ? 'bg-white/10 text-white'
+                            : 'text-white/40 hover:text-white hover:bg-white/5'
                         }`}
+                        title={mode.title}
                       >
-                        {isSelected && (
-                          <motion.div
-                            layoutId="hero-prompt-active-mode-pill"
-                            transition={{ type: 'spring', stiffness: 450, damping: 35 }}
-                            className="absolute inset-0 rounded-full bg-white/12 border border-white/15 shadow-inner"
-                          />
-                        )}
-                        <Icon className={`w-3.5 h-3.5 relative z-10 ${isSelected ? 'text-[#60A5FA]' : 'text-white/60'}`} />
-                        <span className="relative z-10">{mode.label}</span>
+                        <Icon className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
+                        <span className="hidden sm:inline">{mode.title}</span>
                       </button>
                     );
                   })}
-                </div>
-              </div>
 
-              {/* Textarea Input Field */}
-              <div className="pt-3 pb-2">
-                <textarea
-                  rows={2}
-                  value={heroPrompt}
-                  onChange={(e) => setHeroPrompt(e.target.value)}
-                  onFocus={() => setIsFocused(true)}
-                  onBlur={() => setIsFocused(false)}
-                  onKeyDown={handleKeyDown}
-                  placeholder={placeholders[selectedMode]}
-                  className="w-full bg-transparent text-base sm:text-lg text-white placeholder:text-white/35 focus:outline-hidden resize-none leading-relaxed py-1 selection:bg-[#254EAF]/40"
-                  aria-label="Initial prompt input"
-                />
-              </div>
+                  <div className="w-px h-4 bg-white/10 mx-1 hidden sm:block" />
 
-              {/* Bottom Action Toolbar */}
-              <div className="flex items-center justify-between pt-2">
-                {/* Left Controls: Model Badge, Web Search, Attach, Voice */}
-                <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-                  {/* Model Chip */}
-                  <div
-                    onClick={() => router.push('/models')}
-                    className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full bg-white/6 hover:bg-white/12 border border-white/10 text-[11px] sm:text-xs font-mono text-white/85 transition cursor-pointer select-none"
-                    title="Engine: Gemini 2.5 Flash"
-                  >
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                    <span className="font-semibold">Gemini 2.5 Flash</span>
-                  </div>
-
-                  {/* Web Search Toggle */}
+                  {/* Attachment & Voice Icons */}
                   <button
                     type="button"
-                    onClick={() => setWebSearch(!webSearch)}
-                    className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-medium transition cursor-pointer ${
-                      webSearch
-                        ? 'bg-blue-500/20 text-blue-300 border border-blue-500/40 shadow-xs'
-                        : 'bg-white/6 text-white/65 hover:text-white hover:bg-white/12 border border-white/5'
-                    }`}
-                    title="Toggle Web Search"
+                    className="p-2 rounded-full text-white/40 hover:text-white hover:bg-white/5 transition cursor-pointer"
+                    title="Attach snippet"
                   >
-                    <Globe className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline">Search</span>
+                    <Paperclip className="w-4 h-4 sm:w-4 sm:h-4" />
                   </button>
 
-                  {/* Attachment Icon */}
-                  <button
-                    type="button"
-                    onClick={() => handleLaunchChat()}
-                    className="p-2 rounded-full text-white/55 hover:text-white hover:bg-white/10 transition cursor-pointer"
-                    title="Attach snippet or document"
-                    aria-label="Attach file"
-                  >
-                    <Paperclip className="w-4 h-4" />
-                  </button>
-
-                  {/* Voice Icon */}
                   <button
                     type="button"
                     onClick={() => router.push('/voice')}
-                    className="p-2 rounded-full text-white/55 hover:text-cyan-400 hover:bg-white/10 transition cursor-pointer group"
+                    className="p-2 rounded-full text-white/40 hover:text-cyan-400 hover:bg-white/5 transition cursor-pointer"
                     title="Voice Dialogue"
-                    aria-label="Voice Dialogue"
                   >
-                    <AudioLines className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                    <AudioLines className="w-4 h-4 sm:w-4 sm:h-4" />
                   </button>
                 </div>
 
-                {/* Right Control: The Distinctive Vibrant Royal Blue Circle from Figma */}
+                {/* Right Control: The Distinctive Blue Button from Figma */}
                 <div className="flex items-center pl-2">
                   <motion.button
-                    whileHover={{ scale: 1.06 }}
-                    whileTap={{ scale: 0.94 }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                     type="button"
                     onClick={() => handleLaunchChat()}
                     aria-label="Send prompt"
-                    className="min-w-[44px] min-h-[44px] w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#2563EB] hover:bg-[#1D4ED8] text-white flex items-center justify-center shadow-[0_6px_20px_rgba(37,99,235,0.45)] transition-all cursor-pointer group"
+                    className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-[#2563EB] hover:bg-[#1D4ED8] text-white flex items-center justify-center shadow-[0_4px_14px_rgba(37,99,235,0.4)] transition-colors cursor-pointer group"
                   >
-                    <ArrowUp className="w-5 h-5 sm:w-5.5 sm:h-5.5 stroke-[2.5] group-hover:-translate-y-0.5 transition-transform" />
+                    <ArrowUp className="w-5 h-5 stroke-[2.5] group-hover:-translate-y-0.5 transition-transform" />
                   </motion.button>
                 </div>
               </div>
             </div>
           </motion.div>
-
-          {/* Prompt Suggestions Grid */}
-          <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 max-w-4xl mx-auto">
-            {sampleSuggestions.map((item, idx) => {
-              const Icon = item.icon;
-              return (
-                <motion.button
-                  key={idx}
-                  type="button"
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.25 + idx * 0.08 }}
-                  whileHover={{ y: -3, scale: 1.01 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => handleLaunchChat(item.text, item.mode)}
-                  className="group relative flex flex-col justify-between p-4 rounded-2xl bg-[#141518]/70 hover:bg-[#1c1d22]/90 border border-white/8 hover:border-white/20 backdrop-blur-xl text-left transition-all duration-200 shadow-lg cursor-pointer overflow-hidden"
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <div className={`p-2 rounded-xl bg-gradient-to-br ${item.color} border`}>
-                      <Icon className="w-4 h-4" />
-                    </div>
-                    <span className="text-[10px] font-mono uppercase tracking-wider text-white/50 group-hover:text-white/80 font-semibold px-2 py-0.5 rounded-full bg-white/5 border border-white/5">
-                      {item.tag}
-                    </span>
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-semibold text-white/90 group-hover:text-white mb-1">
-                      {item.title}
-                    </h4>
-                    <p className="text-[11px] text-white/50 group-hover:text-white/70 line-clamp-2 leading-relaxed">
-                      {item.text}
-                    </p>
-                  </div>
-                </motion.button>
-              );
-            })}
-          </div>
         </section>
 
         {/* Bento Grid Architecture Showcase */}
@@ -346,7 +222,7 @@ export default function LandingPortalPage() {
               Designed for speed. Crafted for precision.
             </h2>
             <p className="text-base text-white/60">
-              Explore the flagship modules powering the AUTOFLOW streaming engine.
+              Explore the flagship modules powering the streaming engine.
             </p>
           </div>
 
@@ -403,7 +279,7 @@ export default function LandingPortalPage() {
               </div>
 
               <div className="mt-8 flex items-center justify-between">
-                <span className="text-xs text-white/50">Compare Gemini, Groq & Ollama</span>
+                <span className="text-xs text-white/50">Compare models in real-time</span>
                 <Link
                   href="/arena"
                   className="min-h-[44px] inline-flex items-center gap-1.5 text-xs font-semibold text-white hover:underline cursor-pointer"
@@ -423,7 +299,7 @@ export default function LandingPortalPage() {
                       <Mic className="w-5 h-5" />
                     </div>
                     <span className="text-xs font-mono uppercase text-white/50 font-semibold tracking-wider">
-                      Voice 8
+                      Voice Engine
                     </span>
                   </div>
                   <span className="text-xs font-mono px-3.5 py-1.5 rounded-full bg-[#2C2C2E] text-white/80 font-semibold">
@@ -480,7 +356,7 @@ export default function LandingPortalPage() {
                   </span>
                 </div>
                 <h3 className="text-xl font-bold text-white mb-3">
-                  Thought process accordion
+                  Thought process
                 </h3>
                 <p className="text-sm text-white/60 leading-relaxed mb-5">
                   Full transparency into model thinking steps before generating final responses.
@@ -519,7 +395,7 @@ export default function LandingPortalPage() {
                   </span>
                 </div>
                 <h3 className="text-xl font-bold text-white mb-3">
-                  Live citations & sources
+                  Live citations
                 </h3>
                 <p className="text-sm text-white/60 leading-relaxed mb-5">
                   Real-time web search grounded with interactive domain badges and direct reference links.
@@ -560,10 +436,10 @@ export default function LandingPortalPage() {
                   </span>
                 </div>
                 <h3 className="text-xl font-bold text-white mb-3">
-                  Gemini, Groq & Ollama
+                  Private & Secure
                 </h3>
                 <p className="text-sm text-white/60 leading-relaxed mb-5">
-                  Toggle between cloud-managed Google models, 450 tok/s Groq LPU, and private local Ollama instances.
+                  Toggle between cloud-managed models, ultra-fast LPU APIs, and private local instances.
                 </p>
                 <div className="flex items-center gap-2 text-xs font-mono text-white/80">
                   <Lock className="w-4 h-4 text-white/50" />
@@ -652,7 +528,7 @@ export default function LandingPortalPage() {
                     </td>
                   </tr>
                   <tr className="hover:bg-[#2C2C2E] transition rounded-2xl">
-                    <td className="py-4 pl-4 font-semibold text-white font-mono rounded-l-2xl">llama-3.3-70b-versatile</td>
+                    <td className="py-4 pl-4 font-semibold text-white font-mono rounded-l-2xl">llama-3.3-70b</td>
                     <td className="py-4">
                       <span className="px-3 py-1 rounded-full bg-[#2C2C2E] text-white font-mono text-xs">
                         Groq
@@ -664,7 +540,7 @@ export default function LandingPortalPage() {
                     <td className="py-4 pr-4 text-right rounded-r-2xl">
                       <button
                         type="button"
-                        onClick={() => handleLaunchChat('Test Groq Llama 3.3 generation speed')}
+                        onClick={() => handleLaunchChat('Test Groq Llama generation speed')}
                         className="min-h-[44px] px-5 py-2.5 rounded-xl bg-white hover:bg-white/90 text-black text-xs font-bold cursor-pointer transition"
                       >
                         Select
@@ -730,7 +606,7 @@ export default function LandingPortalPage() {
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-2.5">
               <Sparkles className="w-5 h-5 text-white" />
-              <span className="font-bold text-sm text-white">AUTOFLOW Studio</span>
+              <span className="font-bold text-sm text-white">Studio</span>
               <span className="text-xs text-white/40">© 2026. All rights reserved.</span>
             </div>
 
