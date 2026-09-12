@@ -148,11 +148,12 @@ export function PublicHeader({ className = '' }: PublicHeaderProps) {
                   <div className="w-10 h-10 rounded-full overflow-hidden border border-white/20 group-hover:border-white/50 transition shadow-sm">
                     <DitherShader
                       src={user.photoURL}
-                      gridSize={2}
-                      ditherMode="bayer"
+                      gridSize={1.5}
+                      ditherMode="halftone"
                       colorMode="duotone"
                       primaryColor="#254EAF"
                       secondaryColor="#4d6cb3"
+                      contrast={1.2}
                       threshold={0.45}
                       className="w-full h-full"
                     />
