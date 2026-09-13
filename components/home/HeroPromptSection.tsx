@@ -30,16 +30,19 @@ export function HeroPromptSection({ onLaunchChat }: HeroPromptSectionProps) {
         What should we work on ?
       </motion.h1>
 
-      {/* The Standalone Unified AI Input Capsule Component */}
-      <motion.div
-        initial={{ opacity: 0, y: 20, scale: 0.98 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ type: 'spring', damping: 28, stiffness: 300, delay: 0.15 }}
-      >
-        <UnifiedAiInputCapsule
-          onSendMessage={(text) => onLaunchChat(text)}
-        />
-      </motion.div>
+      {/* The Standalone Unified AI Input Capsule Component with Dedicated Stable Bounding Slot */}
+      <div className="w-full min-h-[220px] sm:min-h-[230px] flex flex-col items-center justify-start">
+        <motion.div
+          initial={{ opacity: 0, y: 20, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ type: 'spring', damping: 28, stiffness: 300, delay: 0.15 }}
+          className="w-full"
+        >
+          <UnifiedAiInputCapsule
+            onSendMessage={(text) => onLaunchChat(text)}
+          />
+        </motion.div>
+      </div>
     </section>
   );
 }
