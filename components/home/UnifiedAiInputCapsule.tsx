@@ -5,12 +5,19 @@ import { motion, AnimatePresence } from 'motion/react';
 import {
   ArrowUp, Mic, Plus, X, Video, Upload, 
   Link as LinkIcon, Folder, Pause, Play, Check, 
-  ChevronRight, Sparkles, Languages, Pointer,
+  ChevronRight, ChevronLeft, Sparkles, Languages, Pointer,
   MoreHorizontal, Square, AudioLines, Monitor,
   ChevronsUpDown, Globe, Terminal, Eye, Palette
 } from 'lucide-react';
 
-export type InputCapsuleState = 'prompt' | 'followup' | 'dropzone' | 'recording';
+export type InputCapsuleState = 
+  | 'prompt' 
+  | 'projects' 
+  | 'plugins' 
+  | 'monitor' 
+  | 'dropzone' 
+  | 'recording' 
+  | 'followup';
 
 interface TaggedDoc {
   id: string;
@@ -61,9 +68,7 @@ export function UnifiedAiInputCapsule({
     'Autonomous Agents',
   ]);
   const [selectedProject, setSelectedProject] = useState('Global Workspace');
-  const [isProjectMenuOpen, setIsProjectMenuOpen] = useState(false);
   const [newProjectName, setNewProjectName] = useState('');
-  const [isAddingProject, setIsAddingProject] = useState(false);
 
   // Option 6: Plugins Selector State
   const [plugins, setPlugins] = useState<PluginItem[]>([
@@ -72,10 +77,8 @@ export function UnifiedAiInputCapsule({
     { id: 'vision', name: 'Vision Multimodal', description: 'Deep image & UI analyzer', enabled: false },
     { id: 'canvas', name: 'Artifact Canvas', description: 'Live interactive code & preview stage', enabled: false },
   ]);
-  const [isPluginsMenuOpen, setIsPluginsMenuOpen] = useState(false);
 
   // Option 6: Monitor & Context State
-  const [isMonitorMenuOpen, setIsMonitorMenuOpen] = useState(false);
   const [screenContextEnabled, setScreenContextEnabled] = useState(true);
   const [targetEnv, setTargetEnv] = useState<'Dev' | 'Staging' | 'Prod'>('Dev');
 
@@ -90,41 +93,16 @@ export function UnifiedAiInputCapsule({
 
   const activePluginsCount = plugins.filter(p => p.enabled).length;
 
-  // Close popovers on click outside
+  // Close model dropdown on click outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setIsModelDropdownOpen(false);
-        setIsProjectMenuOpen(false);
-        setIsPluginsMenuOpen(false);
-        setIsMonitorMenuOpen(false);
-        setIsAddingProject(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
-
-  const toggleProjectMenu = () => {
-    setIsProjectMenuOpen(prev => !prev);
-    setIsPluginsMenuOpen(false);
-    setIsMonitorMenuOpen(false);
-    setIsModelDropdownOpen(false);
-  };
-
-  const togglePluginsMenu = () => {
-    setIsPluginsMenuOpen(prev => !prev);
-    setIsProjectMenuOpen(false);
-    setIsMonitorMenuOpen(false);
-    setIsModelDropdownOpen(false);
-  };
-
-  const toggleMonitorMenu = () => {
-    setIsMonitorMenuOpen(prev => !prev);
-    setIsProjectMenuOpen(false);
-    setIsPluginsMenuOpen(false);
-    setIsModelDropdownOpen(false);
-  };
 
   const togglePlugin = (id: string) => {
     setPlugins(prev =>
@@ -204,16 +182,22 @@ export function UnifiedAiInputCapsule({
   return (
     <div
       ref={containerRef}
-      className={`flex flex-col w-full max-w-2xl mx-auto font-sans relative min-h-[195px] sm:min-h-[205px] justify-start ${className}`}
+      className={`flex flex-col w-full max-w-2xl mx-auto font-sans relative min-h-[230px] sm:min-h-[240px] justify-start ${className}`}
     >
       
-      {/* Main Input Capsule (Z-index 10 to stay above the drawer) */}
+      {/* Main Input Capsule with Apple-grade morphing spring physics */}
       <motion.div
         layout
+        transition={{
+          type: 'spring',
+          damping: 26,
+          stiffness: 270,
+          mass: 0.7,
+        }}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        className={`relative z-10 w-full rounded-[24px] sm:rounded-[28px] transition-colors duration-300 overflow-visible ${
+        className={`relative z-10 w-full rounded-[24px] sm:rounded-[28px] transition-colors duration-300 overflow-hidden ${
           capsuleState === 'dropzone' || isDragging
             ? 'bg-[#303030] shadow-[0_20px_60px_rgba(0,0,0,0.6)]'
             : isFocused
@@ -513,265 +497,387 @@ export function UnifiedAiInputCapsule({
               </div>
             </motion.div>
           )}
+
+          {/* ========================================================= */}
+          {/* STATE 5: PROJECTS (Integrated Morphing Workspace View)   */}
+          {/* ========================================================= */}
+          {capsuleState === 'projects' && (
+            <motion.div
+              key="state-projects"
+              initial={{ opacity: 0, scale: 0.98, y: 8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.98, y: -8 }}
+              transition={{ duration: 0.2 }}
+              className="p-4 sm:p-5 flex flex-col justify-between min-h-[220px]"
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between pb-3 border-b border-white/10 select-none">
+                <button
+                  onClick={() => setCapsuleState('prompt')}
+                  className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 hover:bg-white/10 text-white/80 hover:text-white text-xs font-medium transition cursor-pointer group"
+                >
+                  <ChevronLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
+                  <span>Prompt</span>
+                </button>
+                <div className="flex items-center gap-2">
+                  <Folder className="w-4 h-4 text-blue-400" />
+                  <span className="text-sm font-semibold text-white tracking-wide">Workspace Project</span>
+                </div>
+                <button
+                  onClick={() => setCapsuleState('prompt')}
+                  className="w-7 h-7 rounded-full bg-white/5 hover:bg-white/10 text-white/60 hover:text-white flex items-center justify-center transition cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Projects Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 my-3 max-h-48 overflow-y-auto [scrollbar-width:none]">
+                {projects.map((proj) => {
+                  const isSelected = selectedProject === proj;
+                  return (
+                    <button
+                      key={proj}
+                      onClick={() => {
+                        setSelectedProject(proj);
+                        setCapsuleState('prompt');
+                      }}
+                      className={`p-2.5 rounded-2xl text-left transition-all cursor-pointer flex items-center justify-between border ${
+                        isSelected
+                          ? 'bg-blue-600/20 border-blue-500/50 text-white shadow-md shadow-blue-500/10'
+                          : 'bg-white/[0.04] border-white/5 text-white/70 hover:text-white hover:bg-white/[0.08]'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className={`p-1.5 rounded-xl shrink-0 ${isSelected ? 'bg-blue-500 text-white' : 'bg-white/10 text-white/60'}`}>
+                          <Folder className="w-3.5 h-3.5" />
+                        </div>
+                        <span className="text-xs font-medium truncate">{proj}</span>
+                      </div>
+                      {isSelected && (
+                        <span className="w-5 h-5 rounded-full bg-blue-500 text-white flex items-center justify-center shrink-0 ml-2">
+                          <Check className="w-3 h-3 stroke-[2.5]" />
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Quick Add Project Form */}
+              <div className="pt-2 border-t border-white/10 flex items-center gap-2">
+                <input
+                  type="text"
+                  value={newProjectName}
+                  onChange={(e) => setNewProjectName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      handleAddProject();
+                      setCapsuleState('prompt');
+                    }
+                  }}
+                  placeholder="Type new project name & hit Enter..."
+                  className="flex-1 bg-white/5 border border-white/15 focus:border-blue-400 rounded-xl px-3 py-1.5 text-xs text-white placeholder:text-white/35 focus:outline-none transition"
+                />
+                <button
+                  onClick={() => {
+                    if (newProjectName.trim()) {
+                      handleAddProject();
+                      setCapsuleState('prompt');
+                    }
+                  }}
+                  className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium transition cursor-pointer shrink-0 flex items-center gap-1"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Add</span>
+                </button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* ========================================================= */}
+          {/* STATE 6: PLUGINS (Integrated Morphing Extensions Matrix) */}
+          {/* ========================================================= */}
+          {capsuleState === 'plugins' && (
+            <motion.div
+              key="state-plugins"
+              initial={{ opacity: 0, scale: 0.98, y: 8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.98, y: -8 }}
+              transition={{ duration: 0.2 }}
+              className="p-4 sm:p-5 flex flex-col justify-between min-h-[220px]"
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between pb-3 border-b border-white/10 select-none">
+                <button
+                  onClick={() => setCapsuleState('prompt')}
+                  className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 hover:bg-white/10 text-white/80 hover:text-white text-xs font-medium transition cursor-pointer group"
+                >
+                  <ChevronLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
+                  <span>Prompt</span>
+                </button>
+                <div className="flex items-center gap-2">
+                  <div className="flex -space-x-[3px]">
+                    <div className="w-[7px] h-[11px] bg-[#2563EB] rounded-[2px] transform rotate-[-8deg] z-10"></div>
+                    <div className="w-[7px] h-[11px] bg-[#DC2626] rounded-[2px] z-20 shadow-sm"></div>
+                    <div className="w-[7px] h-[11px] bg-[#16A34A] rounded-[2px] transform rotate-[8deg] z-30"></div>
+                  </div>
+                  <span className="text-sm font-semibold text-white tracking-wide">AI Plugins & Extensions</span>
+                  <span className="px-2 py-0.5 rounded-full bg-blue-500/20 border border-blue-500/30 text-blue-400 text-[11px] font-semibold">
+                    {activePluginsCount} Active
+                  </span>
+                </div>
+                <button
+                  onClick={() => setCapsuleState('prompt')}
+                  className="px-3.5 py-1 rounded-full bg-white hover:bg-zinc-200 text-black text-xs font-semibold flex items-center gap-1 transition cursor-pointer hover:scale-105 active:scale-95 shadow-md"
+                >
+                  <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                  <span>Done</span>
+                </button>
+              </div>
+
+              {/* Plugins Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 my-3">
+                {plugins.map((plugin) => (
+                  <div
+                    key={plugin.id}
+                    onClick={() => togglePlugin(plugin.id)}
+                    className={`p-3 rounded-2xl border transition-all cursor-pointer flex items-center justify-between select-none ${
+                      plugin.enabled
+                        ? 'bg-white/[0.08] border-white/20 shadow-sm'
+                        : 'bg-white/[0.03] border-white/5 opacity-60 hover:opacity-90'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0 pr-2">
+                      <div className={`p-2 rounded-xl shrink-0 ${plugin.enabled ? 'bg-blue-500/20 text-blue-400' : 'bg-white/10 text-white/50'}`}>
+                        {plugin.id === 'web' && <Globe className="w-4 h-4" />}
+                        {plugin.id === 'python' && <Terminal className="w-4 h-4" />}
+                        {plugin.id === 'vision' && <Eye className="w-4 h-4" />}
+                        {plugin.id === 'canvas' && <Palette className="w-4 h-4" />}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="text-xs font-medium text-white truncate">{plugin.name}</div>
+                        <div className="text-[10.5px] text-white/50 truncate">{plugin.description}</div>
+                      </div>
+                    </div>
+
+                    {/* Toggle switch pill */}
+                    <div
+                      className={`w-9 h-5 rounded-full transition-colors relative flex items-center p-0.5 shrink-0 ${
+                        plugin.enabled ? 'bg-blue-500' : 'bg-white/20'
+                      }`}
+                    >
+                      <motion.div
+                        layout
+                        transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+                        className={`w-4 h-4 rounded-full bg-white shadow-sm transform ${
+                          plugin.enabled ? 'translate-x-4' : 'translate-x-0'
+                        }`}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[11px] text-white/40 px-1">
+                <span>Click any extension card to toggle state</span>
+                <span className="font-mono">{activePluginsCount} of {plugins.length} active</span>
+              </div>
+            </motion.div>
+          )}
+
+          {/* ========================================================= */}
+          {/* STATE 7: MONITOR (Integrated Context & Runtime Matrix)    */}
+          {/* ========================================================= */}
+          {capsuleState === 'monitor' && (
+            <motion.div
+              key="state-monitor"
+              initial={{ opacity: 0, scale: 0.98, y: 8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.98, y: -8 }}
+              transition={{ duration: 0.2 }}
+              className="p-4 sm:p-5 flex flex-col justify-between min-h-[220px]"
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between pb-3 border-b border-white/10 select-none">
+                <button
+                  onClick={() => setCapsuleState('prompt')}
+                  className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 hover:bg-white/10 text-white/80 hover:text-white text-xs font-medium transition cursor-pointer group"
+                >
+                  <ChevronLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
+                  <span>Prompt</span>
+                </button>
+                <div className="flex items-center gap-2">
+                  <Monitor className="w-4 h-4 text-emerald-400" />
+                  <span className="text-sm font-semibold text-white tracking-wide">Screen & Runtime Context</span>
+                </div>
+                <button
+                  onClick={() => setCapsuleState('prompt')}
+                  className="px-3.5 py-1 rounded-full bg-white hover:bg-zinc-200 text-black text-xs font-semibold flex items-center gap-1 transition cursor-pointer hover:scale-105 active:scale-95 shadow-md"
+                >
+                  <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                  <span>Apply</span>
+                </button>
+              </div>
+
+              {/* Body */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 my-3">
+                {/* Screen Context Card */}
+                <div
+                  onClick={() => setScreenContextEnabled(!screenContextEnabled)}
+                  className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between select-none ${
+                    screenContextEnabled
+                      ? 'bg-emerald-950/20 border-emerald-500/40 shadow-sm'
+                      : 'bg-white/[0.03] border-white/5 opacity-70'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <div className={`p-1.5 rounded-lg ${screenContextEnabled ? 'bg-emerald-500/20 text-emerald-400' : 'bg-white/10 text-white/40'}`}>
+                        <Monitor className="w-4 h-4" />
+                      </div>
+                      <span className="text-xs font-medium text-white">Live Screen Context</span>
+                    </div>
+                    <div
+                      className={`w-8 h-4.5 rounded-full transition-colors relative flex items-center p-0.5 shrink-0 ${
+                        screenContextEnabled ? 'bg-emerald-500' : 'bg-white/20'
+                      }`}
+                    >
+                      <motion.div
+                        layout
+                        transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+                        className={`w-3.5 h-3.5 rounded-full bg-white shadow-sm transform ${
+                          screenContextEnabled ? 'translate-x-3.5' : 'translate-x-0'
+                        }`}
+                      />
+                    </div>
+                  </div>
+                  <p className="text-[11px] text-white/50 leading-relaxed">
+                    Automatically passes current browser tab context & DOM snapshots to model prompts.
+                  </p>
+                </div>
+
+                {/* Runtime Environment Card */}
+                <div className="p-3.5 rounded-2xl bg-white/[0.04] border border-white/5 flex flex-col justify-between">
+                  <div>
+                    <div className="text-xs font-medium text-white mb-1">Target Runtime Target</div>
+                    <p className="text-[11px] text-white/50 leading-relaxed">
+                      Route queries to active cluster environment.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-1.5 bg-white/5 p-1 rounded-xl mt-2">
+                    {(['Dev', 'Staging', 'Prod'] as const).map((env) => (
+                      <button
+                        key={env}
+                        onClick={() => setTargetEnv(env)}
+                        className={`py-1.5 rounded-lg text-xs font-medium transition cursor-pointer text-center ${
+                          targetEnv === env
+                            ? 'bg-white/20 text-white shadow-sm font-semibold'
+                            : 'text-white/50 hover:text-white'
+                        }`}
+                      >
+                        {env}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[11px] text-white/40 px-1">
+                <div className="flex items-center gap-2">
+                  <span className={`w-2 h-2 rounded-full ${screenContextEnabled ? 'bg-emerald-400 animate-pulse' : 'bg-white/30'}`} />
+                  <span>{screenContextEnabled ? 'Screen streaming active' : 'Screen streaming inactive'}</span>
+                </div>
+                <span className="font-mono uppercase text-emerald-400/80">{targetEnv} Mode</span>
+              </div>
+            </motion.div>
+          )}
         </AnimatePresence>
       </motion.div>
 
       {/* ========================================================= */}
-      {/* Option 6: Animated Drawer Sub-Toolbar with Rich Popovers  */}
+      {/* Animated Drawer Sub-Toolbar with Spring Physics           */}
       {/* ========================================================= */}
       <AnimatePresence>
         {capsuleState === 'prompt' && !isSending && (
           <motion.div
-            initial={{ opacity: 0, height: 0, y: -20 }}
+            initial={{ opacity: 0, height: 0, y: -22, scale: 0.96 }}
             animate={{ 
               opacity: 1, 
               height: 'auto', 
-              y: 0,
-              transition: { delay: 0.15, duration: 0.3, ease: [0.23, 1, 0.32, 1] } 
+              y: 0, 
+              scale: 1,
+              transition: { 
+                type: 'spring',
+                damping: 20,
+                stiffness: 220,
+                mass: 0.8,
+                delay: 0.08
+              } 
             }}
-            exit={{ opacity: 0, height: 0, y: -20, transition: { duration: 0.2 } }}
-            className="z-0 w-[95%] mx-auto bg-[#171717] rounded-b-[18px] flex flex-col shadow-lg -mt-4 pt-6 overflow-visible" 
+            exit={{ 
+              opacity: 0, 
+              height: 0, 
+              y: -16, 
+              scale: 0.96,
+              transition: { 
+                type: 'spring',
+                damping: 26,
+                stiffness: 320,
+                duration: 0.2
+              } 
+            }}
+            className="z-0 w-[95%] mx-auto bg-[#171717] rounded-b-[20px] flex flex-col shadow-xl -mt-4 pt-5 pb-2 overflow-hidden border-b border-x border-white/5" 
           >
-            <div className="flex items-center justify-between px-4 pb-2.5 pt-1 relative">
-              <div className="flex items-center gap-4 sm:gap-6">
+            <div className="flex items-center justify-between px-4 pb-1 pt-1 select-none">
+              <div className="flex items-center gap-5 sm:gap-6">
                 
-                {/* 1. Choose project button & popover */}
-                <div className="relative">
-                  <button
-                    onClick={toggleProjectMenu}
-                    className={`flex items-center gap-1.5 sm:gap-2 text-[12.5px] font-sans font-medium transition-colors cursor-pointer rounded-lg px-2 py-1 -ml-2 select-none ${
-                      isProjectMenuOpen ? 'text-white bg-white/10' : 'text-[#8E8E8E] hover:text-white'
-                    }`}
-                  >
-                    <Folder className="w-[15px] h-[15px] stroke-[2]" />
-                    <span className="truncate max-w-[110px] sm:max-w-[140px]">{selectedProject}</span>
-                    <ChevronsUpDown className="w-3 h-3 opacity-60 ml-0.5" />
-                  </button>
-
-                  <AnimatePresence>
-                    {isProjectMenuOpen && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 8, scale: 0.96 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 8, scale: 0.96 }}
-                        transition={{ duration: 0.15 }}
-                        className="absolute left-0 bottom-full mb-3 w-64 rounded-2xl bg-[#222222]/98 backdrop-blur-xl border border-white/15 p-2 shadow-2xl z-50 text-left"
-                      >
-                        <div className="text-[11px] font-semibold text-white/40 uppercase tracking-wider px-2.5 py-1">
-                          Workspace Project
-                        </div>
-                        <div className="space-y-0.5 mt-1 max-h-48 overflow-y-auto [scrollbar-width:none]">
-                          {projects.map((proj) => (
-                            <button
-                              key={proj}
-                              onClick={() => {
-                                setSelectedProject(proj);
-                                setIsProjectMenuOpen(false);
-                              }}
-                              className={`w-full text-left px-2.5 py-2 rounded-xl text-xs font-medium transition flex items-center justify-between cursor-pointer ${
-                                selectedProject === proj
-                                  ? 'bg-white/15 text-white'
-                                  : 'text-white/70 hover:text-white hover:bg-white/5'
-                              }`}
-                            >
-                              <span className="truncate">{proj}</span>
-                              {selectedProject === proj && <Check className="w-3.5 h-3.5 text-blue-400 shrink-0" />}
-                            </button>
-                          ))}
-                        </div>
-
-                        {/* Add Project */}
-                        <div className="mt-2 pt-2 border-t border-white/10 px-1">
-                          {isAddingProject ? (
-                            <div className="flex items-center gap-1.5">
-                              <input
-                                type="text"
-                                value={newProjectName}
-                                onChange={(e) => setNewProjectName(e.target.value)}
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter') handleAddProject();
-                                  if (e.key === 'Escape') setIsAddingProject(false);
-                                }}
-                                placeholder="New project..."
-                                autoFocus
-                                className="w-full bg-white/5 border border-white/20 rounded-lg px-2 py-1 text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-blue-400"
-                              />
-                              <button
-                                onClick={handleAddProject}
-                                className="px-2.5 py-1 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-[11px] font-medium transition"
-                              >
-                                Add
-                              </button>
-                            </div>
-                          ) : (
-                            <button
-                              onClick={() => setIsAddingProject(true)}
-                              className="w-full py-1 px-2 rounded-lg text-left text-xs text-blue-400 hover:text-blue-300 hover:bg-white/5 transition flex items-center gap-1.5 font-medium cursor-pointer"
-                            >
-                              <Plus className="w-3.5 h-3.5" /> Create New Project
-                            </button>
-                          )}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-                
-                {/* 2. Plugins button & popover */}
-                <div className="relative">
-                  <button
-                    onClick={togglePluginsMenu}
-                    className={`flex items-center gap-1.5 sm:gap-2 text-[12.5px] font-sans font-medium transition-colors cursor-pointer rounded-lg px-2 py-1 select-none ${
-                      isPluginsMenuOpen ? 'text-white bg-white/10' : 'text-[#8E8E8E] hover:text-white'
-                    }`}
-                  >
-                    <div className="flex -space-x-[3px] opacity-90">
-                      <div className="w-[7px] h-[11px] bg-[#2563EB] rounded-[2px] transform rotate-[-8deg] z-10"></div>
-                      <div className="w-[7px] h-[11px] bg-[#DC2626] rounded-[2px] z-20 shadow-sm"></div>
-                      <div className="w-[7px] h-[11px] bg-[#16A34A] rounded-[2px] transform rotate-[8deg] z-30"></div>
-                    </div>
-                    <span>Plugins</span>
-                    <span className="px-1.5 py-0.2 text-[10.5px] rounded-full bg-white/15 text-white font-semibold">
-                      {activePluginsCount}
-                    </span>
-                  </button>
-
-                  <AnimatePresence>
-                    {isPluginsMenuOpen && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 8, scale: 0.96 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 8, scale: 0.96 }}
-                        transition={{ duration: 0.15 }}
-                        className="absolute left-0 sm:-left-12 bottom-full mb-3 w-72 rounded-2xl bg-[#222222]/98 backdrop-blur-xl border border-white/15 p-3 shadow-2xl z-50 text-left"
-                      >
-                        <div className="flex items-center justify-between pb-2 mb-2 border-b border-white/10 px-1">
-                          <span className="text-xs font-semibold text-white">Active Extensions</span>
-                          <span className="text-[11px] text-blue-400 font-medium">{activePluginsCount} enabled</span>
-                        </div>
-
-                        <div className="space-y-1.5 max-h-60 overflow-y-auto [scrollbar-width:none]">
-                          {plugins.map((plugin) => (
-                            <div
-                              key={plugin.id}
-                              onClick={() => togglePlugin(plugin.id)}
-                              className="flex items-center justify-between p-2 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] transition cursor-pointer group"
-                            >
-                              <div className="flex items-center gap-2.5 pr-2">
-                                <div className={`p-1.5 rounded-lg ${plugin.enabled ? 'bg-blue-500/20 text-blue-400' : 'bg-white/5 text-white/40'}`}>
-                                  {plugin.id === 'web' && <Globe className="w-3.5 h-3.5" />}
-                                  {plugin.id === 'python' && <Terminal className="w-3.5 h-3.5" />}
-                                  {plugin.id === 'vision' && <Eye className="w-3.5 h-3.5" />}
-                                  {plugin.id === 'canvas' && <Palette className="w-3.5 h-3.5" />}
-                                </div>
-                                <div className="flex flex-col">
-                                  <span className="text-xs font-medium text-white/90 group-hover:text-white">
-                                    {plugin.name}
-                                  </span>
-                                  <span className="text-[10px] text-white/50 line-clamp-1">
-                                    {plugin.description}
-                                  </span>
-                                </div>
-                              </div>
-
-                              {/* Interactive Toggle Switch */}
-                              <div
-                                className={`w-8 h-4.5 rounded-full transition-colors relative flex items-center p-0.5 shrink-0 ${
-                                  plugin.enabled ? 'bg-blue-500' : 'bg-white/20'
-                                }`}
-                              >
-                                <motion.div
-                                  layout
-                                  className={`w-3.5 h-3.5 rounded-full bg-white shadow-sm transform ${
-                                    plugin.enabled ? 'translate-x-3.5' : 'translate-x-0'
-                                  }`}
-                                />
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              </div>
-
-              {/* 3. Monitor / Screen Context button & popover */}
-              <div className="relative">
+                {/* 1. Choose project button -> morphs capsule */}
                 <button
-                  onClick={toggleMonitorMenu}
-                  className={`relative p-1.5 rounded-lg transition-colors cursor-pointer select-none ${
-                    isMonitorMenuOpen ? 'text-white bg-white/10' : 'text-[#8E8E8E] hover:text-white'
-                  }`}
-                  title="Screen Context & Environment"
+                  onClick={() => setCapsuleState('projects')}
+                  className="flex items-center gap-1.5 sm:gap-2 text-[12.5px] font-sans font-medium text-[#8E8E8E] hover:text-white transition-colors cursor-pointer group rounded-lg py-1 select-none"
+                  title="Switch workspace project"
                 >
-                  <Monitor className="w-4 h-4 stroke-[2]" />
-                  {screenContextEnabled && (
-                    <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-emerald-400 ring-2 ring-[#171717]" />
-                  )}
+                  <Folder className="w-[15px] h-[15px] stroke-[2] text-[#8E8E8E] group-hover:text-blue-400 transition-colors" />
+                  <span className="truncate max-w-[120px] sm:max-w-[150px]">{selectedProject}</span>
+                  <ChevronRight className="w-3 h-3 opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all ml-0.5" />
                 </button>
-
-                <AnimatePresence>
-                  {isMonitorMenuOpen && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 8, scale: 0.96 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 8, scale: 0.96 }}
-                      transition={{ duration: 0.15 }}
-                      className="absolute right-0 bottom-full mb-3 w-60 rounded-2xl bg-[#222222]/98 backdrop-blur-xl border border-white/15 p-3 shadow-2xl z-50 text-left"
-                    >
-                      <div className="text-xs font-semibold text-white mb-2 pb-1.5 border-b border-white/10">
-                        Context & Environment
-                      </div>
-
-                      <div className="space-y-2.5 text-xs">
-                        {/* Screen Context Toggle */}
-                        <div
-                          onClick={() => setScreenContextEnabled(!screenContextEnabled)}
-                          className="flex items-center justify-between p-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] cursor-pointer transition"
-                        >
-                          <div className="flex flex-col">
-                            <span className="text-white/90 font-medium">Screen Context</span>
-                            <span className="text-[10px] text-white/50">Attach view to AI request</span>
-                          </div>
-                          <div
-                            className={`w-7 h-4 rounded-full transition-colors relative flex items-center p-0.5 shrink-0 ${
-                              screenContextEnabled ? 'bg-emerald-500' : 'bg-white/20'
-                            }`}
-                          >
-                            <div
-                              className={`w-3 h-3 rounded-full bg-white shadow-sm transition-transform ${
-                                screenContextEnabled ? 'translate-x-3' : 'translate-x-0'
-                              }`}
-                            />
-                          </div>
-                        </div>
-
-                        {/* Environment Picker */}
-                        <div className="pt-1">
-                          <span className="text-[10px] text-white/50 uppercase tracking-wider block mb-1.5">Runtime Mode</span>
-                          <div className="grid grid-cols-3 gap-1 bg-white/5 p-1 rounded-xl">
-                            {(['Dev', 'Staging', 'Prod'] as const).map((env) => (
-                              <button
-                                key={env}
-                                onClick={() => setTargetEnv(env)}
-                                className={`py-1 rounded-lg text-[11px] font-medium transition cursor-pointer text-center ${
-                                  targetEnv === env
-                                    ? 'bg-white/20 text-white shadow-sm'
-                                    : 'text-white/50 hover:text-white'
-                                }`}
-                              >
-                                {env}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                
+                {/* 2. Plugins button -> morphs capsule */}
+                <button
+                  onClick={() => setCapsuleState('plugins')}
+                  className="flex items-center gap-2 text-[12.5px] font-sans font-medium text-[#8E8E8E] hover:text-white transition-colors cursor-pointer group rounded-lg py-1 select-none"
+                  title="Configure active AI plugins"
+                >
+                  <div className="flex -space-x-[3px] opacity-90">
+                    <div className="w-[7px] h-[11px] bg-[#2563EB] rounded-[2px] transform rotate-[-8deg] z-10 group-hover:scale-110 transition-transform"></div>
+                    <div className="w-[7px] h-[11px] bg-[#DC2626] rounded-[2px] z-20 shadow-sm group-hover:scale-110 transition-transform"></div>
+                    <div className="w-[7px] h-[11px] bg-[#16A34A] rounded-[2px] transform rotate-[8deg] z-30 group-hover:scale-110 transition-transform"></div>
+                  </div>
+                  <span>Plugins</span>
+                  <span className="px-1.5 py-0.2 text-[10.5px] rounded-full bg-white/15 text-white font-semibold group-hover:bg-white/25 transition-colors">
+                    {activePluginsCount}
+                  </span>
+                </button>
               </div>
 
+              {/* 3. Monitor button -> morphs capsule */}
+              <button
+                onClick={() => setCapsuleState('monitor')}
+                className="flex items-center gap-1.5 p-1.5 rounded-lg text-[#8E8E8E] hover:text-white transition-colors cursor-pointer group select-none"
+                title="Screen Context & Runtime Environment"
+              >
+                <div className="relative">
+                  <Monitor className="w-4 h-4 stroke-[2] group-hover:text-emerald-400 transition-colors" />
+                  {screenContextEnabled && (
+                    <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-emerald-400 ring-2 ring-[#171717]" />
+                  )}
+                </div>
+                <span className="text-[11px] font-mono text-white/40 group-hover:text-white/70 transition-colors uppercase">
+                  {targetEnv}
+                </span>
+              </button>
             </div>
           </motion.div>
         )}

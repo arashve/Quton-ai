@@ -31,7 +31,7 @@ export function HeroPromptSection({ onLaunchChat }: HeroPromptSectionProps) {
       </motion.h1>
 
       {/* The Standalone Unified AI Input Capsule Component with Dedicated Stable Bounding Slot */}
-      <div className="w-full min-h-[220px] sm:min-h-[230px] flex flex-col items-center justify-start">
+      <div className="w-full min-h-[280px] sm:min-h-[290px] flex flex-col items-center justify-start">
         <motion.div
           initial={{ opacity: 0, y: 20, scale: 0.98 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
