@@ -3,7 +3,9 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { UnifiedAiInputCapsule } from './UnifiedAiInputCapsule';
-
+import { LayoutTextFlip } from '../ui/layout-text-flip';
+import { Player } from '@lordicon/react';
+import ICON_PIGGY from '../../public/assets/piggy.json';
 interface HeroPromptSectionProps {
   onLaunchChat: (promptText?: string, modeOverride?: string) => void;
 }
@@ -21,15 +23,38 @@ export function HeroPromptSection({ onLaunchChat }: HeroPromptSectionProps) {
       />
 
       {/* Primary Display Typography */}
-      <motion.h1
-        initial={{ opacity: 0, y: 15 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: 'easeOut' }}
-        className="text-3xl sm:text-5xl font-medium tracking-tight text-white/90 mb-10 sm:mb-14 leading-tight"
-      >
-        What should we work on ?
-      </motion.h1>
-
+  <div>
+        <motion.div className="relative mx-4 my-4 flex flex-col items-center justify-center gap-4 text-center sm:mx-0 sm:mb-0 sm:flex-row text-3xl font-extrabold tracking-tight">
+          <LayoutTextFlip
+            text="Time to "
+            words={[
+              "let the AI cook ", 
+              "stop doomscrolling ", 
+              "outsource your life", 
+              "let the agent carry"
+            ]}
+            duration={4000}
+          />
+        </motion.div>
+        
+        {/* اصلاح تگ p برای تراز شدن دقیق متن و آیکون متحرک */}
+        <div className="mt-4 mb-10 flex flex-col items-center justify-center gap-1 text-base font-medium text-neutral-500 dark:text-neutral-400">
+          <span>Stop doing things manually like an NPC.</span>
+          <span className="flex items-center gap-1.5">
+            Build your agent now 
+            {/* 2. کامپوننت Player جایگزین ترفند قبلی شد */}
+            <span className="inline-flex items-center justify-center -mt-1">
+              <Player 
+                icon={ICON_PIGGY} 
+                colorize="#737373" /* کد رنگ برابر با neutral-500 */
+                size={26} 
+                loop={true} 
+                autoPlay={true}
+              />
+            </span>
+          </span>
+        </div>
+      </div>
       {/* The Standalone Unified AI Input Capsule Component with Dedicated Stable Bounding Slot */}
       <div className="w-full min-h-[280px] sm:min-h-[290px] flex flex-col items-center justify-start">
         <motion.div
