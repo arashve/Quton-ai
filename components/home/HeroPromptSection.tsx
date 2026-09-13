@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { motion } from 'motion/react';
 import { UnifiedAiInputCapsule } from './UnifiedAiInputCapsule';
 import { LayoutTextFlip } from '../ui/layout-text-flip';
@@ -11,6 +11,14 @@ interface HeroPromptSectionProps {
 }
 
 export function HeroPromptSection({ onLaunchChat }: HeroPromptSectionProps) {
+  // ایجاد رفرنس برای کنترل آیکون
+  const playerRef = useRef<Player>(null);
+
+  // دستور پخش خودکار به محض لود شدن صفحه
+  useEffect(() => {
+    playerRef.current?.playFromBeginning();
+  }, []);
+
   return (
     <section
       id="hero-prompt"
@@ -23,7 +31,7 @@ export function HeroPromptSection({ onLaunchChat }: HeroPromptSectionProps) {
       />
 
       {/* Primary Display Typography */}
-  <div>
+      <div>
         <motion.div className="relative mx-4 my-4 flex flex-col items-center justify-center gap-4 text-center sm:mx-0 sm:mb-0 sm:flex-row text-3xl font-extrabold tracking-tight">
           <LayoutTextFlip
             text="Time to "
@@ -42,19 +50,19 @@ export function HeroPromptSection({ onLaunchChat }: HeroPromptSectionProps) {
           <span>Stop doing things manually like an NPC.</span>
           <span className="flex items-center gap-1.5">
             Build your agent now 
-            {/* 2. کامپوننت Player جایگزین ترفند قبلی شد */}
-            <span className="inline-flex items-center justify-center -mt-1">
+            <span className="inline-flex pt-1 items-center justify-center -mt-1">
               <Player 
+                ref={playerRef} // اتصال رفرنس به پلیر
                 icon={ICON_PIGGY} 
-                colorize="#737373" /* کد رنگ برابر با neutral-500 */
-                size={26} 
-                loop={true} 
-                autoPlay={true}
+                colorize="#737373" 
+                size={20} 
+                onComplete={() => playerRef.current?.playFromBeginning()} // ایجاد لوپ بی‌نهایت
               />
             </span>
           </span>
         </div>
       </div>
+
       {/* The Standalone Unified AI Input Capsule Component with Dedicated Stable Bounding Slot */}
       <div className="w-full min-h-[280px] sm:min-h-[290px] flex flex-col items-center justify-start">
         <motion.div
