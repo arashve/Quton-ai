@@ -14,6 +14,7 @@ import {
   Cpu,
   Store,
   Sliders,
+  ArrowRightIcon,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { BrandMark } from '@/components/BrandMark';
@@ -21,6 +22,7 @@ import { HoverBorderGradient } from '@/components/ui/hover-border-gradient';
 import { DitherShader } from '@/components/ui/dither-shader';
 import { UserProfilePopup } from './UserProfilePopup';
 import { NavItem } from './types';
+import { AnimatedShinyText } from '../ui/animated-shiny-text';
 
 export interface PublicHeaderProps {
   className?: string;
@@ -169,19 +171,36 @@ export function PublicHeader({ className = '' }: PublicHeaderProps) {
                 className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium text-white/70 hover:text-white transition cursor-pointer"
               >
                 <span>Login</span>
+
               </Link>
             )}
 
             {/* Prominent White Pill CTA Button with Hover Border Gradient */}
-            <Link href={user ? '/chat' : '/auth?redirect=/chat'} className="w-fit">
-              <HoverBorderGradient
-                containerClassName="rounded-full"
-                className="flex items-center gap-1.5 px-4 sm:px-5 py-2 rounded-full bg-white text-black text-xs font-bold whitespace-nowrap"
-              >
-                <span>Launch Studio</span>
-                <ArrowRight className="w-3.5 h-3.5 text-black" />
-              </HoverBorderGradient>
-            </Link>
+         <Link 
+      href={user ? '/chat' : '/auth?redirect=/chat'} 
+      // کلاس group اضافه شد تا هاور آیکون کار کند
+      className="w-fit group block" 
+    >
+      <HoverBorderGradient
+        containerClassName="rounded-full"
+        as="div"
+        // پس‌زمینه تیره با کمی شفافیت برای جذابیت بیشتر، پدینگ‌ها یکپارچه شدند
+        className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-zinc-900 text-white text-sm font-semibold transition-all duration-300 hover:bg-zinc-800/90"
+      >
+        <AnimatedShinyText 
+          // حذف پدینگ‌های اضافه و تنظیم رنگ پایه متن
+          className="inline-flex items-center justify-center transition ease-out text-zinc-300 hover:text-white hover:duration-300"
+          shimmerWidth={100} // در صورت پشتیبانی کامپوننت، عرض نوار درخشان را تنظیم می‌کند
+        >
+          <span>Launch Studio</span>
+          
+          <ArrowRightIcon 
+            // فاصله از متن بیشتر شد (ml-2) و میزان حرکت در هاور روان‌تر شد
+            className="ml-2 size-4 transition-transform duration-300 ease-out group-hover:translate-x-1" 
+          />
+        </AnimatedShinyText>
+      </HoverBorderGradient>
+    </Link>
 
             {/* Mobile Menu Toggle Button */}
             <button
