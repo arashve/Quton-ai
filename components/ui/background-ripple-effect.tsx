@@ -27,11 +27,11 @@ export const BackgroundRippleEffect = ({
         "dark:[--cell-border-color:var(--color-neutral-700)] dark:[--cell-fill-color:var(--color-neutral-900)] dark:[--cell-shadow-color:var(--color-neutral-800)]",
       )}
     >
-      <div className="relative h-auto w-auto overflow-hidden">
+      <div className="relative h-auto w-auto overflow-hidden [mask-image:linear-gradient(to_bottom,black_25%,transparent_92%)]">
         <div className="pointer-events-none absolute inset-0 z-[2] h-full w-full overflow-hidden" />
         <DivGrid
           key={`base-${rippleKey}`}
-          className="mask-radial-from-20% mask-radial-at-top opacity-600"
+          className="opacity-60 [mask-image:radial-gradient(ellipse_80%_70%_at_50%_25%,black_30%,transparent_90%)]"
           rows={rows}
           cols={cols}
           cellSize={cellSize}

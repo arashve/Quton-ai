@@ -236,7 +236,7 @@ export function UnifiedAiInputCapsule({
                           exit={{ opacity: 0, scale: 0.8, width: 0, marginRight: 0 }}
                           className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#404040] text-white text-[13px] font-medium shadow-sm shrink-0"
                         >
-                          {doc.type === 'link' ? <LinkIcon className="w-3.5 h-3.5 text-blue-400" /> : <Video className="w-3.5 h-3.5 text-blue-400" />}
+                          {doc.type === 'link' ? <LinkIcon className="w-3.5 h-3.5 text-white/80" /> : <Video className="w-3.5 h-3.5 text-white/80" />}
                           <span className="text-white/95 truncate max-w-[120px]">{doc.title}</span>
                           <button onClick={() => removeTaggedDoc(doc.id)} className="text-white/40 hover:text-white transition p-0.5 ml-1 rounded-full hover:bg-white/10">
                             <X className="w-3 h-3" />
@@ -268,8 +268,8 @@ export function UnifiedAiInputCapsule({
 
                   <div className="relative">
                     <button onClick={() => setIsModelDropdownOpen(!isModelDropdownOpen)} className="flex items-center gap-1.5 text-[#8E8E8E] hover:text-white text-[13px] font-medium transition cursor-pointer select-none ml-1">
-                      <span className="flex items-center justify-center w-[14px] h-[14px] rounded-full border border-current">
-                         <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
+                      <span className="flex items-center justify-center w-[14px] h-[14px] rounded-full bg-white/15">
+                         <span className="w-1.5 h-1.5 rounded-full bg-white"></span>
                       </span>
                       <span>{selectedModel}</span>
                     </button>
@@ -280,7 +280,7 @@ export function UnifiedAiInputCapsule({
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: 10 }}
-                          className="absolute left-0 bottom-full mb-2 w-40 rounded-xl bg-[#262626] p-1 shadow-2xl z-50 overflow-hidden border border-white/5"
+                          className="absolute left-0 bottom-full mb-2 w-40 rounded-xl bg-[#262626] p-1 shadow-2xl z-50 overflow-hidden"
                         >
                           {models.map((m) => (
                             <button
@@ -310,7 +310,8 @@ export function UnifiedAiInputCapsule({
                   <button
                     disabled={isSending}
                     onClick={handleSend}
-                    className="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center shadow-md transition-transform cursor-pointer hover:scale-105 active:scale-95 disabled:opacity-50"
+                    className="w-8 h-8 rounded-full bg-[#254EAF] hover:bg-[#204397] text-white flex items-center justify-center shadow-[0_0_16px_rgba(37,78,175,0.45)] transition-all cursor-pointer hover:scale-105 active:scale-95 disabled:opacity-50"
+                    title="Send prompt"
                   >
                     {promptText.trim().length > 0 || taggedDocs.length > 0 ? (
                       <ArrowUp className="w-[18px] h-[18px] stroke-[2.5]" />
@@ -344,7 +345,7 @@ export function UnifiedAiInputCapsule({
                 />
               </div>
 
-              <div className="flex items-center justify-between mt-2 pt-3 border-t border-white/5">
+              <div className="flex items-center justify-between mt-2 pt-3">
                 <div className="flex items-center gap-2 overflow-x-auto [scrollbar-width:none]">
                   <button onClick={() => setCapsuleState('prompt')} className="w-8 h-8 rounded-full bg-[#404040] text-[#8E8E8E] hover:text-white flex items-center justify-center shrink-0 transition"><X className="w-4 h-4" /></button>
                   <button onClick={() => setFollowupText('Generate a document')} className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#404040] hover:bg-[#4A4A4A] text-white text-[13px] font-medium shrink-0 transition">
@@ -360,8 +361,8 @@ export function UnifiedAiInputCapsule({
 
                 <div className="flex items-center gap-2 pl-2">
                   <button onClick={() => setCapsuleState('recording')} className="text-[#8E8E8E] hover:text-white transition"><Mic className="w-4 h-4" /></button>
-                  <button onClick={handleSend} className="w-8 h-8 rounded-full bg-white flex items-center justify-center transition-transform hover:scale-105 active:scale-95">
-                    {followupText.trim() ? <ArrowUp className="w-4 h-4 text-black stroke-[2.5]" /> : <Square className="w-3 h-3 text-black fill-black" />}
+                  <button onClick={handleSend} className="w-8 h-8 rounded-full bg-[#254EAF] hover:bg-[#204397] text-white shadow-[0_0_16px_rgba(37,78,175,0.45)] flex items-center justify-center transition-all hover:scale-105 active:scale-95 cursor-pointer">
+                    {followupText.trim() ? <ArrowUp className="w-4 h-4 text-white stroke-[2.5]" /> : <Square className="w-3 h-3 text-white fill-white" />}
                   </button>
                 </div>
               </div>
@@ -379,7 +380,7 @@ export function UnifiedAiInputCapsule({
               exit={{ opacity: 0, scale: 0.98 }}
               className="p-6 sm:p-8 flex flex-col items-center justify-center text-center relative min-h-[160px]"
             >
-              <div className="absolute inset-3 rounded-[20px] border border-dashed border-blue-400/30 pointer-events-none" />
+              <div className="absolute inset-3 rounded-[20px] bg-white/[0.04] pointer-events-none" />
               <button onClick={() => setCapsuleState('prompt')} className="absolute top-4 right-4 p-1 rounded-full text-white/40 hover:text-white hover:bg-white/10 transition z-20">
                 <X className="w-4 h-4" />
               </button>
@@ -427,7 +428,7 @@ export function UnifiedAiInputCapsule({
                   </span>
                 </div>
 
-                <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/10 border border-white/10 text-white font-mono text-[13px] font-semibold tracking-wider">
+                <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/10 text-white font-mono text-[13px] font-semibold tracking-wider">
                   <span>{formatTimer(recordingSeconds)}</span>
                 </div>
               </div>
@@ -511,7 +512,7 @@ export function UnifiedAiInputCapsule({
               className="p-4 sm:p-5 flex flex-col justify-between min-h-[220px]"
             >
               {/* Header */}
-              <div className="flex items-center justify-between pb-3 border-b border-white/10 select-none">
+              <div className="flex items-center justify-between pb-3 select-none">
                 <button
                   onClick={() => setCapsuleState('prompt')}
                   className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 hover:bg-white/10 text-white/80 hover:text-white text-xs font-medium transition cursor-pointer group"
@@ -520,7 +521,7 @@ export function UnifiedAiInputCapsule({
                   <span>Prompt</span>
                 </button>
                 <div className="flex items-center gap-2">
-                  <Folder className="w-4 h-4 text-blue-400" />
+                  <Folder className="w-4 h-4 text-white" />
                   <span className="text-sm font-semibold text-white tracking-wide">Workspace Project</span>
                 </div>
                 <button
@@ -542,20 +543,20 @@ export function UnifiedAiInputCapsule({
                         setSelectedProject(proj);
                         setCapsuleState('prompt');
                       }}
-                      className={`p-2.5 rounded-2xl text-left transition-all cursor-pointer flex items-center justify-between border ${
+                      className={`p-2.5 rounded-2xl text-left transition-all cursor-pointer flex items-center justify-between ${
                         isSelected
-                          ? 'bg-blue-600/20 border-blue-500/50 text-white shadow-md shadow-blue-500/10'
-                          : 'bg-white/[0.04] border-white/5 text-white/70 hover:text-white hover:bg-white/[0.08]'
+                          ? 'bg-white/15 text-white shadow-md'
+                          : 'bg-white/[0.04] text-white/70 hover:text-white hover:bg-white/[0.08]'
                       }`}
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
-                        <div className={`p-1.5 rounded-xl shrink-0 ${isSelected ? 'bg-blue-500 text-white' : 'bg-white/10 text-white/60'}`}>
+                        <div className={`p-1.5 rounded-xl shrink-0 ${isSelected ? 'bg-white text-black' : 'bg-white/10 text-white/60'}`}>
                           <Folder className="w-3.5 h-3.5" />
                         </div>
                         <span className="text-xs font-medium truncate">{proj}</span>
                       </div>
                       {isSelected && (
-                        <span className="w-5 h-5 rounded-full bg-blue-500 text-white flex items-center justify-center shrink-0 ml-2">
+                        <span className="w-5 h-5 rounded-full bg-white text-black flex items-center justify-center shrink-0 ml-2">
                           <Check className="w-3 h-3 stroke-[2.5]" />
                         </span>
                       )}
@@ -565,7 +566,7 @@ export function UnifiedAiInputCapsule({
               </div>
 
               {/* Quick Add Project Form */}
-              <div className="pt-2 border-t border-white/10 flex items-center gap-2">
+              <div className="pt-2 flex items-center gap-2">
                 <input
                   type="text"
                   value={newProjectName}
@@ -577,7 +578,7 @@ export function UnifiedAiInputCapsule({
                     }
                   }}
                   placeholder="Type new project name & hit Enter..."
-                  className="flex-1 bg-white/5 border border-white/15 focus:border-blue-400 rounded-xl px-3 py-1.5 text-xs text-white placeholder:text-white/35 focus:outline-none transition"
+                  className="flex-1 bg-white/5 focus:bg-white/10 rounded-xl px-3 py-1.5 text-xs text-white placeholder:text-white/35 focus:outline-none transition"
                 />
                 <button
                   onClick={() => {
@@ -586,7 +587,7 @@ export function UnifiedAiInputCapsule({
                       setCapsuleState('prompt');
                     }
                   }}
-                  className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium transition cursor-pointer shrink-0 flex items-center gap-1"
+                  className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-zinc-200 text-black text-xs font-semibold transition cursor-pointer shrink-0 flex items-center gap-1"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Add</span>
@@ -608,7 +609,7 @@ export function UnifiedAiInputCapsule({
               className="p-4 sm:p-5 flex flex-col justify-between min-h-[220px]"
             >
               {/* Header */}
-              <div className="flex items-center justify-between pb-3 border-b border-white/10 select-none">
+              <div className="flex items-center justify-between pb-3 select-none">
                 <button
                   onClick={() => setCapsuleState('prompt')}
                   className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 hover:bg-white/10 text-white/80 hover:text-white text-xs font-medium transition cursor-pointer group"
@@ -618,12 +619,12 @@ export function UnifiedAiInputCapsule({
                 </button>
                 <div className="flex items-center gap-2">
                   <div className="flex -space-x-[3px]">
-                    <div className="w-[7px] h-[11px] bg-[#2563EB] rounded-[2px] transform rotate-[-8deg] z-10"></div>
-                    <div className="w-[7px] h-[11px] bg-[#DC2626] rounded-[2px] z-20 shadow-sm"></div>
-                    <div className="w-[7px] h-[11px] bg-[#16A34A] rounded-[2px] transform rotate-[8deg] z-30"></div>
+                    <div className="w-[7px] h-[11px] bg-white rounded-[2px] transform rotate-[-8deg] z-10"></div>
+                    <div className="w-[7px] h-[11px] bg-white/70 rounded-[2px] z-20 shadow-sm"></div>
+                    <div className="w-[7px] h-[11px] bg-white/40 rounded-[2px] transform rotate-[8deg] z-30"></div>
                   </div>
                   <span className="text-sm font-semibold text-white tracking-wide">AI Plugins & Extensions</span>
-                  <span className="px-2 py-0.5 rounded-full bg-blue-500/20 border border-blue-500/30 text-blue-400 text-[11px] font-semibold">
+                  <span className="px-2 py-0.5 rounded-full bg-white/15 text-white text-[11px] font-semibold">
                     {activePluginsCount} Active
                   </span>
                 </div>
@@ -642,14 +643,14 @@ export function UnifiedAiInputCapsule({
                   <div
                     key={plugin.id}
                     onClick={() => togglePlugin(plugin.id)}
-                    className={`p-3 rounded-2xl border transition-all cursor-pointer flex items-center justify-between select-none ${
+                    className={`p-3 rounded-2xl transition-all cursor-pointer flex items-center justify-between select-none ${
                       plugin.enabled
-                        ? 'bg-white/[0.08] border-white/20 shadow-sm'
-                        : 'bg-white/[0.03] border-white/5 opacity-60 hover:opacity-90'
+                        ? 'bg-white/[0.08] shadow-sm'
+                        : 'bg-white/[0.03] opacity-60 hover:opacity-90'
                     }`}
                   >
                     <div className="flex items-center gap-2.5 min-w-0 pr-2">
-                      <div className={`p-2 rounded-xl shrink-0 ${plugin.enabled ? 'bg-blue-500/20 text-blue-400' : 'bg-white/10 text-white/50'}`}>
+                      <div className={`p-2 rounded-xl shrink-0 ${plugin.enabled ? 'bg-white/20 text-white' : 'bg-white/10 text-white/50'}`}>
                         {plugin.id === 'web' && <Globe className="w-4 h-4" />}
                         {plugin.id === 'python' && <Terminal className="w-4 h-4" />}
                         {plugin.id === 'vision' && <Eye className="w-4 h-4" />}
@@ -664,14 +665,14 @@ export function UnifiedAiInputCapsule({
                     {/* Toggle switch pill */}
                     <div
                       className={`w-9 h-5 rounded-full transition-colors relative flex items-center p-0.5 shrink-0 ${
-                        plugin.enabled ? 'bg-blue-500' : 'bg-white/20'
+                        plugin.enabled ? 'bg-white' : 'bg-white/20'
                       }`}
                     >
                       <motion.div
                         layout
                         transition={{ type: 'spring', damping: 25, stiffness: 350 }}
-                        className={`w-4 h-4 rounded-full bg-white shadow-sm transform ${
-                          plugin.enabled ? 'translate-x-4' : 'translate-x-0'
+                        className={`w-4 h-4 rounded-full shadow-sm transform ${
+                          plugin.enabled ? 'bg-black translate-x-4' : 'bg-white translate-x-0'
                         }`}
                       />
                     </div>
@@ -679,7 +680,7 @@ export function UnifiedAiInputCapsule({
                 ))}
               </div>
 
-              <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[11px] text-white/40 px-1">
+              <div className="pt-2 flex items-center justify-between text-[11px] text-white/40 px-1">
                 <span>Click any extension card to toggle state</span>
                 <span className="font-mono">{activePluginsCount} of {plugins.length} active</span>
               </div>
@@ -699,7 +700,7 @@ export function UnifiedAiInputCapsule({
               className="p-4 sm:p-5 flex flex-col justify-between min-h-[220px]"
             >
               {/* Header */}
-              <div className="flex items-center justify-between pb-3 border-b border-white/10 select-none">
+              <div className="flex items-center justify-between pb-3 select-none">
                 <button
                   onClick={() => setCapsuleState('prompt')}
                   className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 hover:bg-white/10 text-white/80 hover:text-white text-xs font-medium transition cursor-pointer group"
@@ -708,7 +709,7 @@ export function UnifiedAiInputCapsule({
                   <span>Prompt</span>
                 </button>
                 <div className="flex items-center gap-2">
-                  <Monitor className="w-4 h-4 text-emerald-400" />
+                  <Monitor className="w-4 h-4 text-white" />
                   <span className="text-sm font-semibold text-white tracking-wide">Screen & Runtime Context</span>
                 </div>
                 <button
@@ -725,29 +726,29 @@ export function UnifiedAiInputCapsule({
                 {/* Screen Context Card */}
                 <div
                   onClick={() => setScreenContextEnabled(!screenContextEnabled)}
-                  className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between select-none ${
+                  className={`p-3.5 rounded-2xl transition-all cursor-pointer flex flex-col justify-between select-none ${
                     screenContextEnabled
-                      ? 'bg-emerald-950/20 border-emerald-500/40 shadow-sm'
-                      : 'bg-white/[0.03] border-white/5 opacity-70'
+                      ? 'bg-white/[0.08] shadow-sm'
+                      : 'bg-white/[0.03] opacity-70'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      <div className={`p-1.5 rounded-lg ${screenContextEnabled ? 'bg-emerald-500/20 text-emerald-400' : 'bg-white/10 text-white/40'}`}>
+                      <div className={`p-1.5 rounded-lg ${screenContextEnabled ? 'bg-white/20 text-white' : 'bg-white/10 text-white/40'}`}>
                         <Monitor className="w-4 h-4" />
                       </div>
                       <span className="text-xs font-medium text-white">Live Screen Context</span>
                     </div>
                     <div
                       className={`w-8 h-4.5 rounded-full transition-colors relative flex items-center p-0.5 shrink-0 ${
-                        screenContextEnabled ? 'bg-emerald-500' : 'bg-white/20'
+                        screenContextEnabled ? 'bg-white' : 'bg-white/20'
                       }`}
                     >
                       <motion.div
                         layout
                         transition={{ type: 'spring', damping: 25, stiffness: 350 }}
-                        className={`w-3.5 h-3.5 rounded-full bg-white shadow-sm transform ${
-                          screenContextEnabled ? 'translate-x-3.5' : 'translate-x-0'
+                        className={`w-3.5 h-3.5 rounded-full shadow-sm transform ${
+                          screenContextEnabled ? 'bg-black translate-x-3.5' : 'bg-white translate-x-0'
                         }`}
                       />
                     </div>
@@ -758,7 +759,7 @@ export function UnifiedAiInputCapsule({
                 </div>
 
                 {/* Runtime Environment Card */}
-                <div className="p-3.5 rounded-2xl bg-white/[0.04] border border-white/5 flex flex-col justify-between">
+                <div className="p-3.5 rounded-2xl bg-white/[0.04] flex flex-col justify-between">
                   <div>
                     <div className="text-xs font-medium text-white mb-1">Target Runtime Target</div>
                     <p className="text-[11px] text-white/50 leading-relaxed">
@@ -773,7 +774,7 @@ export function UnifiedAiInputCapsule({
                         onClick={() => setTargetEnv(env)}
                         className={`py-1.5 rounded-lg text-xs font-medium transition cursor-pointer text-center ${
                           targetEnv === env
-                            ? 'bg-white/20 text-white shadow-sm font-semibold'
+                            ? 'bg-white text-black shadow-sm font-semibold'
                             : 'text-white/50 hover:text-white'
                         }`}
                       >
@@ -784,12 +785,12 @@ export function UnifiedAiInputCapsule({
                 </div>
               </div>
 
-              <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[11px] text-white/40 px-1">
+              <div className="pt-2 flex items-center justify-between text-[11px] text-white/40 px-1">
                 <div className="flex items-center gap-2">
-                  <span className={`w-2 h-2 rounded-full ${screenContextEnabled ? 'bg-emerald-400 animate-pulse' : 'bg-white/30'}`} />
+                  <span className={`w-2 h-2 rounded-full ${screenContextEnabled ? 'bg-white animate-pulse' : 'bg-white/30'}`} />
                   <span>{screenContextEnabled ? 'Screen streaming active' : 'Screen streaming inactive'}</span>
                 </div>
-                <span className="font-mono uppercase text-emerald-400/80">{targetEnv} Mode</span>
+                <span className="font-mono uppercase text-white/80">{targetEnv} Mode</span>
               </div>
             </motion.div>
           )}
@@ -828,7 +829,7 @@ export function UnifiedAiInputCapsule({
                 duration: 0.2
               } 
             }}
-            className="z-0 w-[95%] mx-auto bg-[#171717] rounded-b-[20px] flex flex-col shadow-xl -mt-4 pt-5 pb-2 overflow-hidden border-b border-x border-white/5" 
+            className="z-0 w-[95%] mx-auto bg-[#171717] rounded-b-[20px] flex flex-col shadow-xl -mt-4 pt-5 pb-2 overflow-hidden" 
           >
             <div className="flex items-center justify-between px-4 pb-1 pt-1 select-none">
               <div className="flex items-center gap-5 sm:gap-6">
@@ -839,7 +840,7 @@ export function UnifiedAiInputCapsule({
                   className="flex items-center gap-1.5 sm:gap-2 text-[12.5px] font-sans font-medium text-[#8E8E8E] hover:text-white transition-colors cursor-pointer group rounded-lg py-1 select-none"
                   title="Switch workspace project"
                 >
-                  <Folder className="w-[15px] h-[15px] stroke-[2] text-[#8E8E8E] group-hover:text-blue-400 transition-colors" />
+                  <Folder className="w-[15px] h-[15px] stroke-[2] text-[#8E8E8E] group-hover:text-white transition-colors" />
                   <span className="truncate max-w-[120px] sm:max-w-[150px]">{selectedProject}</span>
                   <ChevronRight className="w-3 h-3 opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all ml-0.5" />
                 </button>
@@ -851,9 +852,9 @@ export function UnifiedAiInputCapsule({
                   title="Configure active AI plugins"
                 >
                   <div className="flex -space-x-[3px] opacity-90">
-                    <div className="w-[7px] h-[11px] bg-[#2563EB] rounded-[2px] transform rotate-[-8deg] z-10 group-hover:scale-110 transition-transform"></div>
-                    <div className="w-[7px] h-[11px] bg-[#DC2626] rounded-[2px] z-20 shadow-sm group-hover:scale-110 transition-transform"></div>
-                    <div className="w-[7px] h-[11px] bg-[#16A34A] rounded-[2px] transform rotate-[8deg] z-30 group-hover:scale-110 transition-transform"></div>
+                    <div className="w-[7px] h-[11px] bg-white rounded-[2px] transform rotate-[-8deg] z-10 group-hover:scale-110 transition-transform"></div>
+                    <div className="w-[7px] h-[11px] bg-white/70 rounded-[2px] z-20 shadow-sm group-hover:scale-110 transition-transform"></div>
+                    <div className="w-[7px] h-[11px] bg-white/40 rounded-[2px] transform rotate-[8deg] z-30 group-hover:scale-110 transition-transform"></div>
                   </div>
                   <span>Plugins</span>
                   <span className="px-1.5 py-0.2 text-[10.5px] rounded-full bg-white/15 text-white font-semibold group-hover:bg-white/25 transition-colors">
@@ -869,9 +870,9 @@ export function UnifiedAiInputCapsule({
                 title="Screen Context & Runtime Environment"
               >
                 <div className="relative">
-                  <Monitor className="w-4 h-4 stroke-[2] group-hover:text-emerald-400 transition-colors" />
+                  <Monitor className="w-4 h-4 stroke-[2] group-hover:text-white transition-colors" />
                   {screenContextEnabled && (
-                    <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-emerald-400 ring-2 ring-[#171717]" />
+                    <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-white ring-2 ring-[#171717]" />
                   )}
                 </div>
                 <span className="text-[11px] font-mono text-white/40 group-hover:text-white/70 transition-colors uppercase">

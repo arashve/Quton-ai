@@ -14,9 +14,9 @@ export function HeroPromptSection({ onLaunchChat }: HeroPromptSectionProps) {
       id="hero-prompt"
       className="relative z-10 pt-20 sm:pt-32 pb-24 px-4 max-w-4xl mx-auto text-center"
     >
-      {/* Subtle Ambient Aurora Mesh Glow */}
+      {/* Subtle Ambient Aurora Mesh Glow with completely smooth radial dropoff */}
       <div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] sm:w-[750px] h-[360px] bg-gradient-to-tr from-[#254EAF]/20 via-[#8B5CF6]/10 to-[#06B6D4]/10 rounded-full blur-3xl pointer-events-none -z-10"
+        className="absolute top-[48%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[680px] sm:w-[920px] h-[520px] sm:h-[600px] bg-[radial-gradient(ellipse_at_center,rgba(37,78,175,0.22)_0%,rgba(37,78,175,0.08)_42%,transparent_72%)] rounded-full blur-[90px] pointer-events-none -z-10"
         aria-hidden="true"
       />
 
