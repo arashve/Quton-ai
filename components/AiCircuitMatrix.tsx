@@ -73,6 +73,8 @@ export const AiCircuitMatrix: React.FC<AiCircuitMatrixProps> = ({
       paths = [];
       packets = [];
 
+      if (w <= 10 || h <= 10) return;
+
       const centerX = w / 2;
       const centerY = h / 2;
 
@@ -80,7 +82,7 @@ export const AiCircuitMatrix: React.FC<AiCircuitMatrixProps> = ({
       nodes.push({
         x: centerX,
         y: centerY,
-        radius: Math.min(w, h) * 0.055,
+        radius: Math.max(12, Math.min(w, h) * 0.055),
         type: 'core',
         label: 'TENSOR-CORE-01',
         pulse: 0,
@@ -195,15 +197,17 @@ export const AiCircuitMatrix: React.FC<AiCircuitMatrixProps> = ({
     const handleResize = () => {
       const rect = container.getBoundingClientRect();
       const dpr = window.devicePixelRatio || 1;
-      width = rect.width;
-      height = rect.height;
+      width = Math.max(0, rect.width);
+      height = Math.max(0, rect.height);
 
-      canvas.width = width * dpr;
-      canvas.height = height * dpr;
+      if (width <= 10 || height <= 10) return;
+
+      canvas.width = Math.floor(width * dpr);
+      canvas.height = Math.floor(height * dpr);
       canvas.style.width = `${width}px`;
       canvas.style.height = `${height}px`;
 
-      ctx.scale(dpr, dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       initNetwork(width, height);
     };
 
@@ -269,6 +273,12 @@ export const AiCircuitMatrix: React.FC<AiCircuitMatrixProps> = ({
     // Main 60FPS render loop
     const render = () => {
       tick++;
+
+      if (width <= 10 || height <= 10) {
+        animationFrameId = requestAnimationFrame(render);
+        return;
+      }
+
       ctx.clearRect(0, 0, width, height);
 
       const centerX = width / 2;
@@ -297,10 +307,10 @@ export const AiCircuitMatrix: React.FC<AiCircuitMatrixProps> = ({
       ctx.save();
       const ringCount = 4;
       for (let r = 1; r <= ringCount; r++) {
-        const radius = (Math.min(width, height) * 0.12 * r) + Math.sin(tick * 0.02 + r) * 2;
+        const radius = Math.max(1, (Math.min(width, height) * 0.12 * r) + Math.sin(tick * 0.02 + r) * 2);
         ctx.beginPath();
         ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-        ctx.strokeStyle = `rgba(6, 182, 212, ${0.08 - r * 0.015})`;
+        ctx.strokeStyle = `rgba(6, 182, 212, ${Math.max(0.01, 0.08 - r * 0.015)})`;
         ctx.lineWidth = 1;
         ctx.setLineDash([4, 8]);
         ctx.stroke();
@@ -363,7 +373,7 @@ export const AiCircuitMatrix: React.FC<AiCircuitMatrixProps> = ({
 
         ctx.save();
         ctx.beginPath();
-        ctx.arc(pos.x, pos.y, packet.size, 0, Math.PI * 2);
+        ctx.arc(pos.x, pos.y, Math.max(0.5, packet.size), 0, Math.PI * 2);
         ctx.fillStyle = packet.color;
         ctx.shadowColor = packet.color;
         ctx.shadowBlur = 12;
@@ -434,7 +444,7 @@ export const AiCircuitMatrix: React.FC<AiCircuitMatrixProps> = ({
           // Central Pulsing Core Hologram
           const coreGlow = (Math.sin(tick * 0.05) + 1) / 2;
           ctx.beginPath();
-          ctx.arc(node.x, node.y, 14 + coreGlow * 4, 0, Math.PI * 2);
+          ctx.arc(node.x, node.y, Math.max(2, 14 + coreGlow * 4), 0, Math.PI * 2);
           ctx.fillStyle = isNearMouse ? '#38BDF8' : '#06B6D4';
           ctx.shadowColor = '#38BDF8';
           ctx.shadowBlur = 20;
@@ -452,11 +462,11 @@ export const AiCircuitMatrix: React.FC<AiCircuitMatrixProps> = ({
 
         } else {
           // Peripheral Synaptic Nodes & Memory Blocks
-          const nodeRadius = isNearMouse ? node.radius * 1.6 : node.radius;
+          const nodeRadius = Math.max(1, isNearMouse ? node.radius * 1.6 : node.radius);
 
           // Pulse Halo
           ctx.beginPath();
-          ctx.arc(node.x, node.y, nodeRadius + currentPulse * 6, 0, Math.PI * 2);
+          ctx.arc(node.x, node.y, Math.max(1, nodeRadius + currentPulse * 6), 0, Math.PI * 2);
           ctx.fillStyle = node.color;
           ctx.globalAlpha = 0.15 + currentPulse * 0.2;
           ctx.fill();
