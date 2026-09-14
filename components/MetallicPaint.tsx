@@ -410,7 +410,8 @@ export default function MetallicPaint({
     const gl = glRef.current;
     if (!canvas || !gl) return;
 
-    const side = 1000 * devicePixelRatio;
+    const dpr = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
+    const side = 1000 * dpr;
     canvas.width = side;
     canvas.height = side;
     gl.viewport(0, 0, side, side);
@@ -428,15 +429,24 @@ export default function MetallicPaint({
   useEffect(() => {
     if (!ready || !imageSrc) return;
 
-    setTextureReady(false);
+    let isMounted = true;
     const img = new Image();
     img.crossOrigin = 'anonymous';
     img.onload = () => {
+      if (!isMounted) return;
       const imgData = processImage(img);
       uploadTexture(imgData);
       setTextureReady(true);
     };
+    img.onerror = () => {
+      if (!isMounted) return;
+      setTextureReady(false);
+    };
     img.src = imageSrc;
+
+    return () => {
+      isMounted = false;
+    };
   }, [ready, imageSrc, uploadTexture]);
 
   useEffect(() => {

@@ -18,9 +18,15 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**', // This allows any path under the hostname
       },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
-  transpilePackages: ['motion', 'three', 'postprocessing'],
+  transpilePackages: ['motion', 'three', 'postprocessing', 'ogl'],
   experimental: {
     webpackMemoryOptimizations: true,
     cpus: 1,

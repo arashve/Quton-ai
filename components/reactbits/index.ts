@@ -11,3 +11,5 @@ export { AIChatFlat } from './AIChatFlat';
 export { PixelBlast } from '../PixelBlast';
 export { Navbar12 } from './Navbar12';
 export { Mobile3 } from './Mobile3';
+export { CircularGallery } from './CircularGallery';
+export type { CircularGalleryProps, CircularGalleryItem } from './CircularGallery';
