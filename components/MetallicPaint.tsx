@@ -513,7 +513,16 @@ export default function MetallicPaint({
       mouse.targetY = (e.clientY - rect.top) / rect.height;
     };
 
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length > 0) {
+        const rect = canvas.getBoundingClientRect();
+        mouse.targetX = (e.touches[0].clientX - rect.left) / rect.width;
+        mouse.targetY = (e.touches[0].clientY - rect.top) / rect.height;
+      }
+    };
+
     canvas.addEventListener('mousemove', handleMouseMove);
+    canvas.addEventListener('touchmove', handleTouchMove, { passive: true });
 
     const render = (time: number) => {
       const delta = time - lastTimeRef.current;
@@ -538,6 +547,7 @@ export default function MetallicPaint({
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       canvas.removeEventListener('mousemove', handleMouseMove);
+      canvas.removeEventListener('touchmove', handleTouchMove);
     };
   }, [ready, textureReady]);
 

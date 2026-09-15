@@ -2,8 +2,9 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
+import { PageContainer } from '@/components/shell';
 import { BackgroundRippleEffect } from '@/components/ui/background-ripple-effect';
-import { ScopedHomePresentation } from '@/components/home';
+import { HeroPromptSection, WorkspaceStudioSection } from '@/components/home';
 
 export default function LandingPortalPage() {
   const router = useRouter();
@@ -31,13 +32,19 @@ export default function LandingPortalPage() {
   };
 
   return (
-    <div className="bg-black h-[100dvh] w-full text-white relative overflow-hidden">
+    <div className="bg-black min-h-screen w-full text-white relative overflow-x-clip">
       {/* Interactive Background Ripple Matrix */}
-      <BackgroundRippleEffect rows={10} cols={30} cellSize={54} />
+      <BackgroundRippleEffect rows={12} cols={32} cellSize={54} />
 
-      {/* Scope-by-Scope Animated Fullpage Presentation */}
-      <ScopedHomePresentation onLaunchChat={handleLaunchChat} />
+      <PageContainer variant="public" maxWidth="xl">
+        {/* Section 1: AI Prompt Input & Conversation Core */}
+        <HeroPromptSection onLaunchChat={handleLaunchChat} />
+
+        {/* Section 2: Intelligent Workspace Environment & Marketplace Extensions Showcase */}
+        <WorkspaceStudioSection />
+      </PageContainer>
     </div>
   );
 }
+
 

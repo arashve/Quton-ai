@@ -342,10 +342,10 @@ export function ScopedHomePresentation({ onLaunchChat }: ScopedHomePresentationP
         </motion.div>
       </AnimatePresence>
 
-      {/* Floating Vertical Scope Indicator Dock (Desktop) */}
+      {/* Floating Vertical Scope Indicator Dock (Desktop): Minimal Icon-Only Floating Rail */}
       <aside
         aria-label="Scope Navigation Rail"
-        className="fixed right-4 sm:right-6 top-1/2 -translate-y-1/2 z-40 hidden md:flex flex-col gap-2.5 p-2 rounded-full bg-zinc-950/70 backdrop-blur-xl border border-white/10 shadow-2xl"
+        className="fixed right-3 sm:right-5 top-1/2 -translate-y-1/2 z-40 hidden md:flex flex-col items-center gap-3 p-1.5 rounded-full bg-zinc-950/70 backdrop-blur-2xl border border-white/10 shadow-[0_0_25px_rgba(0,0,0,0.5)]"
       >
         {SCOPES.map((scope, idx) => {
           const isActive = currentScope === idx;
@@ -356,32 +356,22 @@ export function ScopedHomePresentation({ onLaunchChat }: ScopedHomePresentationP
               key={scope.id}
               type="button"
               onClick={() => goToScope(idx)}
-              className={`group relative flex items-center gap-2 rounded-full transition-all duration-300 cursor-pointer ${
+              className={`group relative flex items-center justify-center w-9 h-9 rounded-full transition-all duration-300 cursor-pointer ${
                 isActive
-                  ? 'px-3 py-1.5 bg-white text-black shadow-md'
-                  : 'p-2 text-white/50 hover:text-white hover:bg-white/10'
+                  ? 'bg-white text-black shadow-lg scale-105'
+                  : 'text-zinc-400 hover:text-white hover:bg-white/10 hover:scale-105'
               }`}
-              title={`${scope.number} - ${scope.name}`}
+              title={`${scope.number} • ${scope.name}`}
+              aria-label={`${scope.number} - ${scope.name}`}
             >
-              <Icon className={`w-4 h-4 ${isActive ? 'text-black' : 'text-white/60 group-hover:text-white'}`} />
+              <Icon className={`w-4 h-4 transition-transform ${isActive ? 'text-black' : 'group-hover:scale-110'}`} />
 
-              {isActive && (
-                <motion.span
-                  initial={{ opacity: 0, width: 0 }}
-                  animate={{ opacity: 1, width: 'auto' }}
-                  exit={{ opacity: 0, width: 0 }}
-                  className="text-xs font-mono font-bold tracking-tight whitespace-nowrap overflow-hidden"
-                >
-                  {scope.number} • {scope.name}
-                </motion.span>
-              )}
-
-              {/* Tooltip on Hover for inactive dots */}
-              {!isActive && (
-                <span className="absolute right-full mr-3 px-2.5 py-1 rounded-lg bg-zinc-900/90 text-white text-[11px] font-mono whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border border-white/10 shadow-lg">
-                  {scope.number} • {scope.name}
-                </span>
-              )}
+              {/* Minimal floating pill tooltip on hover towards the left */}
+              <span className="absolute right-full mr-3 px-2.5 py-1 rounded-xl bg-zinc-900/95 text-white text-[11px] font-mono tracking-tight whitespace-nowrap opacity-0 group-hover:opacity-100 -translate-x-1 group-hover:translate-x-0 transition-all pointer-events-none border border-white/15 shadow-xl flex items-center gap-1.5">
+                <span className="text-zinc-400 font-bold">{scope.number}</span>
+                <span className="w-1 h-1 rounded-full bg-white/40" />
+                <span>{scope.name}</span>
+              </span>
             </button>
           );
         })}
