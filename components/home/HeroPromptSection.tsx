@@ -22,7 +22,7 @@ export function HeroPromptSection({ onLaunchChat }: HeroPromptSectionProps) {
   return (
     <section
       id="hero-prompt"
-      className="relative z-10 pt-20 sm:pt-32 pb-24 px-4 max-w-4xl mx-auto text-center"
+      className="relative z-10 w-full max-w-4xl mx-auto px-4 py-4 sm:py-6 text-center flex flex-col items-center justify-center select-none"
     >
       {/* Subtle Ambient Aurora Mesh Glow with completely smooth radial dropoff */}
       <div

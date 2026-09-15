@@ -108,7 +108,7 @@ export function CustomWorkspaceSection() {
   return (
     <section
       id="custom-workspace"
-      className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 py-16 sm:py-24 flex flex-col items-center justify-center select-none"
+      className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 py-4 sm:py-6 flex flex-col items-center justify-center select-none"
     >
       {/* Background Radial Glow */}
       <div
@@ -117,7 +117,7 @@ export function CustomWorkspaceSection() {
       />
 
       {/* Section Typography: Header & Subtitle matching the Figma design */}
-      <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
+      <div className="text-center max-w-2xl mx-auto mb-6 sm:mb-8">
         <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-white inline-flex items-center gap-2.5 flex-wrap justify-center">
           <span>your custom</span>
           <span className="bg-gradient-to-r from-indigo-400 via-purple-300 to-blue-400 bg-clip-text text-transparent font-extrabold">
