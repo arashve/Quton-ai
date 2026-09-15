@@ -4,7 +4,7 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import { PageContainer } from '@/components/shell';
 import { BackgroundRippleEffect } from '@/components/ui/background-ripple-effect';
-import { HeroPromptSection, WorkspaceStudioSection } from '@/components/home';
+import { HeroPromptSection, CustomWorkspaceSection } from '@/components/home';
 
 export default function LandingPortalPage() {
   const router = useRouter();
@@ -40,8 +40,8 @@ export default function LandingPortalPage() {
         {/* Section 1: AI Prompt Input & Conversation Core */}
         <HeroPromptSection onLaunchChat={handleLaunchChat} />
 
-        {/* Section 2: Intelligent Workspace Environment & Marketplace Extensions Showcase */}
-        <WorkspaceStudioSection />
+        {/* Section 2: Exact Custom Workspace Section from User Design */}
+        <CustomWorkspaceSection />
       </PageContainer>
     </div>
   );

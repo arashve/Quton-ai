@@ -1,5 +1,6 @@
 export { HeroPromptSection } from './HeroPromptSection';
 export { UnifiedAiInputCapsule } from './UnifiedAiInputCapsule';
+export { CustomWorkspaceSection } from './CustomWorkspaceSection';
 export { WorkspaceStudioSection } from './WorkspaceStudioSection';
 export { BentoFeaturesSection } from './BentoFeaturesSection';
 export { ModelBenchmarkMatrix } from './ModelBenchmarkMatrix';
