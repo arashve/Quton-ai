@@ -59,7 +59,7 @@ export function StudioHeader({
   return (
     <header
       id="app-studio-header"
-      className={`h-14 sm:h-16 flex items-center justify-between px-3 sm:px-5 border-b border-zinc-800/80 bg-zinc-950/90 backdrop-blur-xl shrink-0 z-30 select-none ${className}`}
+      className={`h-[calc(3.5rem+env(safe-area-inset-top,0px))] sm:h-[calc(4rem+env(safe-area-inset-top,0px))] pt-[env(safe-area-inset-top,0px)] flex items-center justify-between px-3 sm:px-5 border-b border-zinc-800/80 bg-zinc-950/90 backdrop-blur-xl shrink-0 z-30 select-none ${className}`}
     >
       {/* Left: Sidebar Toggle & Studio Title */}
       <div className="flex items-center gap-2 sm:gap-3 min-w-0">

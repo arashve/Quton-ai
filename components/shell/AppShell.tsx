@@ -43,7 +43,7 @@ export function AppShell({
   return (
     <div
       id="app-shell-root"
-      className={`relative min-h-[100dvh] w-full bg-[#09090b] text-zinc-100 flex flex-col font-sans selection:bg-white selection:text-zinc-950 overflow-x-hidden ${className}`}
+      className={`relative min-h-[100dvh] w-full bg-black text-zinc-100 flex flex-col font-sans selection:bg-white selection:text-zinc-950 overflow-x-hidden ${className}`}
     >
       {/* Aurora Glassmorphic Glow Meshes in Background */}
       <div
@@ -101,7 +101,7 @@ export function AppShell({
       {activeVariant === 'auth' && (
         <div className="flex flex-col min-h-[100dvh] w-full">
           {/* Minimalist distraction-free top bar */}
-          <header className="h-16 flex items-center justify-between px-6 border-b border-zinc-800/60 bg-zinc-950/60 backdrop-blur-xl z-20">
+          <header className="h-[calc(4rem+env(safe-area-inset-top,0px))] pt-[env(safe-area-inset-top,0px)] flex items-center justify-between px-6 border-b border-zinc-800/60 bg-zinc-950/60 backdrop-blur-xl z-20">
             <Link
               href="/"
               className="flex items-center gap-2 group text-xs text-zinc-400 hover:text-white transition cursor-pointer"

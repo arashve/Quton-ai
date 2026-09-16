@@ -45,11 +45,11 @@ export function PageContainer({
   // Mobile bottom nav is fixed 4.25rem + safe area
   const paddingClasses = {
     public:
-      'pt-[calc(var(--shell-header-height,4rem)+1.25rem)] pb-[calc(var(--shell-bottom-nav-height,4.25rem)+env(safe-area-inset-bottom,0px)+1.5rem)] md:pb-12 px-4 sm:px-6 lg:px-8',
+      'pt-[calc(var(--shell-header-height,4rem)+env(safe-area-inset-top,0px)+1rem)] pb-[calc(var(--shell-bottom-nav-height,4.25rem)+env(safe-area-inset-bottom,0px)+1.5rem)] md:pb-12 px-4 sm:px-6 lg:px-8',
     studio:
-      'pt-[calc(var(--shell-header-height,3.5rem)+0.5rem)] pb-[calc(var(--shell-bottom-nav-height,4.25rem)+env(safe-area-inset-bottom,0px))] md:pb-0 px-2 sm:px-4 h-full flex-1 overflow-hidden',
+      'pt-[calc(var(--shell-header-height,3.5rem)+env(safe-area-inset-top,0px)+0.5rem)] pb-[calc(var(--shell-bottom-nav-height,4.25rem)+env(safe-area-inset-bottom,0px))] md:pb-0 px-2 sm:px-4 h-full flex-1 overflow-hidden',
     auth:
-      'pt-[calc(var(--shell-header-height,4rem)+1rem)] pb-[calc(var(--shell-bottom-nav-height,4.25rem)+env(safe-area-inset-bottom,0px)+1rem)] md:pb-8 px-4 flex items-center justify-center min-h-[100dvh]',
+      'pt-[calc(var(--shell-header-height,4rem)+env(safe-area-inset-top,0px)+1rem)] pb-[calc(var(--shell-bottom-nav-height,4.25rem)+env(safe-area-inset-bottom,0px)+1rem)] md:pb-8 px-4 flex items-center justify-center min-h-[100dvh]',
   };
 
   if (status === 'loading') {
