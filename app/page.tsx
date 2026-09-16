@@ -171,7 +171,7 @@ export default function LandingPortalPage() {
   };
 
   return (
-    <div className="bg-black h-[100dvh] w-full text-white relative overflow-hidden flex flex-col justify-center items-center">
+    <div className="bg-black min-h-screen min-h-[100dvh] w-full text-white relative overflow-hidden flex flex-col justify-center items-center">
       {/* Interactive Background Ripple Matrix */}
       <BackgroundRippleEffect rows={12} cols={32} cellSize={54} />
 

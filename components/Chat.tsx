@@ -1863,7 +1863,7 @@ export const Chat: React.FC<ChatProps> = ({ initialPrompt, initialAgent }) => {
   const currentSession = sessions.find((s) => s.id === currentSessionId);
 
   return (
-    <div className="flex h-[100dvh] w-full bg-[var(--page-bg)] text-[var(--text-primary)] font-sans overflow-hidden transition-colors duration-200">
+    <div className="flex h-full min-h-screen min-h-[100dvh] w-full bg-[var(--page-bg)] text-[var(--text-primary)] font-sans overflow-hidden transition-colors duration-200">
       {/* React Bits Pro App Sidebar */}
       <AppSidebar
         sessions={sessions}
