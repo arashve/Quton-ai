@@ -64,10 +64,10 @@ export function PublicHeader({ className = '' }: PublicHeaderProps) {
 
   return (
     <>
-      <header
-        id="app-public-header"
-        className={`fixed top-0 inset-x-0 z-50 flex items-center justify-center pointer-events-none pt-4 px-4 sm:px-6 ${className}`}
-      >
+   <header
+  id="app-public-header"
+  className={`fixed top-0 inset-x-0 z-50 flex items-center justify-center pointer-events-none pt-[calc(env(safe-area-inset-top)+1rem)] px-4 sm:px-6 ${className}`}
+>
         <motion.nav
           // اعمال مستقیم مقادیر پویا به جای استفاده از className های شرطی
           style={{
@@ -176,11 +176,10 @@ export function PublicHeader({ className = '' }: PublicHeaderProps) {
             )}
 
             {/* Prominent White Pill CTA Button with Hover Border Gradient */}
-         <Link 
-      href={user ? '/chat' : '/auth?redirect=/chat'} 
-      // کلاس group اضافه شد تا هاور آیکون کار کند
-      className="w-fit group block" 
-    >
+  <Link 
+  href={user ? '/chat' : '/auth?redirect=/chat'} 
+  className="w-fit group hidden sm:block" 
+>
       <HoverBorderGradient
         containerClassName="rounded-full"
         as="div"

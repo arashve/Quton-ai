@@ -58,17 +58,16 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
         <meta name="theme-color" content="#09090b" />
         <meta name="mobile-web-app-capable" content="yes" /> */}
       </head>
-      <body
-        suppressHydrationWarning
-        // تغییر ۳: کلاس‌های pt و pb برای safe-area اضافه شدند
-        className={`${pixelFont.variable} min-h-[100dvh] bg-[#09090b] text-zinc-100 antialiased selection:bg-zinc-800 selection:text-white transition-colors duration-200 overflow-x-clip pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]`}
-      >
-        <AuthProvider>
-          <AppShell>
-            {children}
-          </AppShell>
-        </AuthProvider>
-      </body>
+     <body
+  suppressHydrationWarning
+  className={`${pixelFont.variable} min-h-[100dvh] bg-[#09090b] text-zinc-100 antialiased selection:bg-zinc-800 selection:text-white transition-colors duration-200 overflow-x-clip`}
+>
+  <AuthProvider>
+    <AppShell>
+      {children}
+    </AppShell>
+  </AuthProvider>
+</body>
     </html>
   );
 }
