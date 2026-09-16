@@ -212,21 +212,21 @@ fontSize="100%"
         </div>
 
         {/* RIGHT COLUMN: Tab Switcher + Input Card + Bottom Launch Actions */}
-        <div className="flex flex-col items-center sm:items-start w-full max-w-[360px] sm:max-w-[400px]">
+        <div className="flex flex-col items-center sm:items-start w-full max-w-[360px] sm:max-w-[420px]">
           
           {/* Top Pill Switcher: Idea | Plugin | Customize */}
-          <div className="w-full p-1 rounded-full bg-zinc-900/80 backdrop-blur-md border border-white/10 flex items-center justify-between gap-1 shadow-inner mb-3.5">
+          <div className="w-full p-1.5 rounded-full bg-[#1a1a1a] flex items-center justify-between gap-1 mb-4">
             {/* Idea Tab */}
             <button
               type="button"
               onClick={() => setActiveTab('idea')}
-              className={`flex-1 py-1.5 px-3 rounded-full text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+              className={`flex-1 py-2 px-3 rounded-full text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                 activeTab === 'idea'
-                  ? 'bg-black text-white shadow-md border border-white/10'
-                  : 'text-zinc-400 hover:text-white'
+                  ? 'bg-black text-white shadow-sm'
+                  : 'text-zinc-500 hover:text-zinc-300'
               }`}
             >
-              <Sparkles className="w-3.5 h-3.5 text-white" />
+              <Sparkles className="w-3.5 h-3.5" />
               <span>Idea</span>
             </button>
 
@@ -234,10 +234,10 @@ fontSize="100%"
             <button
               type="button"
               onClick={() => setActiveTab('plugin')}
-              className={`flex-1 py-1.5 px-3 rounded-full text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+              className={`flex-1 py-2 px-3 rounded-full text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                 activeTab === 'plugin'
-                  ? 'bg-black text-white shadow-md border border-white/10'
-                  : 'text-zinc-400 hover:text-white'
+                  ? 'bg-black text-white shadow-sm'
+                  : 'text-zinc-500 hover:text-zinc-300'
               }`}
             >
               <Puzzle className="w-3.5 h-3.5" />
@@ -248,10 +248,10 @@ fontSize="100%"
             <button
               type="button"
               onClick={() => setActiveTab('customize')}
-              className={`flex-1 py-1.5 px-3 rounded-full text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+              className={`flex-1 py-2 px-3 rounded-full text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                 activeTab === 'customize'
-                  ? 'bg-black text-white shadow-md border border-white/10'
-                  : 'text-zinc-400 hover:text-white'
+                  ? 'bg-black text-white shadow-sm'
+                  : 'text-zinc-500 hover:text-zinc-300'
               }`}
             >
               <Sliders className="w-3.5 h-3.5" />
@@ -259,39 +259,42 @@ fontSize="100%"
             </button>
           </div>
 
-          {/* Main Card Container */}
-          <div className="w-full min-h-[155px] sm:min-h-[165px] rounded-[22px] sm:rounded-[26px] bg-[#141518]/90 backdrop-blur-xl border border-white/10 shadow-2xl p-4 sm:p-5 flex flex-col justify-between relative overflow-hidden">
+          {/* Main Card Container (Flat & Matte style) */}
+          <div className="w-full h-[160px] sm:h-[175px] rounded-[24px] bg-[#1a1a1a] p-5 flex flex-col justify-between relative">
             
             {/* TAB CONTENT 1: IDEA */}
             {activeTab === 'idea' && (
               <div className="flex flex-col justify-between h-full flex-1">
                 {/* Textarea or Question Prompt */}
-                <div className="w-full mb-3">
+                <div className="w-full mb-2 flex-1">
                   <textarea
-                    rows={2}
+                    rows={3}
                     maxLength={charLimit}
                     value={ideaText}
                     onChange={(e) => setIdeaText(e.target.value)}
                     placeholder={currentWorkspace.defaultIdeaPrompt}
-                    className="w-full bg-transparent text-xs sm:text-sm text-white placeholder-zinc-500 resize-none outline-none leading-relaxed font-sans"
+                    className="w-full bg-transparent text-sm text-zinc-300 placeholder-zinc-600 resize-none outline-none leading-relaxed font-sans"
                   />
                 </div>
 
-                {/* Bottom Row Inside Card */}
-                <div className="flex items-center justify-between pt-2 border-t border-white/5">
-                  {/* Your Logo Pill with Lock */}
+                {/* Bottom Row Inside Card (No border, clean look) */}
+                <div className="flex items-center justify-between mt-auto">
+                  {/* Your Logo Pill with conditional Lock */}
                   <button
                     type="button"
                     onClick={() => setLogoModalOpen(!logoModalOpen)}
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-[11px] text-zinc-400 hover:text-white transition cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#242424] hover:bg-[#2a2a2a] text-[11px] font-medium text-zinc-400 transition cursor-pointer"
                   >
-                    <Tag className="w-3 h-3 text-zinc-400" />
+                    <Tag className="w-3 h-3 text-zinc-500" />
                     <span>your logo</span>
-                    <Lock className="w-2.5 h-2.5 text-zinc-500 ml-0.5" />
+                    {/* قفل فقط در حالتی که tier برابر Free باشد نمایش داده می‌شود */}
+                    {currentWorkspace.tier === 'Free' && (
+                      <Lock className="w-3 h-3 text-zinc-500 ml-0.5" />
+                    )}
                   </button>
 
                   {/* Character Count */}
-                  <span className="text-[11px] font-mono text-zinc-500">
+                  <span className="text-[11px] font-mono text-zinc-600">
                     {charLimit - ideaText.length}
                   </span>
                 </div>
@@ -301,9 +304,9 @@ fontSize="100%"
             {/* TAB CONTENT 2: PLUGIN */}
             {activeTab === 'plugin' && (
               <div className="flex flex-col justify-between h-full flex-1 space-y-2">
-                <div className="flex items-center justify-between text-[11px] font-mono text-zinc-400 pb-1 border-b border-white/5">
+                <div className="flex items-center justify-between text-[11px] font-mono text-zinc-500 pb-2">
                   <span>MARKETPLACE PLUGINS</span>
-                  <span className="text-emerald-400 font-semibold">3/3 Free Slots</span>
+                  <span className="text-zinc-400 font-semibold">3/3 Free Slots</span>
                 </div>
 
                 <div className="space-y-1.5">
@@ -312,86 +315,74 @@ fontSize="100%"
                     return (
                       <div
                         key={plugin.id}
-                        className="flex items-center justify-between p-1.5 rounded-xl bg-white/[0.03] border border-white/5 text-xs text-zinc-300"
+                        className="flex items-center justify-between p-2 rounded-xl bg-[#242424] text-xs text-zinc-300"
                       >
                         <div className="flex items-center gap-2">
-                          <Icon className="w-3.5 h-3.5 text-purple-400" />
+                          <Icon className="w-3.5 h-3.5 text-zinc-400" />
                           <span className="text-[11px] font-medium">{plugin.name}</span>
                         </div>
-                        <span className="text-[10px] text-emerald-400 font-mono">Active</span>
+                        <span className="text-[10px] text-zinc-500 font-mono">Active</span>
                       </div>
                     );
                   })}
                 </div>
-
-                <Link
-                  href="/marketplace"
-                  className="text-[10px] text-zinc-400 hover:text-white transition inline-flex items-center gap-1 pt-1"
-                >
-                  <Plus className="w-3 h-3 text-purple-400" />
-                  <span>Add from Marketplace</span>
-                </Link>
               </div>
             )}
 
             {/* TAB CONTENT 3: CUSTOMIZE */}
             {activeTab === 'customize' && (
               <div className="flex flex-col justify-between h-full flex-1 space-y-2">
-                <div className="flex items-center justify-between text-[11px] font-mono text-zinc-400 pb-1 border-b border-white/5">
+                <div className="flex items-center justify-between text-[11px] font-mono text-zinc-500 pb-2">
                   <span>WORKSPACE SETTINGS</span>
-                  <span className="text-zinc-500 text-[10px]">Tier: {currentWorkspace.tier}</span>
+                  <span className="text-zinc-600 text-[10px]">Tier: {currentWorkspace.tier}</span>
                 </div>
 
                 <div className="space-y-2 text-xs">
-                  <div className="flex items-center justify-between p-2 rounded-xl bg-white/[0.03] border border-white/5">
+                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#242424]">
                     <span className="text-[11px] text-zinc-300">Custom Branding & Logo</span>
-                    <span className="flex items-center gap-1 text-[10px] text-amber-400">
+                    <span className="flex items-center gap-1 text-[10px] text-zinc-500">
                       <Lock className="w-3 h-3" />
                       <span>Pro Plan</span>
                     </span>
                   </div>
 
-                  <div className="flex items-center justify-between p-2 rounded-xl bg-white/[0.03] border border-white/5">
+                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#242424]">
                     <span className="text-[11px] text-zinc-300">Autonomous Agent Mesh</span>
-                    <span className="flex items-center gap-1 text-[10px] text-emerald-400">
+                    <span className="flex items-center gap-1 text-[10px] text-zinc-400">
                       <CheckCircle2 className="w-3 h-3" />
                       <span>Ready</span>
                     </span>
                   </div>
                 </div>
-
-                <span className="text-[10px] text-zinc-500">
-                  Configure custom domain and webhook endpoints in studio.
-                </span>
               </div>
             )}
           </div>
 
           {/* Action Row Below Card: Copy URL & launch ↗ */}
-          <div className="w-full flex items-center justify-end gap-3 mt-4">
+          <div className="w-full flex items-center justify-end gap-5 mt-5">
             {/* Copy URL link/button */}
             <button
               type="button"
               onClick={handleCopyUrl}
-              className="text-xs text-zinc-400 hover:text-white font-medium transition cursor-pointer flex items-center gap-1"
+              className="text-[11px] font-bold text-zinc-500 hover:text-white transition cursor-pointer flex items-center gap-1"
             >
               {copied ? (
                 <>
-                  <Check className="w-3.5 h-3.5 text-emerald-400" />
-                  <span className="text-emerald-400">Copied!</span>
+                  <Check className="w-3.5 h-3.5 text-zinc-300" />
+                  <span className="text-zinc-300">Copied!</span>
                 </>
               ) : (
                 <span>Copy URL</span>
               )}
             </button>
 
-            {/* Launch Button */}
+            {/* Launch Button (Matching Figma: White Pill, Black Text, Icon on Right) */}
             <Link
               href={`/workspace?tier=${currentWorkspace.id}&prompt=${encodeURIComponent(ideaText || currentWorkspace.defaultIdeaPrompt)}`}
-              className="px-4 py-2 rounded-full bg-white hover:bg-zinc-200 text-black text-xs font-bold transition-all duration-200 flex items-center gap-1.5 shadow-lg shadow-white/10 cursor-pointer active:scale-95"
+              className="px-5 py-2 rounded-full bg-white hover:bg-zinc-200 text-black text-xs font-extrabold transition-all duration-200 flex items-center gap-2 cursor-pointer active:scale-95"
             >
               <span>launch</span>
-              <ArrowUpRight className="w-3.5 h-3.5" />
+              <ArrowUpRight className="w-4 h-4 stroke-[2.5]" />
             </Link>
           </div>
         </div>
