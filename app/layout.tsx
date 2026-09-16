@@ -17,8 +17,12 @@ const pixelFont = Pixelify_Sans({
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
+  maximumScale: 1,
   viewportFit: 'cover',
-  themeColor: '#000000',
+  themeColor: [
+    { media: '(prefers-color-scheme: dark)', color: '#000000' },
+    { media: '(prefers-color-scheme: light)', color: '#000000' },
+  ],
 };
 
 export const metadata: Metadata = {
@@ -30,9 +34,12 @@ export const metadata: Metadata = {
     title: 'Quton',
   },
   other: {
+    'theme-color': '#000000',
     'apple-mobile-web-app-capable': 'yes',
     'apple-mobile-web-app-status-bar-style': 'black-translucent',
     'mobile-web-app-capable': 'yes',
+    'apple-touch-fullscreen': 'yes',
+    'msapplication-navbutton-color': '#000000',
   },
   openGraph: {
     title: 'Quton',
@@ -50,6 +57,14 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
   return (
     <html lang="en" className={cn("dark", "font-sans bg-black", geist.variable)} 
       suppressHydrationWarning>
+      <head>
+        <meta name="theme-color" content="#000000" />
+        <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000" />
+        <meta name="theme-color" media="(prefers-color-scheme: light)" content="#000000" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-touch-fullscreen" content="yes" />
+      </head>
      <body
   suppressHydrationWarning
   className={`${pixelFont.variable} min-h-screen min-h-[100dvh] bg-black text-zinc-100 antialiased selection:bg-zinc-800 selection:text-white transition-colors duration-200`}
