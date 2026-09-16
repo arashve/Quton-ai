@@ -28,11 +28,12 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: 'Quton',
-  description: 'Real-time AI Chatbot streaming over Server-Sent Events (SSE) with ultra-low latency, supporting custom system models, Groq, local Ollama, and Gemini.',
+  description: 'Real-time AI Chatbot streaming over Server-Sent Events (SSE) ...',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
     title: 'Quton',
+
   },
   openGraph: {
     title: 'Quton',
@@ -48,17 +49,19 @@ export const metadata: Metadata = {
 
 export default function RootLayout({children}: {children: React.ReactNode}) {
   return (
-    <html lang="en" className={cn("dark", "font-sans", geist.variable)} suppressHydrationWarning>
+    <html lang="en" className={cn("dark", "font-sans bg-[#09090b]", geist.variable)} 
+      suppressHydrationWarning>
       <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+        {/* <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="theme-color" content="#09090b" />
-        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="mobile-web-app-capable" content="yes" /> */}
       </head>
       <body
         suppressHydrationWarning
-        className={`${pixelFont.variable} min-h-[100dvh] bg-[#09090b] text-zinc-100 antialiased selection:bg-zinc-800 selection:text-white transition-colors duration-200 overflow-x-clip`}
+        // تغییر ۳: کلاس‌های pt و pb برای safe-area اضافه شدند
+        className={`${pixelFont.variable} min-h-[100dvh] bg-[#09090b] text-zinc-100 antialiased selection:bg-zinc-800 selection:text-white transition-colors duration-200 overflow-x-clip pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]`}
       >
         <AuthProvider>
           <AppShell>
