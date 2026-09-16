@@ -22,6 +22,7 @@ import {
   Workflow,
   CheckCircle2,
 } from 'lucide-react';
+import ParticleText from '../ParticleText';
 
 interface WorkspaceOption {
   id: string;
@@ -118,12 +119,34 @@ export function CustomWorkspaceSection() {
 
       {/* Section Typography: Header & Subtitle matching the Figma design */}
       <div className="text-center max-w-2xl mx-auto mb-6 sm:mb-8">
-        <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-white inline-flex items-center gap-2.5 flex-wrap justify-center">
-          <span>your custom</span>
-          <span className="bg-gradient-to-r from-indigo-400 via-purple-300 to-blue-400 bg-clip-text text-transparent font-extrabold">
-            Workspace
-          </span>
-        </h2>
+<h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-white flex flex-row items-center justify-center gap-2 sm:gap-3">
+  {/* اضافه کردن leading-none برای کنترل دقیق‌تر ارتفاع متن استاندارد */}
+  <span className="leading-none mt-1">your custom</span>
+  
+  {/* تنظیم دقیق ارتفاع کانتینر هماهنگ با سایز متن Tailwind (حدود 48px برای 5xl) */}
+  {/* اضافه کردن mt-2 یا مقادیر مشابه کمک می‌کنه canvas دقیقاً بیاد روی خط بیس‌لاین متن کناری */}
+  <div className="relative flex items-center justify-center h-[40px] sm:h-[48px] md:h-[60px] w-[180px] sm:w-[220px] md:w-[280px] mt-2 sm:mt-2.5">
+    <ParticleText
+      text="Workspace"
+  particleSize={2.2}
+    density={4}
+    color="#f8fafc"
+    highlightColor="#8b5cf6"
+    scatter={190}
+ gatherDuration={1500}   // سرعت جمع شدن سریع‌تر
+      stagger={100}           // تاخیر کمتر بین ذرات
+      pointerRepel={30}       // دفع ملایم‌تر موقع نزدیک شدن موس
+      repelRadius={70}        // شعاع اثر موس کمتر
+      idleDrift={0.1}         // لرزش بسیار کم در حالت عادی تا متن خوانا بمونه
+      trigger="mount"
+fontSize="100%"         
+      fontWeight={800}
+      fontFamily="inherit"
+   glow={false}       // خاموش کردن گلو داخلی کامپوننت برای شارپ‌تر شدن لبه‌ها
+    />
+  </div>
+</h2>
+
         <p className="mt-3 text-xs sm:text-sm text-zinc-400 max-w-md mx-auto leading-relaxed">
           A place to digitize and smarten up the workplace and tedious, repetitive processes.
         </p>
@@ -133,65 +156,45 @@ export function CustomWorkspaceSection() {
       <div className="w-full max-w-3xl flex flex-col md:flex-row items-center justify-center gap-10 sm:gap-14 md:gap-16">
         
         {/* LEFT COLUMN: The Custom Workspace Folder Graphic */}
-        <div className="flex flex-col items-center">
-          {/* Folder Graphic Container */}
-          <div className="relative w-[230px] sm:w-[250px] h-[175px] sm:h-[190px] flex flex-col items-center justify-end">
-            
-            {/* Folder Back Tab (Blue / Accent Top-Left Tab) */}
-            <div className="absolute top-0 left-0 w-[96px] sm:w-[105px] h-[32px] sm:h-[36px] rounded-t-[14px] bg-gradient-to-r from-[#2563EB] to-[#1D4ED8] shadow-md border-t border-l border-r border-blue-400/30" />
-            
-            {/* Folder Back Edge Extension */}
-            <div className="absolute top-[8px] left-[88px] right-0 h-[24px] rounded-tr-[16px] bg-[#1a1c22] border-t border-r border-white/10" />
+       <div className="flex flex-col items-center">
+          {/* Folder Image Container */}
+          <div className="relative w-[230px] sm:w-[260px] h-[175px] sm:h-[195px] flex flex-col items-center justify-center">
 
             {/* Folder Front Main Flap / Body */}
-            <AnimatePresence mode="wait">
+         <AnimatePresence mode="wait">
               <motion.div
                 key={currentWorkspace.id}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.25 }}
-                className={`relative z-10 w-full h-[155px] sm:h-[168px] rounded-[20px] bg-gradient-to-b ${currentWorkspace.gradient} border border-white/15 shadow-[0_20px_40px_rgba(0,0,0,0.7)] flex flex-col items-center justify-center p-4 backdrop-blur-md overflow-hidden`}
+                initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: -10 }}
+                transition={{ duration: 0.25, type: 'spring', damping: 20 }}
+                className="absolute inset-0 w-full h-full flex flex-col items-center justify-center"
               >
-                {/* Subtle metallic diagonal sheen line */}
-                <div
-                  aria-hidden="true"
-                  className="absolute inset-0 bg-[linear-gradient(115deg,rgba(255,255,255,0.08)_0%,transparent_35%,rgba(255,255,255,0.03)_100%)] pointer-events-none"
-                />
-
-                {/* Quton Brand Mark in Metallic/Monochrome Center */}
-                <div className="relative w-12 h-12 sm:w-14 sm:h-14 opacity-55 flex items-center justify-center mb-2">
-                  <Image
-                    src="/assets/quton-dark.png"
-                    alt="Workspace Brand"
-                    width={56}
-                    height={56}
-                    className="object-contain filter grayscale brightness-125"
-                    priority
-                  />
-                </div>
-
-                {/* Workspace Name */}
-                <span className="text-xs sm:text-sm font-medium tracking-tight text-zinc-400 font-sans">
-                  {currentWorkspace.name}
-                </span>
-
-                {/* Free / Pro Tag */}
-                {currentWorkspace.tier === 'Pro' && (
-                  <span className="absolute top-3 right-3 text-[9px] font-mono px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30">
-                    PRO
-                  </span>
-                )}
+                {/* 
+                  فقط کافیه عکس Component 11 رو تو پوشه public/assets بذاری.
+                  کلاس hue-rotate رنگ آبی رو به بنفش (growth) و سبز (engineering) شیفت میده.
+                */}
+             <Image
+  src="/assets/folder-free.svg" /* <--- پسوند رو به svg تغییر بده */
+  alt="Workspace"
+  fill
+  unoptimized /* <--- این رو برای SVG حتماً اضافه کن */
+  className={`object-contain drop-shadow-2xl transition-all duration-700 ease-in-out ${
+    currentWorkspace.id === 'growth' ? 'hue-rotate-[60deg]' :
+    currentWorkspace.id === 'engineering' ? '-hue-rotate-[60deg]' :
+    ''
+  }`}
+  priority
+/>
               </motion.div>
             </AnimatePresence>
           </div>
-
           {/* Navigation Arrows (< and >) */}
-          <div className="flex items-center gap-7 mt-6">
+         <div className="flex items-center gap-7 mt-6">
             <button
               type="button"
               onClick={handlePrev}
-              className="w-8 h-8 rounded-full bg-zinc-900/90 hover:bg-zinc-800 text-zinc-400 hover:text-white border border-white/10 flex items-center justify-center transition cursor-pointer shadow-md active:scale-95"
+              className="w-8 h-8 rounded-full bg-zinc-900/90 hover:bg-zinc-800 text-zinc-400 hover:text-white border border-white/10 flex items-center justify-center transition cursor-pointer shadow-md active:scale-95 z-10"
               aria-label="Previous workspace"
             >
               <ChevronLeft className="w-4 h-4" />
@@ -200,7 +203,7 @@ export function CustomWorkspaceSection() {
             <button
               type="button"
               onClick={handleNext}
-              className="w-8 h-8 rounded-full bg-zinc-900/90 hover:bg-zinc-800 text-zinc-400 hover:text-white border border-white/10 flex items-center justify-center transition cursor-pointer shadow-md active:scale-95"
+              className="w-8 h-8 rounded-full bg-zinc-900/90 hover:bg-zinc-800 text-zinc-400 hover:text-white border border-white/10 flex items-center justify-center transition cursor-pointer shadow-md active:scale-95 z-10"
               aria-label="Next workspace"
             >
               <ChevronRight className="w-4 h-4" />
