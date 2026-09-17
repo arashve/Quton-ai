@@ -47,6 +47,10 @@
   --muted-accent: #f5f5f5;
   --muted-accent-soft: rgba(245, 245, 245, 0.07);
   --pixel-bg: rgba(255, 255, 255, 0.04);
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
 }
 
 .font-pixel {
