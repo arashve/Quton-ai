@@ -43,15 +43,10 @@ export function AppShell({
   return (
     <div
       id="app-shell-root"
+      // در اینجا bg-transparent استفاده می‌کنیم تا جلوی بلور شدن بک‌گراند را نگیرد
       className={`relative min-h-screen min-h-[100dvh] w-full bg-black text-zinc-100 flex flex-col font-sans selection:bg-white selection:text-zinc-950 ${className}`}
     >
-      {/* 🟢 راه‌حل قطعی ناچ: نوار مشکی ثابت در بالاترین نقطه برای پوشاندن ناچ گوشی */}
-      <div 
-        className="fixed top-0 inset-x-0 h-[env(safe-area-inset-top,0px)] bg-black z-[100] pointer-events-none" 
-        aria-hidden="true" 
-      />
-
-      {/* Aurora Glassmorphic Glow Meshes in Background */}
+      {/* Aurora Glassmorphic Glow Meshes in Background - اینها باید تا بالا بروند */}
       <div
         aria-hidden="true"
         className="pointer-events-none fixed inset-0 -z-10 overflow-hidden"
@@ -106,29 +101,32 @@ export function AppShell({
       {/* 3. AUTH SHELL */}
       {activeVariant === 'auth' && (
         <div className="flex flex-col min-h-[100dvh] w-full">
-          {/* Minimalist distraction-free top bar */}
-          <header className="h-[calc(4rem+env(safe-area-inset-top,0px))] pt-[env(safe-area-inset-top,0px)] flex items-center justify-between px-6 border-b border-zinc-800/60 bg-zinc-950/60 backdrop-blur-xl z-20">
-            <Link
-              href="/"
-              className="flex items-center gap-2 group text-xs text-zinc-400 hover:text-white transition cursor-pointer"
-            >
-              <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-              <span>Back to AUTOFLOW</span>
-            </Link>
+          {/* هدر اصلاح شده: padding را در یک div داخلی گذاشتم تا کل هدر تا بالای ناچ کشیده شود */}
+          <header className="fixed top-0 left-0 right-0 w-full z-50 border-b border-zinc-800/60 bg-zinc-950/60 backdrop-blur-xl">
+             <div className="flex items-center justify-between px-6 h-16 pt-[env(safe-area-inset-top,0px)] box-content">
+                <Link
+                  href="/"
+                  className="flex items-center gap-2 group text-xs text-zinc-400 hover:text-white transition cursor-pointer"
+                >
+                  <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+                  <span>Back to AUTOFLOW</span>
+                </Link>
 
-            <Link href="/" className="flex items-center gap-2">
-              <BrandMark theme="dark" compact showWordmark />
-            </Link>
+                <Link href="/" className="flex items-center gap-2">
+                  <BrandMark theme="dark" compact showWordmark />
+                </Link>
 
-            <div className="w-20" />
+                <div className="w-20" />
+             </div>
           </header>
 
-          <main className="flex-1 flex items-center justify-center p-4">
+          {/* محتوا را هل دادیم پایین تا زیر هدر fixed گیر نکند */}
+          <main className="flex-1 flex items-center justify-center p-4 mt-[calc(4rem+env(safe-area-inset-top,0px))]">
             {children}
           </main>
 
           {/* Minimal bottom brand footnote */}
-          <footer className="py-4 text-center text-xs text-zinc-600 font-mono">
+          <footer className="py-4 text-center text-xs text-zinc-600 font-mono pb-[calc(1rem+env(safe-area-inset-bottom,0px))]">
             Quton AI Engine • Ultra-Low Latency Inference
           </footer>
         </div>
