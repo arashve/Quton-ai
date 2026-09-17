@@ -109,7 +109,7 @@ export function Mobile3() {
 
       {/* 2. Floating Dock Container (Fixed near bottom) */}
       <div className="fixed inset-x-0 bottom-0 z-50 md:hidden flex flex-col items-center justify-end px-4 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] pointer-events-none">
-        <div className="w-full max-w-[360px] flex flex-col items-center pointer-events-auto">
+        <div className="w-full max-w-5xl flex flex-col items-center pointer-events-auto">
           
           {/* 3. Search Results Panel (Fades & slides up above the search bar) */}
           <AnimatePresence>

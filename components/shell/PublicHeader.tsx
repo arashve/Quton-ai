@@ -66,7 +66,7 @@ export function PublicHeader({ className = '' }: PublicHeaderProps) {
     <>
    <header
   id="app-public-header"
-  className={`main-header fixed top-0 inset-x-0 z-50 flex items-center justify-center pointer-events-none pt-[calc(env(safe-area-inset-top,0px)+0.75rem)] pl-[calc(1rem+env(safe-area-inset-left,0px))] pr-[calc(1rem+env(safe-area-inset-right,0px))] ${className}`}
+  className={`fixed top-0 inset-x-0 z-50 flex items-center justify-center pointer-events-none pt-[calc(env(safe-area-inset-top,0px)+1rem)] px-4 sm:px-6 ${className}`}
 >
         <motion.nav
           // اعمال مستقیم مقادیر پویا به جای استفاده از className های شرطی
