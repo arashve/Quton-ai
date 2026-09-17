@@ -18,11 +18,9 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
+  userScalable: false,
   viewportFit: 'cover',
-  themeColor: [
-    { media: '(prefers-color-scheme: dark)', color: '#000000' },
-    { media: '(prefers-color-scheme: light)', color: '#000000' },
-  ],
+  themeColor: '#000000',
 };
 
 export const metadata: Metadata = {
@@ -60,7 +58,7 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
       {/* تگ head دستی حذف شد تا خود Next.js آن را مدیریت کند */}
       <body
         suppressHydrationWarning
-        className={`${pixelFont.variable} min-h-screen min-h-[100dvh] bg-black text-zinc-100 antialiased selection:bg-zinc-800 selection:text-white transition-colors duration-200`}
+        className={`${pixelFont.variable} min-h-screen bg-black text-zinc-100 antialiased selection:bg-zinc-800 selection:text-white transition-colors duration-200`}
       >
         <AuthProvider>
           <AppShell>

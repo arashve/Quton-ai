@@ -43,10 +43,9 @@ export function AppShell({
   return (
     <div
       id="app-shell-root"
-      // در اینجا bg-transparent استفاده می‌کنیم تا جلوی بلور شدن بک‌گراند را نگیرد
-      className={`relative min-h-screen min-h-[100dvh] w-full bg-black text-zinc-100 flex flex-col font-sans selection:bg-white selection:text-zinc-950 ${className}`}
+      className={`relative min-h-screen w-full bg-black text-zinc-100 flex flex-col font-sans selection:bg-white selection:text-zinc-950 ${className}`}
     >
-      {/* Aurora Glassmorphic Glow Meshes in Background - اینها باید تا بالا بروند */}
+      {/* Aurora Glassmorphic Glow Meshes in Background */}
       <div
         aria-hidden="true"
         className="pointer-events-none fixed inset-0 -z-10 overflow-hidden"
@@ -58,7 +57,7 @@ export function AppShell({
 
       {/* 1. PUBLIC SHELL */}
       {activeVariant === 'public' && (
-        <div className="flex flex-col min-h-screen min-h-[100dvh] w-full">
+        <div className="flex flex-col min-h-screen w-full">
           {showHeader && <PublicHeader />}
           <main className="flex-1 w-full flex flex-col">{children}</main>
           {!hideMobileNav && <MobileBottomNav />}
@@ -67,7 +66,7 @@ export function AppShell({
 
       {/* 2. STUDIO SHELL */}
       {activeVariant === 'studio' && (
-        <div className="flex flex-col h-[100dvh] w-full overflow-hidden">
+        <div className="flex flex-col h-screen h-[100dvh] w-full overflow-hidden">
           {showHeader && (
             <StudioHeader
               onToggleSidebar={
@@ -100,7 +99,7 @@ export function AppShell({
 
       {/* 3. AUTH SHELL */}
       {activeVariant === 'auth' && (
-        <div className="flex flex-col min-h-[100dvh] w-full">
+        <div className="flex flex-col min-h-screen w-full">
           {/* هدر اصلاح شده: padding را در یک div داخلی گذاشتم تا کل هدر تا بالای ناچ کشیده شود */}
           <header className="fixed top-0 left-0 right-0 w-full z-50 border-b border-zinc-800/60 bg-zinc-950/60 backdrop-blur-xl">
              <div className="flex items-center justify-between px-6 h-16 pt-[env(safe-area-inset-top,0px)] box-content">
