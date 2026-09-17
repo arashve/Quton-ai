@@ -213,7 +213,10 @@ export function PublicHeader({ className = '' }: PublicHeaderProps) {
           </div>
         </motion.nav>
       </header>
-
+<div 
+        className="w-full shrink-0 h-[calc(6rem+env(safe-area-inset-top,0px))]" 
+        aria-hidden="true" 
+      />
       {/* Mobile Dropdown Sheet - Enhanced with Glassmorphism */}
       <AnimatePresence>
         {mobileMenuOpen && (
