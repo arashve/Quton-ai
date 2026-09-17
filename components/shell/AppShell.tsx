@@ -45,6 +45,12 @@ export function AppShell({
       id="app-shell-root"
       className={`relative min-h-screen min-h-[100dvh] w-full bg-black text-zinc-100 flex flex-col font-sans selection:bg-white selection:text-zinc-950 ${className}`}
     >
+      {/* 🟢 راه‌حل قطعی ناچ: نوار مشکی ثابت در بالاترین نقطه برای پوشاندن ناچ گوشی */}
+      <div 
+        className="fixed top-0 inset-x-0 h-[env(safe-area-inset-top,0px)] bg-black z-[100] pointer-events-none" 
+        aria-hidden="true" 
+      />
+
       {/* Aurora Glassmorphic Glow Meshes in Background */}
       <div
         aria-hidden="true"
