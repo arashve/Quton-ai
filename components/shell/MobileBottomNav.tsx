@@ -179,7 +179,7 @@ export function MobileBottomNav({ className = '' }: MobileBottomNavProps) {
       <nav
         id="app-mobile-bottom-nav"
         aria-label="Mobile Navigation"
-        className={`fixed inset-x-0 bottom-0 z-40 md:hidden bg-zinc-950/95 backdrop-blur-2xl border-t border-zinc-800/80 h-[calc(var(--shell-bottom-nav-height,4.25rem)+env(safe-area-inset-bottom,0px))] pb-[env(safe-area-inset-bottom,0px)] px-3 flex items-center justify-around select-none transition-none shadow-2xl ${className}`}
+        className={`site-footer fixed inset-x-0 bottom-0 z-40 md:hidden bg-zinc-950/95 backdrop-blur-2xl border-t border-zinc-800/80 h-[calc(var(--shell-bottom-nav-height,4.25rem)+env(safe-area-inset-bottom,0px))] pb-[env(safe-area-inset-bottom,0px)] pl-[max(0.75rem,env(safe-area-inset-left,0px))] pr-[max(0.75rem,env(safe-area-inset-right,0px))] flex items-center justify-around select-none transition-none shadow-2xl ${className}`}
       >
         {primaryTabs.map((tab) => {
           const Icon = tab.icon;

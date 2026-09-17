@@ -176,7 +176,7 @@ export default function LandingPortalPage() {
       <BackgroundRippleEffect rows={12} cols={32} cellSize={54} />
 
       {/* Main Centered Stage with Spring Transition */}
-      <div className="relative z-10 w-full h-full flex items-center justify-center pt-[calc(3.5rem+env(safe-area-inset-top,0px))] sm:pt-14 pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))] px-4">
+      <div className="relative z-10 w-full h-full flex items-center justify-center pt-[calc(4rem+env(safe-area-inset-top,0px))] pb-[calc(5rem+env(safe-area-inset-bottom,0px))] md:pb-[calc(20px+env(safe-area-inset-bottom,0px))] pl-[calc(1rem+env(safe-area-inset-left,0px))] pr-[calc(1rem+env(safe-area-inset-right,0px))]">
         <AnimatePresence mode="wait" custom={direction}>
           {activeSection === 0 ? (
             <motion.div

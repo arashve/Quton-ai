@@ -373,7 +373,7 @@ export function StudioSidebar({
               animate={{ x: 0 }}
               exit={{ x: -320 }}
               transition={{ type: 'spring', damping: 26, stiffness: 280 }}
-              className="relative flex h-full z-10 shadow-2xl"
+              className="relative flex h-full z-10 shadow-2xl pt-[env(safe-area-inset-top,0px)] pb-[env(safe-area-inset-bottom,0px)] pl-[env(safe-area-inset-left,0px)]"
             >
               {slimRail}
               {insetPanel}
