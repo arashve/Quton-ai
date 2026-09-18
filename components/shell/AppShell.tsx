@@ -43,7 +43,7 @@ export function AppShell({
   return (
     <div
       id="app-shell-root"
-      className={`relative min-h-screen w-full bg-black text-zinc-100 flex flex-col font-sans selection:bg-white selection:text-zinc-950 ${className}`}
+      className={`relative min-h-screen w-full  text-zinc-100 flex flex-col font-sans selection:bg-white selection:text-zinc-950 ${className}`}
     >
       {/* Aurora Glassmorphic Glow Meshes in Background */}
       <div
