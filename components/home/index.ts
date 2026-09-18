@@ -8,4 +8,5 @@ export { HomeCtaSection } from './HomeCtaSection';
 export { HomeFooter } from './HomeFooter';
 export { NeuralVisualizerScope } from './NeuralVisualizerScope';
 export { ScopedHomePresentation } from './ScopedHomePresentation';
+export { UserPlansSection } from './UserPlansSection';
 

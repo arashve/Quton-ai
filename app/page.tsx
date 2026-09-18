@@ -4,12 +4,13 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
 import { BackgroundRippleEffect } from '@/components/ui/background-ripple-effect';
-import { HeroPromptSection, CustomWorkspaceSection } from '@/components/home';
+import { HeroPromptSection, CustomWorkspaceSection, UserPlansSection } from '@/components/home';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
 const SECTIONS = [
   { id: 'hero', title: 'AI Assistant' },
   { id: 'workspace', title: 'Custom Workspace' },
+  { id: 'plans', title: 'Your Plan' },
 ];
 
 export default function LandingPortalPage() {
@@ -190,7 +191,7 @@ export default function LandingPortalPage() {
             >
               <HeroPromptSection onLaunchChat={handleLaunchChat} />
             </motion.div>
-          ) : (
+          ) : activeSection === 1 ? (
             <motion.div
               key="workspace-slide"
               custom={direction}
@@ -201,6 +202,18 @@ export default function LandingPortalPage() {
               className="w-full flex items-center justify-center max-w-5xl"
             >
               <CustomWorkspaceSection />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="plans-slide"
+              custom={direction}
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              className="w-full flex items-center justify-center max-w-5xl"
+            >
+              <UserPlansSection />
             </motion.div>
           )}
         </AnimatePresence>
@@ -249,14 +262,33 @@ export default function LandingPortalPage() {
             <span>Scroll or click for Workspace</span>
             <ChevronDown className="w-3.5 h-3.5" />
           </button>
+        ) : activeSection === 1 ? (
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => goToSection(0, -1)}
+              className="pointer-events-auto inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-zinc-900/80 hover:bg-zinc-800 border border-white/10 text-xs text-zinc-400 hover:text-white backdrop-blur-md transition-all cursor-pointer shadow-lg hover:scale-105 active:scale-95"
+            >
+              <ChevronUp className="w-3.5 h-3.5" />
+              <span>AI Prompt</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => goToSection(2, 1)}
+              className="pointer-events-auto inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-zinc-900/80 hover:bg-zinc-800 border border-white/10 text-xs text-zinc-400 hover:text-white backdrop-blur-md transition-all cursor-pointer shadow-lg hover:scale-105 active:scale-95"
+            >
+              <span>Your Plan</span>
+              <ChevronDown className="w-3.5 h-3.5" />
+            </button>
+          </div>
         ) : (
           <button
             type="button"
-            onClick={() => goToSection(0, -1)}
+            onClick={() => goToSection(1, -1)}
             className="pointer-events-auto inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-zinc-900/80 hover:bg-zinc-800 border border-white/10 text-xs text-zinc-400 hover:text-white backdrop-blur-md transition-all cursor-pointer shadow-lg hover:scale-105 active:scale-95"
           >
             <ChevronUp className="w-3.5 h-3.5" />
-            <span>Back to AI Prompt</span>
+            <span>Back to Workspace</span>
           </button>
         )}
       </div>
