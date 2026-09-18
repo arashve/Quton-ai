@@ -57,7 +57,7 @@ export function AppShell({
 
       {/* 1. PUBLIC SHELL */}
       {activeVariant === 'public' && (
-        <div className="flex flex-col min-h-screen w-full">
+        <div className="flex flex-col min-h-dvh w-full">
           {showHeader && <PublicHeader />}
           <main className="flex-1 w-full flex flex-col">{children}</main>
           {!hideMobileNav && <MobileBottomNav />}

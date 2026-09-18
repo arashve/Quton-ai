@@ -20,7 +20,7 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   viewportFit: 'cover',
-  themeColor: '#000000',
+
 };
 
 export const metadata: Metadata = {
@@ -55,11 +55,10 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
       className={cn("dark", "font-sans bg-black", geist.variable)} 
       suppressHydrationWarning
     >
-      {/* تگ head دستی حذف شد تا خود Next.js آن را مدیریت کند */}
-      <body
-        suppressHydrationWarning
-        className={`${pixelFont.variable} min-h-screen bg-black text-zinc-100 antialiased selection:bg-zinc-800 selection:text-white transition-colors duration-200`}
-      >
+<body
+  suppressHydrationWarning
+  className={`${pixelFont.variable} min-h-dvh bg-black text-zinc-100 antialiased selection:bg-zinc-800 selection:text-white transition-colors duration-200`}
+>
         <AuthProvider>
           <AppShell>
             {children}
