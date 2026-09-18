@@ -1,7 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { motion } from 'motion/react';
+import { ArrowRight, Sparkles } from 'lucide-react';
 import ParticleText from '../ParticleText';
 
 // SVGهای دقیق برای آیکون‌ها
@@ -108,6 +110,18 @@ export function UserPlansSection() {
                 );
               })}
             </div>
+
+            {/* Launch Free Setup Button */}
+            <div className="mt-8 pt-4 border-t border-white/[0.04]">
+              <Link
+                href="/workspace?setup=true&plan=Free"
+                onClick={(e) => e.stopPropagation()}
+                className="w-full py-3 px-4 rounded-full bg-white/[0.08] hover:bg-white/[0.15] text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition text-center cursor-pointer"
+              >
+                <span>Launch Free Setup</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
           </div>
 
           {/* کارت دوم: Pro */}
@@ -155,6 +169,19 @@ export function UserPlansSection() {
                   </div>
                 );
               })}
+            </div>
+
+            {/* Launch Pro Setup Button */}
+            <div className="mt-8 pt-4 border-t border-white/[0.04]">
+              <Link
+                href="/workspace?setup=true&plan=Pro"
+                onClick={(e) => e.stopPropagation()}
+                className="w-full py-3 px-4 rounded-full bg-white hover:bg-zinc-200 text-black text-xs font-bold flex items-center justify-center gap-1.5 transition text-center shadow-lg cursor-pointer"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-purple-600" />
+                <span>Launch Pro Setup & Custom UI</span>
+                <ArrowRight className="w-3.5 h-3.5 text-black" />
+              </Link>
             </div>
           </div>
 

@@ -398,10 +398,11 @@ export function WorkspaceStudioSection() {
             </button>
 
             <Link
-              href="/workspace"
+              href="/workspace?setup=true"
               className="px-4 py-2 rounded-full bg-white text-zinc-950 text-xs font-bold hover:bg-zinc-200 transition flex items-center gap-1.5 shadow-md cursor-pointer"
             >
-              <span>Open Studio</span>
+              <Sparkles className="w-3.5 h-3.5 text-purple-600" />
+              <span>Launch Workspace Setup</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -646,10 +647,11 @@ export function WorkspaceStudioSection() {
 
           <div className="flex items-center gap-3 w-full md:w-auto justify-end">
             <Link
-              href="/workspace"
-              className="px-4 py-2 rounded-full bg-white text-zinc-950 text-xs font-bold hover:bg-zinc-200 transition"
+              href="/workspace?setup=true"
+              className="px-4 py-2 rounded-full bg-white text-zinc-950 text-xs font-bold hover:bg-zinc-200 transition flex items-center gap-1.5 cursor-pointer shadow-md"
             >
-              Create Free Workspace
+              <Sparkles className="w-3.5 h-3.5 text-purple-600" />
+              <span>Launch Workspace Setup</span>
             </Link>
           </div>
         </div>
