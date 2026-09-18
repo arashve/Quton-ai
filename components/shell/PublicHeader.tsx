@@ -52,24 +52,23 @@ export function PublicHeader({ className = '' }: PublicHeaderProps) {
     mass: 0.5       // جرم (وزن انیمیشن)
   });
 
-  // ۳. استفاده از smoothScrollY به جای scrollY در useTransform
+  // ۳. استفاده از smoothScrollY به جای scrollY در useTransform - پس‌زمینه شیشه‌ای شفاف به جای رنگ تیره مات
   const navMaxWidth = useTransform(smoothScrollY, [0, 60], ['76rem', '52rem']);
-  const navBg = useTransform(smoothScrollY, [0, 60], ['rgba(0,0,0,0.5)', 'rgba(12,12,14,0.85)']);
+  const navBg = useTransform(smoothScrollY, [0, 60], ['rgba(18,18,20,0.22)', 'rgba(24,24,27,0.45)']);
   const navScale = useTransform(smoothScrollY, [0, 60], [1, 0.995]);
   const navBoxShadow = useTransform(smoothScrollY, [0, 60], [
     '0 0 0 0 rgba(0,0,0,0)',
-    '0 30px 60px -20px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.08)'
+    '0 16px 36px -10px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.1)'
   ]);
-  const navPadding = useTransform(smoothScrollY, [0, 60], ['14px 24px', '8px 16px']);
+  const navPadding = useTransform(smoothScrollY, [0, 60], ['12px 22px', '8px 16px']);
 
   return (
     <>
-   <header
-  id="app-public-header"
-  className={`fixed top-0 inset-x-0 z-50 flex items-center justify-center pointer-events-none pt-[calc(env(safe-area-inset-top,0px)+1rem)] px-4 sm:px-6 ${className}`}
->
+      <header
+        id="app-public-header"
+        className={`fixed top-0 inset-x-0 z-50 flex items-center justify-center pointer-events-none pt-[max(0.75rem,calc(env(safe-area-inset-top,0px)+0.25rem))] px-[max(1rem,env(safe-area-inset-left,0px))] ${className}`}
+      >
         <motion.nav
-          // اعمال مستقیم مقادیر پویا به جای استفاده از className های شرطی
           style={{
             maxWidth: navMaxWidth,
             backgroundColor: navBg,
@@ -78,7 +77,7 @@ export function PublicHeader({ className = '' }: PublicHeaderProps) {
             padding: navPadding,
             borderRadius: '9999px',
           }}
-          className="pointer-events-auto flex items-center justify-between w-full backdrop-blur-md"
+          className="pointer-events-auto flex items-center justify-between w-full backdrop-blur-2xl border border-white/10"
         >
           {/* Left: Brand Logo + Pro Badge */}
           <Link

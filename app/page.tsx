@@ -1,23 +1,21 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
 import { BackgroundRippleEffect } from '@/components/ui/background-ripple-effect';
 import { HeroPromptSection, CustomWorkspaceSection, UserPlansSection } from '@/components/home';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { Sparkles, Layers, CreditCard } from 'lucide-react';
 
 const SECTIONS = [
-  { id: 'hero', title: 'AI Assistant' },
-  { id: 'workspace', title: 'Custom Workspace' },
-  { id: 'plans', title: 'Your Plan' },
+  { id: 'hero-section', title: 'AI Assistant', icon: Sparkles },
+  { id: 'workspace-section', title: 'Custom Workspace', icon: Layers },
+  { id: 'plans-section', title: 'Your Plan', icon: CreditCard },
 ];
 
 export default function LandingPortalPage() {
   const router = useRouter();
   const [activeSection, setActiveSection] = useState(0);
-  const [direction, setDirection] = useState(1); // 1 = down, -1 = up
-  const isTransitioningRef = useRef(false);
 
   const handleLaunchChat = (promptText?: string, modeOverride?: string) => {
     const text = (promptText || '').trim();
@@ -41,257 +39,179 @@ export default function LandingPortalPage() {
     }
   };
 
-  const goToSection = useCallback((nextIndex: number, forcedDirection?: number) => {
-    if (nextIndex < 0 || nextIndex >= SECTIONS.length) return;
-    if (isTransitioningRef.current) return;
+  const scrollToSection = useCallback((sectionId: string, index: number) => {
+    setActiveSection(index);
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, []);
 
-    isTransitioningRef.current = true;
-    setDirection(forcedDirection !== undefined ? forcedDirection : nextIndex > activeSection ? 1 : -1);
-    setActiveSection(nextIndex);
-
-    // Cooldown to prevent runaway scroll skips on trackpads
-    setTimeout(() => {
-      isTransitioningRef.current = false;
-    }, 700);
-  }, [activeSection]);
-
-  // Wheel listener: No standard scroll, triggering animated spring transition
+  // Monitor which section is in scope during continuous smooth scrolling
   useEffect(() => {
-    const handleWheel = (e: WheelEvent) => {
-      // Don't trigger if scroll delta is tiny
-      if (Math.abs(e.deltaY) < 20) return;
-      if (isTransitioningRef.current) return;
+    const sectionIds = SECTIONS.map((s) => s.id);
 
-      if (e.deltaY > 0) {
-        if (activeSection < SECTIONS.length - 1) {
-          goToSection(activeSection + 1, 1);
-        }
-      } else {
-        if (activeSection > 0) {
-          goToSection(activeSection - 1, -1);
+    const updateActiveSectionOnScroll = () => {
+      const scrollPosition = window.scrollY + window.innerHeight * 0.4;
+      const docHeight = document.documentElement.scrollHeight;
+      const winHeight = window.innerHeight;
+
+      // If scrolled to the very bottom, activate the last section
+      if (window.scrollY + winHeight >= docHeight - 40) {
+        setActiveSection(SECTIONS.length - 1);
+        return;
+      }
+
+      // If at the very top, activate first section
+      if (window.scrollY < 120) {
+        setActiveSection(0);
+        return;
+      }
+
+      for (let i = sectionIds.length - 1; i >= 0; i--) {
+        const el = document.getElementById(sectionIds[i]);
+        if (el) {
+          const top = el.offsetTop;
+          if (scrollPosition >= top) {
+            setActiveSection(i);
+            break;
+          }
         }
       }
     };
 
-    window.addEventListener('wheel', handleWheel, { passive: true });
-    return () => window.removeEventListener('wheel', handleWheel);
-  }, [activeSection, goToSection]);
+    window.addEventListener('scroll', updateActiveSectionOnScroll, { passive: true });
+    updateActiveSectionOnScroll();
 
-  // Touch Swipe gestures for mobile
-  useEffect(() => {
-    let touchStartY = 0;
-
-    const handleTouchStart = (e: TouchEvent) => {
-      touchStartY = e.touches[0].clientY;
-    };
-
-    const handleTouchEnd = (e: TouchEvent) => {
-      const touchEndY = e.changedTouches[0].clientY;
-      const diffY = touchStartY - touchEndY;
-
-      if (Math.abs(diffY) < 45) return;
-      if (isTransitioningRef.current) return;
-
-      if (diffY > 0) {
-        // Swiped up -> next section
-        if (activeSection < SECTIONS.length - 1) {
-          goToSection(activeSection + 1, 1);
-        }
-      } else {
-        // Swiped down -> previous section
-        if (activeSection > 0) {
-          goToSection(activeSection - 1, -1);
-        }
+    // IntersectionObserver for responsive viewport boundaries
+    const observers: IntersectionObserver[] = [];
+    sectionIds.forEach((id, index) => {
+      const el = document.getElementById(id);
+      if (el) {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                setActiveSection(index);
+              }
+            });
+          },
+          {
+            root: null,
+            rootMargin: '-25% 0px -45% 0px',
+            threshold: 0.1,
+          }
+        );
+        observer.observe(el);
+        observers.push(observer);
       }
-    };
+    });
 
-    window.addEventListener('touchstart', handleTouchStart, { passive: true });
-    window.addEventListener('touchend', handleTouchEnd, { passive: true });
     return () => {
-      window.removeEventListener('touchstart', handleTouchStart);
-      window.removeEventListener('touchend', handleTouchEnd);
+      window.removeEventListener('scroll', updateActiveSectionOnScroll);
+      observers.forEach((obs) => obs.disconnect());
     };
-  }, [activeSection, goToSection]);
-
-  // Keyboard navigation (ArrowDown/PageDown/Space to advance, ArrowUp/PageUp to go back)
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Ignore if user is currently typing in an input or textarea
-      const tag = document.activeElement?.tagName?.toLowerCase();
-      if (tag === 'input' || tag === 'textarea') return;
-
-      if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') {
-        if (activeSection < SECTIONS.length - 1) {
-          e.preventDefault();
-          goToSection(activeSection + 1, 1);
-        }
-      } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
-        if (activeSection > 0) {
-          e.preventDefault();
-          goToSection(activeSection - 1, -1);
-        }
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [activeSection, goToSection]);
-
-  // Spring slide animation variants
-  const slideVariants = {
-    enter: (dir: number) => ({
-      y: dir > 0 ? '75%' : '-75%',
-      opacity: 0,
-      scale: 0.9,
-      filter: 'blur(10px)',
-    }),
-    center: {
-      y: 0,
-      opacity: 1,
-      scale: 1,
-      filter: 'blur(0px)',
-      transition: {
-        y: { type: 'spring', stiffness: 220, damping: 22, mass: 0.85 },
-        scale: { type: 'spring', stiffness: 220, damping: 22 },
-        opacity: { duration: 0.35, ease: 'easeOut' },
-        filter: { duration: 0.3 },
-      },
-    },
-    exit: (dir: number) => ({
-      y: dir > 0 ? '-75%' : '75%',
-      opacity: 0,
-      scale: 0.9,
-      filter: 'blur(10px)',
-      transition: {
-        y: { type: 'spring', stiffness: 220, damping: 25, mass: 0.85 },
-        scale: { duration: 0.25 },
-        opacity: { duration: 0.25 },
-        filter: { duration: 0.2 },
-      },
-    }),
-  };
+  }, []);
 
   return (
-    <div className="bg-black min-h-screen w-full text-white relative overflow-hidden flex flex-col justify-center items-center">
-      {/* Interactive Background Ripple Matrix */}
-      <BackgroundRippleEffect rows={12} cols={32} cellSize={54} />
-
-      {/* Main Centered Stage with Spring Transition */}
-      <div className="relative z-10 w-full h-full flex items-center justify-center pt-[calc(4rem+env(safe-area-inset-top,0px))] pb-[calc(5rem+env(safe-area-inset-bottom,0px))] md:pb-[calc(20px+env(safe-area-inset-bottom,0px))] pl-[calc(1rem+env(safe-area-inset-left,0px))] pr-[calc(1rem+env(safe-area-inset-right,0px))]">
-        <AnimatePresence mode="wait" custom={direction}>
-          {activeSection === 0 ? (
-            <motion.div
-              key="hero-slide"
-              custom={direction}
-              variants={slideVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              className="w-full flex items-center justify-center max-w-5xl"
-            >
-              <HeroPromptSection onLaunchChat={handleLaunchChat} />
-            </motion.div>
-          ) : activeSection === 1 ? (
-            <motion.div
-              key="workspace-slide"
-              custom={direction}
-              variants={slideVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              className="w-full flex items-center justify-center max-w-5xl"
-            >
-              <CustomWorkspaceSection />
-            </motion.div>
-          ) : (
-            <motion.div
-              key="plans-slide"
-              custom={direction}
-              variants={slideVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              className="w-full flex items-center justify-center max-w-5xl"
-            >
-              <UserPlansSection />
-            </motion.div>
-          )}
-        </AnimatePresence>
+    <div className="bg-black min-h-screen w-full text-white relative flex flex-col items-center selection:bg-white selection:text-black">
+      {/* Background Matrix - Fluid full-bleed layer behind the notch and navigation */}
+      <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden opacity-70">
+        <BackgroundRippleEffect rows={14} cols={34} cellSize={54} />
       </div>
 
-      {/* Vertical Spring Dots Indicator (Right Edge) */}
-      <aside
-        aria-label="Section navigation"
-        className="fixed right-4 sm:right-6 top-1/2 -translate-y-1/2 z-40 flex flex-col items-center gap-3 select-none"
+      {/* Subtle Aurora Ambient Radial Lights */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none fixed inset-0 -z-10 overflow-hidden"
       >
-        {SECTIONS.map((sec, idx) => {
-          const isActive = activeSection === idx;
-          return (
-            <button
-              key={sec.id}
-              type="button"
-              onClick={() => goToSection(idx)}
-              aria-label={`Go to ${sec.title}`}
-              className="group relative flex items-center justify-end p-2 cursor-pointer focus:outline-none"
-            >
-              {/* Tooltip on hover */}
-              <span className="absolute right-7 px-2.5 py-1 rounded-full bg-zinc-900/90 text-zinc-300 text-[11px] font-sans border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none shadow-lg">
-                {sec.title}
-              </span>
-              {/* Dot Indicator */}
-              <div
-                className={`rounded-full transition-all duration-300 ${
-                  isActive
-                    ? 'w-2.5 h-6 bg-white shadow-[0_0_14px_rgba(255,255,255,0.9)]'
-                    : 'w-2 h-2 bg-white/25 hover:bg-white/60'
-                }`}
-              />
-            </button>
-          );
-        })}
-      </aside>
-
-      {/* Floating Bottom Navigation Hint */}
-      <div className="fixed bottom-4 sm:bottom-6 inset-x-0 z-30 flex items-center justify-center pointer-events-none">
-        {activeSection === 0 ? (
-          <button
-            type="button"
-            onClick={() => goToSection(1, 1)}
-            className="pointer-events-auto inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-zinc-900/80 hover:bg-zinc-800 border border-white/10 text-xs text-zinc-400 hover:text-white backdrop-blur-md transition-all cursor-pointer shadow-lg animate-bounce"
-          >
-            <span>Scroll or click for Workspace</span>
-            <ChevronDown className="w-3.5 h-3.5" />
-          </button>
-        ) : activeSection === 1 ? (
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => goToSection(0, -1)}
-              className="pointer-events-auto inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-zinc-900/80 hover:bg-zinc-800 border border-white/10 text-xs text-zinc-400 hover:text-white backdrop-blur-md transition-all cursor-pointer shadow-lg hover:scale-105 active:scale-95"
-            >
-              <ChevronUp className="w-3.5 h-3.5" />
-              <span>AI Prompt</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => goToSection(2, 1)}
-              className="pointer-events-auto inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-zinc-900/80 hover:bg-zinc-800 border border-white/10 text-xs text-zinc-400 hover:text-white backdrop-blur-md transition-all cursor-pointer shadow-lg hover:scale-105 active:scale-95"
-            >
-              <span>Your Plan</span>
-              <ChevronDown className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        ) : (
-          <button
-            type="button"
-            onClick={() => goToSection(1, -1)}
-            className="pointer-events-auto inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-zinc-900/80 hover:bg-zinc-800 border border-white/10 text-xs text-zinc-400 hover:text-white backdrop-blur-md transition-all cursor-pointer shadow-lg hover:scale-105 active:scale-95"
-          >
-            <ChevronUp className="w-3.5 h-3.5" />
-            <span>Back to Workspace</span>
-          </button>
-        )}
+        <div className="absolute -top-32 left-1/3 w-[600px] h-[600px] rounded-full bg-blue-600/10 blur-[140px]" />
+        <div className="absolute top-1/2 -right-24 w-[500px] h-[500px] rounded-full bg-purple-600/10 blur-[140px]" />
+        <div className="absolute -bottom-32 left-1/4 w-[600px] h-[600px] rounded-full bg-cyan-600/8 blur-[130px]" />
       </div>
+
+      {/* Main Continuous Scrolling Container
+          Designed for iPhone X / WebKit full-bleed safe area:
+          - Content starts with top spacing so it sits below floating header on load
+          - As user scrolls, content seamlessly passes under the top notch and under the floating bars
+          - Ample bottom safe padding ensures content can be read comfortably above the floating bottom dock
+      */}
+      <div className="w-full flex flex-col items-center pt-[max(5.5rem,calc(env(safe-area-inset-top,0px)+4.5rem))] pb-[max(6.5rem,calc(env(safe-area-inset-bottom,0px)+5.5rem))] px-[max(1rem,env(safe-area-inset-left,0px))] pr-[max(1rem,env(safe-area-inset-right,0px))]">
+        
+        {/* Section 1: AI Assistant & Prompt Section */}
+        <section
+          id="hero-section"
+          className="w-full flex items-center justify-center max-w-5xl py-8 sm:py-16 md:py-20 scroll-mt-24"
+        >
+          <HeroPromptSection onLaunchChat={handleLaunchChat} />
+        </section>
+
+        {/* Section 2: Custom Workspace Section */}
+        <section
+          id="workspace-section"
+          className="w-full flex items-center justify-center max-w-5xl py-12 sm:py-20 md:py-28 scroll-mt-24"
+        >
+          <CustomWorkspaceSection />
+        </section>
+
+        {/* Section 3: User Plans Section */}
+        <section
+          id="plans-section"
+          className="w-full flex items-center justify-center max-w-5xl py-12 sm:py-20 md:py-28 scroll-mt-24"
+        >
+          <UserPlansSection />
+        </section>
+      </div>
+
+      {/* Floating 3-Icon Side Navigation Dock
+          When content is in scope of each section, its icon turns pure white!
+      */}
+      <aside
+        aria-label="Scope Section Navigation"
+        className="fixed right-3 sm:right-6 top-1/2 -translate-y-1/2 z-40 flex flex-col items-center select-none"
+      >
+        <div className="p-1.5 sm:p-2 rounded-full bg-zinc-950/40 backdrop-blur-2xl border border-white/15 shadow-[0_8px_32px_rgba(0,0,0,0.6)] flex flex-col items-center gap-2">
+          {SECTIONS.map((sec, idx) => {
+            const Icon = sec.icon;
+            const isActive = activeSection === idx;
+
+            return (
+              <button
+                key={sec.id}
+                type="button"
+                onClick={() => scrollToSection(sec.id, idx)}
+                aria-label={`Scroll to ${sec.title}`}
+                className={`group relative p-2.5 sm:p-3 rounded-full transition-all duration-300 flex items-center justify-center cursor-pointer focus:outline-none ${
+                  isActive
+                    ? 'bg-white/20 text-white shadow-[0_0_16px_rgba(255,255,255,0.45)] ring-1 ring-white/30 scale-105'
+                    : 'text-zinc-500 hover:text-zinc-200 hover:bg-white/5'
+                }`}
+              >
+                {/* Floating Tooltip displaying section name */}
+                <span className="absolute right-12 px-3 py-1 rounded-full bg-zinc-900/90 text-zinc-200 text-[11px] font-sans border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none shadow-xl backdrop-blur-md">
+                  {sec.title}
+                </span>
+
+                {/* Section Icon: Turns pure WHITE when active in scope */}
+                <Icon
+                  className={`w-4 h-4 sm:w-4.5 sm:h-4.5 transition-colors duration-300 ${
+                    isActive ? 'text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]' : 'text-zinc-400 group-hover:text-zinc-200'
+                  }`}
+                />
+
+                {/* Subtle active pill indicator on right edge */}
+                {isActive && (
+                  <motion.div
+                    layoutId="active-scope-dot"
+                    className="absolute -right-1 w-1.5 h-3.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.9)]"
+                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                  />
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </aside>
     </div>
   );
 }

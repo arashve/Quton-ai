@@ -58,19 +58,36 @@
 }
 
 html {
-min-height: 100dvh;
-
+  min-height: 100dvh;
   color-scheme: dark;
   -webkit-text-size-adjust: 100%;
-  
+  scroll-behavior: smooth;
 }
 
 html, body {
-min-height: 100dvh;
-
+  min-height: 100dvh;
   margin: 0;
   padding: 0;
+}
 
+/* WebKit / iOS 11.0 - 11.2 constant() fallback per Designing Websites for iPhone X */
+@supports (padding-top: constant(safe-area-inset-top)) {
+  :root {
+    --safe-top: constant(safe-area-inset-top);
+    --safe-right: constant(safe-area-inset-right);
+    --safe-bottom: constant(safe-area-inset-bottom);
+    --safe-left: constant(safe-area-inset-left);
+  }
+}
+
+/* iOS 11.2+ env() safe-area-inset values per The Notch and CSS */
+@supports (padding-top: env(safe-area-inset-top)) {
+  :root {
+    --safe-top: env(safe-area-inset-top);
+    --safe-right: env(safe-area-inset-right);
+    --safe-bottom: env(safe-area-inset-bottom);
+    --safe-left: env(safe-area-inset-left);
+  }
 }
 
 :root {

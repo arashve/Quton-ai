@@ -175,69 +175,74 @@ export function MobileBottomNav({ className = '' }: MobileBottomNavProps) {
         )}
       </AnimatePresence>
 
-      {/* 2. Persistent, stable fixed bottom bar (Rock Solid - Zero Jumping) */}
-      <nav
-        id="app-mobile-bottom-nav"
-        aria-label="Mobile Navigation"
-        className={`site-footer fixed inset-x-0 bottom-0 z-40 md:hidden bg-zinc-950/95 backdrop-blur-2xl border-t border-zinc-800/80 h-[calc(var(--shell-bottom-nav-height,4.25rem)+env(safe-area-inset-bottom,0px))] pb-[env(safe-area-inset-bottom,0px)] pl-[max(0.75rem,env(safe-area-inset-left,0px))] pr-[max(0.75rem,env(safe-area-inset-right,0px))] flex items-center justify-around select-none transition-none shadow-2xl ${className}`}
+      {/* 2. Floating Apple-style Translucent Glass Bottom Bar on top of scrolling content */}
+      <div
+        id="app-mobile-bottom-nav-container"
+        className={`fixed inset-x-0 bottom-0 z-40 md:hidden pointer-events-none pb-[max(0.75rem,calc(env(safe-area-inset-bottom,0px)+0.35rem))] px-3 sm:px-5 ${className}`}
       >
-        {primaryTabs.map((tab) => {
-          const Icon = tab.icon;
-          const active = tab.isActive;
+        <nav
+          id="app-mobile-bottom-nav"
+          aria-label="Mobile Navigation"
+          className="pointer-events-auto w-full max-w-md mx-auto rounded-full bg-zinc-950/35 backdrop-blur-2xl border border-white/15 shadow-[0_12px_36px_rgba(0,0,0,0.5)] py-1.5 px-3 flex items-center justify-around select-none transition-all"
+        >
+          {primaryTabs.map((tab) => {
+            const Icon = tab.icon;
+            const active = tab.isActive;
 
-          return (
-            <Link
-              key={tab.id}
-              href={tab.href}
-              className={`relative flex flex-col items-center justify-center py-1 px-3 min-w-[54px] rounded-2xl transition-colors cursor-pointer ${
-                active ? 'text-white' : 'text-zinc-400 hover:text-zinc-200'
+            return (
+              <Link
+                key={tab.id}
+                href={tab.href}
+                className={`relative flex flex-col items-center justify-center py-1 px-3 min-w-[50px] rounded-full transition-colors cursor-pointer ${
+                  active ? 'text-white' : 'text-zinc-400 hover:text-zinc-200'
+                }`}
+              >
+                {active && (
+                  <motion.div
+                    layoutId="mobile-bottom-nav-active-pill"
+                    className="absolute inset-0 -z-10 rounded-full bg-white/10 border border-white/15 shadow-sm"
+                    transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                  />
+                )}
+                <Icon className={`w-4.5 h-4.5 ${active ? 'stroke-[2.2] text-white' : 'stroke-[1.7]'}`} />
+                <span className={`text-[10px] tracking-tight mt-0.5 font-medium ${active ? 'font-bold text-white' : ''}`}>
+                  {tab.label}
+                </span>
+              </Link>
+            );
+          })}
+
+          {/* 5th Anchor: More Button */}
+          <button
+            type="button"
+            onClick={() => setIsMoreOpen(true)}
+            className={`relative flex flex-col items-center justify-center py-1 px-3 min-w-[50px] rounded-full transition-colors cursor-pointer ${
+              isMoreActive || isMoreOpen ? 'text-white' : 'text-zinc-400 hover:text-zinc-200'
+            }`}
+            aria-label="Open More Options"
+          >
+            {(isMoreActive || isMoreOpen) && (
+              <motion.div
+                layoutId="mobile-bottom-nav-active-pill"
+                className="absolute inset-0 -z-10 rounded-full bg-white/10 border border-white/15 shadow-sm"
+                transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+              />
+            )}
+            <LayoutGrid
+              className={`w-4.5 h-4.5 ${
+                isMoreActive || isMoreOpen ? 'stroke-[2.2] text-white' : 'stroke-[1.7]'
+              }`}
+            />
+            <span
+              className={`text-[10px] tracking-tight mt-0.5 font-medium ${
+                isMoreActive || isMoreOpen ? 'font-bold text-white' : ''
               }`}
             >
-              {active && (
-                <motion.div
-                  layoutId="mobile-bottom-nav-active-pill"
-                  className="absolute inset-0 -z-10 rounded-2xl bg-white/10 border border-white/10"
-                  transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-                />
-              )}
-              <Icon className={`w-5 h-5 ${active ? 'stroke-[2.2] text-white' : 'stroke-[1.7]'}`} />
-              <span className={`text-[10px] tracking-tight mt-0.5 font-medium ${active ? 'font-bold' : ''}`}>
-                {tab.label}
-              </span>
-            </Link>
-          );
-        })}
-
-        {/* 5th Anchor: More Button */}
-        <button
-          type="button"
-          onClick={() => setIsMoreOpen(true)}
-          className={`relative flex flex-col items-center justify-center py-1 px-3 min-w-[54px] rounded-2xl transition-colors cursor-pointer ${
-            isMoreActive || isMoreOpen ? 'text-white' : 'text-zinc-400 hover:text-zinc-200'
-          }`}
-          aria-label="Open More Options"
-        >
-          {(isMoreActive || isMoreOpen) && (
-            <motion.div
-              layoutId="mobile-bottom-nav-active-pill"
-              className="absolute inset-0 -z-10 rounded-2xl bg-white/10 border border-white/10"
-              transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-            />
-          )}
-          <LayoutGrid
-            className={`w-5 h-5 ${
-              isMoreActive || isMoreOpen ? 'stroke-[2.2] text-white' : 'stroke-[1.7]'
-            }`}
-          />
-          <span
-            className={`text-[10px] tracking-tight mt-0.5 font-medium ${
-              isMoreActive || isMoreOpen ? 'font-bold' : ''
-            }`}
-          >
-            More
-          </span>
-        </button>
-      </nav>
+              More
+            </span>
+          </button>
+        </nav>
+      </div>
     </>
   );
 }
