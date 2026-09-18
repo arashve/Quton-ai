@@ -21,27 +21,8 @@ export const viewport: Viewport = {
 };
 export const metadata: Metadata = {
   title: 'Quton',
-  description: 'Real-time AI Chatbot streaming over Server-Sent Events (SSE) with ultra-low latency, supporting custom system models, Groq, local Ollama, and Gemini.',
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: 'black-translucent',
-    title: 'Quton',
-  },
-  other: {
-    'mobile-web-app-capable': 'yes',
-    'apple-touch-fullscreen': 'yes',
-    'msapplication-navbutton-color': '#000000',
-  },
-  openGraph: {
-    title: 'Quton',
-    description: 'Real-time AI Chatbot...',
-    type: 'website',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Quton',
-    description: 'Real-time AI Chatbot...',
-  },
+  description: 'Real-time AI Chatbot...',
+
 };
 
 export default function RootLayout({children}: {children: React.ReactNode}) {
