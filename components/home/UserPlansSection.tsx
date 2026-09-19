@@ -35,7 +35,7 @@ export function UserPlansSection() {
   const [activePlan, setActivePlan] = useState<'Free' | 'Pro'>('Free');
 
   return (
-    <section id="plans-section" className="w-full flex flex-col items-center justify-center py-12 sm:py-16 px-4 select-none bg-transparent">
+    <div className="w-full flex flex-col items-center justify-center py-2 sm:py-4 px-4 select-none bg-transparent">
       {/* عنوان بالای بخش */}
       <div className="flex items-center justify-center gap-3 mb-10">
         <h2 className="text-3xl sm:text-4xl font-semibold text-white tracking-tight">
@@ -187,6 +187,6 @@ export function UserPlansSection() {
 
         </div>
       </div>
-    </section>
+    </div>
   );
 }

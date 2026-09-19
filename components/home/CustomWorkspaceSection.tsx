@@ -109,7 +109,7 @@ export function CustomWorkspaceSection() {
   return (
     <section
       id="custom-workspace"
-      className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 py-4 sm:py-6 flex flex-col items-center justify-center select-none overflow-hidden"
+      className="relative z-10 w-full max-w-4xl mx-auto px-4 py-4 sm:py-6 flex flex-col items-center justify-center select-none overflow-hidden"
     >
       {/* Background Radial Glow */}
       <div

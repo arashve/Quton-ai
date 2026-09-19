@@ -5,12 +5,11 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'motion/react';
 import { BackgroundRippleEffect } from '@/components/ui/background-ripple-effect';
 import { HeroPromptSection, CustomWorkspaceSection, UserPlansSection } from '@/components/home';
-import { Sparkles, Layers, CreditCard } from 'lucide-react';
 
 const SECTIONS = [
-  { id: 'hero-section', title: 'AI Assistant', icon: Sparkles },
-  { id: 'workspace-section', title: 'Custom Workspace', icon: Layers },
-  { id: 'plans-section', title: 'Your Plan', icon: CreditCard },
+  { id: 'hero-section', title: 'AI Assistant' },
+  { id: 'workspace-section', title: 'Custom Workspace' },
+  { id: 'plans-section', title: 'Your Plan' },
 ];
 
 export default function LandingPortalPage() {
@@ -43,21 +42,21 @@ export default function LandingPortalPage() {
     setActiveSection(index);
     const element = document.getElementById(sectionId);
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   }, []);
 
-  // Monitor which section is in scope during continuous smooth scrolling
+  // Monitor which section is centered in viewport during continuous smooth scrolling
   useEffect(() => {
     const sectionIds = SECTIONS.map((s) => s.id);
 
     const updateActiveSectionOnScroll = () => {
-      const scrollPosition = window.scrollY + window.innerHeight * 0.4;
+      const scrollPosition = window.scrollY + window.innerHeight * 0.5;
       const docHeight = document.documentElement.scrollHeight;
       const winHeight = window.innerHeight;
 
-      // If scrolled to the very bottom, activate the last section
-      if (window.scrollY + winHeight >= docHeight - 40) {
+      // If scrolled to the bottom, activate last section
+      if (window.scrollY + winHeight >= docHeight - 60) {
         setActiveSection(SECTIONS.length - 1);
         return;
       }
@@ -83,7 +82,7 @@ export default function LandingPortalPage() {
     window.addEventListener('scroll', updateActiveSectionOnScroll, { passive: true });
     updateActiveSectionOnScroll();
 
-    // IntersectionObserver for responsive viewport boundaries
+    // IntersectionObserver focused around center of viewport
     const observers: IntersectionObserver[] = [];
     sectionIds.forEach((id, index) => {
       const el = document.getElementById(id);
@@ -98,8 +97,8 @@ export default function LandingPortalPage() {
           },
           {
             root: null,
-            rootMargin: '-25% 0px -45% 0px',
-            threshold: 0.1,
+            rootMargin: '-30% 0px -30% 0px',
+            threshold: 0.2,
           }
         );
         observer.observe(el);
@@ -131,48 +130,91 @@ export default function LandingPortalPage() {
       </div>
 
       {/* Main Continuous Scrolling Container
-          Designed for iPhone X / WebKit full-bleed safe area:
-          - Content starts with top spacing so it sits below floating header on load
-          - As user scrolls, content seamlessly passes under the top notch and under the floating bars
-          - Ample bottom safe padding ensures content can be read comfortably above the floating bottom dock
+          - All sections have uniform bounds, matching viewport scale, and symmetrical center alignment
+          - Smooth springy settling animation when scrolling into center view ("حس جا خوردن")
       */}
-      <div className="w-full max-w-full overflow-x-hidden flex flex-col items-center pt-[max(5.5rem,calc(env(safe-area-inset-top,0px)+4.5rem))] pb-[max(6.5rem,calc(env(safe-area-inset-bottom,0px)+5.5rem))] px-[max(1rem,env(safe-area-inset-left,0px))] pr-[max(1rem,env(safe-area-inset-right,0px))]">
+      <div className="w-full max-w-full overflow-x-hidden flex flex-col items-center pt-12 sm:pt-16 pb-20 sm:pb-28 px-3 sm:px-6">
         
         {/* Section 1: AI Assistant & Prompt Section */}
         <section
           id="hero-section"
-          className="w-full max-w-5xl flex items-center justify-center py-8 sm:py-16 md:py-20 scroll-mt-24"
+          className="w-full max-w-4xl min-h-[68vh] sm:min-h-[76vh] flex items-center justify-center py-6 sm:py-10 scroll-mt-24"
         >
-          <HeroPromptSection onLaunchChat={handleLaunchChat} />
+          <motion.div
+            animate={
+              activeSection === 0
+                ? { scale: 1, opacity: 1, y: 0 }
+                : { scale: 0.94, opacity: 0.45, y: activeSection > 0 ? -24 : 24 }
+            }
+            transition={{
+              type: 'spring',
+              stiffness: 260,
+              damping: 20,
+              mass: 0.75,
+            }}
+            className="w-full flex flex-col items-center justify-center"
+          >
+            <HeroPromptSection onLaunchChat={handleLaunchChat} />
+          </motion.div>
         </section>
 
         {/* Section 2: Custom Workspace Section */}
         <section
           id="workspace-section"
-          className="w-full max-w-5xl flex items-center justify-center py-12 sm:py-20 md:py-28 scroll-mt-24"
+          className="w-full max-w-4xl min-h-[68vh] sm:min-h-[76vh] flex items-center justify-center py-6 sm:py-10 scroll-mt-24"
         >
-          <CustomWorkspaceSection />
+          <motion.div
+            animate={
+              activeSection === 1
+                ? { scale: 1, opacity: 1, y: 0 }
+                : { scale: 0.94, opacity: 0.45, y: activeSection > 1 ? -24 : 24 }
+            }
+            transition={{
+              type: 'spring',
+              stiffness: 260,
+              damping: 20,
+              mass: 0.75,
+            }}
+            className="w-full flex flex-col items-center justify-center"
+          >
+            <CustomWorkspaceSection />
+          </motion.div>
         </section>
 
         {/* Section 3: User Plans Section */}
         <section
           id="plans-section"
-          className="w-full max-w-5xl flex items-center justify-center py-12 sm:py-20 md:py-28 scroll-mt-24"
+          className="w-full max-w-4xl min-h-[68vh] sm:min-h-[76vh] flex items-center justify-center py-6 sm:py-10 scroll-mt-24"
         >
-          <UserPlansSection />
+          <motion.div
+            animate={
+              activeSection === 2
+                ? { scale: 1, opacity: 1, y: 0 }
+                : { scale: 0.94, opacity: 0.45, y: activeSection > 2 ? -24 : 24 }
+            }
+            transition={{
+              type: 'spring',
+              stiffness: 260,
+              damping: 20,
+              mass: 0.75,
+            }}
+            className="w-full flex flex-col items-center justify-center"
+          >
+            <UserPlansSection />
+          </motion.div>
         </section>
       </div>
 
-      {/* Floating 3-Icon Side Navigation Dock
-          When content is in scope of each section, its icon turns pure white!
+      {/* 3-Dot Jelly Side Indicator
+          - 3 minimal points with subtle translucent glass aesthetic
+          - Active indicator stretches and snaps into the next dot with elastic spring physics ("ژله‌ای")
       */}
       <aside
-        aria-label="Scope Section Navigation"
-        className="fixed right-2 sm:right-6 top-1/2 -translate-y-1/2 z-40 flex flex-col items-center select-none"
+        aria-label="Section Indicator"
+        className="fixed right-3 sm:right-6 top-1/2 -translate-y-1/2 z-40 flex flex-col items-center select-none pointer-events-auto"
       >
-        <div className="p-1 sm:p-2 rounded-full bg-zinc-950/50 backdrop-blur-2xl border border-white/15 shadow-[0_8px_32px_rgba(0,0,0,0.6)] flex flex-col items-center gap-1.5 sm:gap-2">
+        <div className="relative py-3.5 px-2 rounded-full bg-white/[0.04] backdrop-blur-md border border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.35)] flex flex-col items-center gap-5">
           {SECTIONS.map((sec, idx) => {
-            const Icon = sec.icon;
             const isActive = activeSection === idx;
 
             return (
@@ -181,30 +223,31 @@ export default function LandingPortalPage() {
                 type="button"
                 onClick={() => scrollToSection(sec.id, idx)}
                 aria-label={`Scroll to ${sec.title}`}
-                className={`group relative p-2 sm:p-3 rounded-full transition-all duration-300 flex items-center justify-center cursor-pointer focus:outline-none ${
-                  isActive
-                    ? 'bg-white/20 text-white shadow-[0_0_16px_rgba(255,255,255,0.45)] ring-1 ring-white/30 scale-105'
-                    : 'text-zinc-500 hover:text-zinc-200 hover:bg-white/5'
-                }`}
+                className="group relative flex items-center justify-center w-4 h-4 cursor-pointer focus:outline-none"
               >
-                {/* Floating Tooltip displaying section name */}
-                <span className="hidden sm:block absolute right-12 px-3 py-1 rounded-full bg-zinc-900/90 text-zinc-200 text-[11px] font-sans border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none shadow-xl backdrop-blur-md">
+                {/* Floating tooltip displaying section name */}
+                <span className="hidden sm:block absolute right-8 px-2.5 py-1 rounded-full bg-zinc-900/90 text-zinc-300 text-[11px] font-sans border border-white/10 opacity-0 group-hover:opacity-100 transition-all duration-200 whitespace-nowrap pointer-events-none shadow-xl backdrop-blur-md scale-95 group-hover:scale-100">
                   {sec.title}
                 </span>
 
-                {/* Section Icon: Turns pure WHITE when active in scope */}
-                <Icon
-                  className={`w-3.5 h-3.5 sm:w-4.5 sm:h-4.5 transition-colors duration-300 ${
-                    isActive ? 'text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]' : 'text-zinc-400 group-hover:text-zinc-200'
+                {/* Inactive subtle dot */}
+                <span
+                  className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
+                    isActive ? 'bg-transparent' : 'bg-white/25 group-hover:bg-white/50'
                   }`}
                 />
 
-                {/* Subtle active pill indicator on right edge */}
+                {/* Active Jelly Indicator: Elastic morphing capsule */}
                 {isActive && (
-                  <motion.div
-                    layoutId="active-scope-dot"
-                    className="absolute right-0.5 w-1 h-3 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.9)]"
-                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                  <motion.span
+                    layoutId="jelly-side-dot"
+                    className="absolute w-2 h-5 rounded-full bg-white/55 border border-white/30 shadow-[0_0_12px_rgba(255,255,255,0.35)] backdrop-blur-sm"
+                    transition={{
+                      type: 'spring',
+                      stiffness: 300,
+                      damping: 16,
+                      mass: 0.6,
+                    }}
                   />
                 )}
               </button>

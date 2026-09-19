@@ -18,11 +18,16 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   viewportFit: 'cover',
+  themeColor: '#000000',
 };
 export const metadata: Metadata = {
   title: 'Quton',
-  description: 'Real-time AI Chatbot...',
-
+  description: 'Real-time AI Chatbot streaming over Server-Sent Events (SSE) with ultra-low latency, supporting custom system models, Groq, local Ollama, and Gemini.',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'Quton',
+  },
 };
 
 export default function RootLayout({children}: {children: React.ReactNode}) {

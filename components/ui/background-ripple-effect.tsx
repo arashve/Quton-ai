@@ -45,7 +45,7 @@ export const BackgroundRippleEffect = ({
         "[--cell-border-color:rgba(255,255,255,0.06)] [--cell-fill-color:transparent]",
       )}
     >
-      <div className="relative h-full w-full max-w-full overflow-hidden [mask-image:linear-gradient(to_bottom,black_25%,transparent_92%)]">
+      <div className="relative h-full w-full max-w-full overflow-hidden [mask-image:linear-gradient(to_bottom,black_40%,rgba(0,0,0,0.6)_85%,transparent_98%)]">
         <DivGrid
           key={`base-${rippleKey}-${responsiveCols}`}
           className="opacity-50 [mask-image:radial-gradient(ellipse_80%_70%_at_50%_25%,black_30%,transparent_90%)]"
