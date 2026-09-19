@@ -1,5 +1,5 @@
 "use client";
-import React, { useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef, useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
 export const BackgroundRippleEffect = ({
@@ -16,24 +16,41 @@ export const BackgroundRippleEffect = ({
     col: number;
   } | null>(null);
   const [rippleKey, setRippleKey] = useState(0);
-  const ref = useRef<any>(null);
+  const [responsiveCols, setResponsiveCols] = useState(cols);
+  const [responsiveRows, setResponsiveRows] = useState(rows);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const updateGridSize = () => {
+      if (typeof window === "undefined") return;
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      // On mobile (e.g. 390px), neededCols will be ~7-8 instead of 34, saving 85% memory & preventing horizontal overflow
+      const neededCols = Math.min(cols, Math.max(5, Math.ceil(w / cellSize)));
+      const neededRows = Math.min(rows, Math.max(6, Math.ceil(h / cellSize)));
+      setResponsiveCols(neededCols);
+      setResponsiveRows(neededRows);
+    };
+
+    updateGridSize();
+    window.addEventListener("resize", updateGridSize, { passive: true });
+    return () => window.removeEventListener("resize", updateGridSize);
+  }, [cols, rows, cellSize]);
 
   return (
     <div
       ref={ref}
       className={cn(
-        "absolute inset-0 h-full w-full",
-        "[--cell-border-color:var(--color-neutral-300)] [--cell-fill-color:var(--color-neutral-100)] [--cell-shadow-color:var(--color-neutral-500)]",
-        "dark:[--cell-border-color:var(--color-neutral-700)] dark:[--cell-fill-color:var(--color-neutral-900)] dark:[--cell-shadow-color:var(--color-neutral-800)]",
+        "absolute inset-0 h-full w-full max-w-full overflow-hidden pointer-events-none",
+        "[--cell-border-color:rgba(255,255,255,0.06)] [--cell-fill-color:transparent]",
       )}
     >
-      <div className="relative h-auto w-auto overflow-hidden [mask-image:linear-gradient(to_bottom,black_25%,transparent_92%)]">
-        <div className="pointer-events-none absolute inset-0 z-[2] h-full w-full overflow-hidden" />
+      <div className="relative h-full w-full max-w-full overflow-hidden [mask-image:linear-gradient(to_bottom,black_25%,transparent_92%)]">
         <DivGrid
-          key={`base-${rippleKey}`}
-          className="opacity-60 [mask-image:radial-gradient(ellipse_80%_70%_at_50%_25%,black_30%,transparent_90%)]"
-          rows={rows}
-          cols={cols}
+          key={`base-${rippleKey}-${responsiveCols}`}
+          className="opacity-50 [mask-image:radial-gradient(ellipse_80%_70%_at_50%_25%,black_30%,transparent_90%)]"
+          rows={responsiveRows}
+          cols={responsiveCols}
           cellSize={cellSize}
           borderColor="var(--cell-border-color)"
           fillColor="var(--cell-fill-color)"
@@ -42,7 +59,7 @@ export const BackgroundRippleEffect = ({
             setClickedCell({ row, col });
             setRippleKey((k) => k + 1);
           }}
-          interactive
+          interactive={false}
         />
       </div>
     </div>
@@ -71,11 +88,11 @@ const DivGrid = ({
   rows = 7,
   cols = 30,
   cellSize = 56,
-  borderColor = "#3f3f46",
-  fillColor = "rgba(14,165,233,0.3)",
+  borderColor = "rgba(255,255,255,0.06)",
+  fillColor = "transparent",
   clickedCell = null,
   onCellClick = () => {},
-  interactive = true,
+  interactive = false,
 }: DivGridProps) => {
   const cells = useMemo(
     () => Array.from({ length: rows * cols }, (_, idx) => idx),
@@ -87,15 +104,18 @@ const DivGrid = ({
     gridTemplateColumns: `repeat(${cols}, ${cellSize}px)`,
     gridTemplateRows: `repeat(${rows}, ${cellSize}px)`,
     width: cols * cellSize,
+    maxWidth: "100vw",
     height: rows * cellSize,
     marginInline: "auto",
+    overflow: "hidden",
   };
 
   return (
-    <div className={cn("relative z-[3]", className)} style={gridStyle}>
+    <div className={cn("relative z-[3] overflow-hidden max-w-full", className)} style={gridStyle}>
       {cells.map((idx) => {
         const rowIdx = Math.floor(idx / cols);
         const colIdx = idx % cols;
+        const isTarget = clickedCell?.row === rowIdx && clickedCell?.col === colIdx;
         const distance = clickedCell
           ? Math.hypot(clickedCell.row - rowIdx, clickedCell.col - colIdx)
           : 0;
@@ -113,8 +133,8 @@ const DivGrid = ({
           <div
             key={idx}
             className={cn(
-              "cell relative border-[0.5px] opacity-40 transition-opacity duration-150 will-change-transform hover:opacity-80 dark:shadow-[0px_0px_40px_1px_var(--cell-shadow-color)_inset]",
-              clickedCell && "animate-cell-ripple [animation-fill-mode:none]",
+              "cell relative border-[0.5px] border-white/[0.05] opacity-35 transition-opacity duration-150",
+              isTarget && "will-change-transform animate-cell-ripple [animation-fill-mode:none]",
               !interactive && "pointer-events-none",
             )}
             style={{

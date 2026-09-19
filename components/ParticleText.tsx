@@ -178,11 +178,19 @@ const ParticleText = ({
       ctx.fill();
     };
 
+    let isVisible = true;
+    const isMobileDevice = typeof window !== 'undefined' && (window.innerWidth < 768 || 'ontouchstart' in window);
+
     const render = (now: number): void => {
+      if (!isVisible) {
+        animationFrame = null;
+        return;
+      }
+
       ctx.clearRect(0, 0, width, height);
 
-      if (glow && !reducedMotion) {
-        ctx.shadowBlur = particleSize * 3;
+      if (glow && !reducedMotion && !isMobileDevice) {
+        ctx.shadowBlur = Math.min(particleSize * 2, 6);
         ctx.shadowColor = highlightColor;
       } else {
         ctx.shadowBlur = 0;
@@ -241,7 +249,7 @@ const ParticleText = ({
     };
 
     const ensureRenderLoop = (): void => {
-      if (animationFrame === null) {
+      if (isVisible && animationFrame === null) {
         animationFrame = window.requestAnimationFrame(render);
       }
     };
@@ -321,7 +329,9 @@ const ParticleText = ({
         }
       }
 
-      const maxParticles = Math.max(900, Math.min(5200, Math.floor((width * height) / 90)));
+      const isMobile = typeof window !== 'undefined' && (window.innerWidth < 768 || 'ontouchstart' in window);
+      const targetParticleLimit = isMobile ? 260 : 1200;
+      const maxParticles = Math.max(80, Math.min(targetParticleLimit, Math.floor((width * height) / 40)));
       const stride = Math.max(1, Math.ceil(targets.length / maxParticles));
       const baseRgb = hexToRgb(color);
       const highlightRgb = hexToRgb(highlightColor);
@@ -412,11 +422,30 @@ const ParticleText = ({
 
     const resizeObserver = new ResizeObserver(queueSample);
     resizeObserver.observe(container);
+
+    const intersectionObserver = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (entry) {
+          isVisible = entry.isIntersecting;
+          if (isVisible) {
+            ensureRenderLoop();
+          } else if (animationFrame !== null) {
+            window.cancelAnimationFrame(animationFrame);
+            animationFrame = null;
+          }
+        }
+      },
+      { threshold: 0.05 }
+    );
+    intersectionObserver.observe(container);
+
     void sampleText();
 
     return () => {
       buildId += 1;
       resizeObserver.disconnect();
+      intersectionObserver.disconnect();
       reduceMotionQuery?.removeEventListener('change', handleReduceMotionChange);
       canvas.removeEventListener('pointerenter', handlePointerEnter);
       canvas.removeEventListener('pointermove', handlePointerMove);
@@ -448,7 +477,7 @@ const ParticleText = ({
   return (
     <div
       ref={containerRef}
-      className={`relative block h-full min-h-[240px] w-full overflow-hidden touch-none ${className}`}
+      className={`relative block h-full w-full overflow-hidden touch-none ${className}`}
       style={style}
       aria-label={text}
     >

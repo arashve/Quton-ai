@@ -109,43 +109,40 @@ export function CustomWorkspaceSection() {
   return (
     <section
       id="custom-workspace"
-      className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 py-4 sm:py-6 flex flex-col items-center justify-center select-none"
+      className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 py-4 sm:py-6 flex flex-col items-center justify-center select-none overflow-hidden"
     >
       {/* Background Radial Glow */}
       <div
         aria-hidden="true"
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] sm:w-[800px] h-[350px] bg-[radial-gradient(ellipse_at_center,rgba(99,102,241,0.12)_0%,rgba(168,85,247,0.06)_45%,transparent_70%)] blur-[90px] pointer-events-none -z-10"
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] sm:w-[800px] h-[350px] bg-[radial-gradient(ellipse_at_center,rgba(99,102,241,0.12)_0%,rgba(168,85,247,0.06)_45%,transparent_70%)] blur-[90px] pointer-events-none -z-10"
       />
 
       {/* Section Typography: Header & Subtitle matching the Figma design */}
-      <div className="text-center max-w-2xl mx-auto mb-6 sm:mb-8">
-<h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-white flex flex-row items-center justify-center gap-2 sm:gap-3">
-  {/* اضافه کردن leading-none برای کنترل دقیق‌تر ارتفاع متن استاندارد */}
-  <span className="leading-none mt-1">your custom</span>
-  
-  {/* تنظیم دقیق ارتفاع کانتینر هماهنگ با سایز متن Tailwind (حدود 48px برای 5xl) */}
-  {/* اضافه کردن mt-2 یا مقادیر مشابه کمک می‌کنه canvas دقیقاً بیاد روی خط بیس‌لاین متن کناری */}
-  <div className="relative flex items-center justify-center h-[40px] sm:h-[48px] md:h-[60px] w-[180px] sm:w-[220px] md:w-[280px] mt-2 sm:mt-2.5">
-    <ParticleText
-      text="Workspace"
-  particleSize={2.2}
-    density={4}
-    color="#f8fafc"
-    highlightColor="#8b5cf6"
-    scatter={190}
- gatherDuration={1500}   // سرعت جمع شدن سریع‌تر
-      stagger={100}           // تاخیر کمتر بین ذرات
-      pointerRepel={30}       // دفع ملایم‌تر موقع نزدیک شدن موس
-      repelRadius={70}        // شعاع اثر موس کمتر
-      idleDrift={0.1}         // لرزش بسیار کم در حالت عادی تا متن خوانا بمونه
-      trigger="mount"
-fontSize="100%"         
-      fontWeight={800}
-      fontFamily="inherit"
-   glow={false}       // خاموش کردن گلو داخلی کامپوننت برای شارپ‌تر شدن لبه‌ها
-    />
-  </div>
-</h2>
+      <div className="text-center max-w-2xl mx-auto mb-6 sm:mb-8 w-full">
+        <h2 className="text-2xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-white flex flex-wrap sm:flex-nowrap items-center justify-center gap-1.5 sm:gap-3 max-w-full">
+          <span className="leading-none mt-1 shrink-0">your custom</span>
+          
+          <div className="relative flex items-center justify-center h-[34px] sm:h-[48px] md:h-[60px] w-[130px] sm:w-[220px] md:w-[280px] mt-1 sm:mt-2.5 shrink-0">
+            <ParticleText
+              text="Workspace"
+              particleSize={2.2}
+              density={4}
+              color="#f8fafc"
+              highlightColor="#8b5cf6"
+              scatter={190}
+              gatherDuration={1500}
+              stagger={100}
+              pointerRepel={30}
+              repelRadius={70}
+              idleDrift={0.1}
+              trigger="mount"
+              fontSize="100%"
+              fontWeight={800}
+              fontFamily="inherit"
+              glow={false}
+            />
+          </div>
+        </h2>
 
         <p className="mt-3 text-xs sm:text-sm text-zinc-400 max-w-md mx-auto leading-relaxed">
           A place to digitize and smarten up the workplace and tedious, repetitive processes.

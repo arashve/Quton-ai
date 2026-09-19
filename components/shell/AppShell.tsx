@@ -43,12 +43,12 @@ export function AppShell({
   return (
     <div
       id="app-shell-root"
-      className={`relative min-h-screen w-full  text-zinc-100 flex flex-col font-sans selection:bg-white selection:text-zinc-950 ${className}`}
+      className={`relative min-h-screen w-full max-w-full overflow-x-hidden text-zinc-100 flex flex-col font-sans selection:bg-white selection:text-zinc-950 ${className}`}
     >
       {/* Aurora Glassmorphic Glow Meshes in Background */}
       <div
         aria-hidden="true"
-        className="pointer-events-none fixed inset-0 -z-10 overflow-hidden"
+        className="pointer-events-none fixed inset-0 -z-10 overflow-hidden max-w-full"
       >
         <div className="absolute -top-40 left-1/4 w-96 h-96 rounded-full bg-purple-600/10 blur-[120px] dark:bg-purple-600/15" />
         <div className="absolute top-1/3 -right-20 w-96 h-96 rounded-full bg-cyan-600/10 blur-[130px] dark:bg-cyan-600/10" />
@@ -57,9 +57,9 @@ export function AppShell({
 
       {/* 1. PUBLIC SHELL */}
       {activeVariant === 'public' && (
-        <div className="flex flex-col min-h-dvh w-full">
+        <div className="flex flex-col min-h-dvh w-full max-w-full overflow-x-hidden">
           {showHeader && <PublicHeader />}
-          <main className="flex-1 w-full flex flex-col">{children}</main>
+          <main className="flex-1 w-full max-w-full flex flex-col">{children}</main>
           {!hideMobileNav && <MobileBottomNav />}
         </div>
       )}
