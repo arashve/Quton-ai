@@ -205,15 +205,17 @@ export default function LandingPortalPage() {
         </section>
       </div>
 
-      {/* 3-Dot Jelly Side Indicator
-          - 3 minimal points with subtle translucent glass aesthetic
-          - Active indicator stretches and snaps into the next dot with elastic spring physics ("ژله‌ای")
+      {/* 3-Pill Vertical Jelly Indicator matching the uploaded reference graphic:
+          - 3 vertical rounded capsules
+          - Inactive pills: compact dark-grey capsules (14px)
+          - Active pill: tall bright-white capsule (38px-40px) with soft bloom
+          - Spring/jelly transition stretches and compresses smoothly between sections
       */}
       <aside
         aria-label="Section Indicator"
-        className="fixed right-3 sm:right-6 top-1/2 -translate-y-1/2 z-40 flex flex-col items-center select-none pointer-events-auto"
+        className="fixed right-3.5 sm:right-6 top-1/2 -translate-y-1/2 z-40 flex flex-col items-center select-none pointer-events-auto"
       >
-        <div className="relative py-3.5 px-2 rounded-full bg-white/[0.04] backdrop-blur-md border border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.35)] flex flex-col items-center gap-5">
+        <div className="flex flex-col items-center gap-1.5 sm:gap-2">
           {SECTIONS.map((sec, idx) => {
             const isActive = activeSection === idx;
 
@@ -223,33 +225,35 @@ export default function LandingPortalPage() {
                 type="button"
                 onClick={() => scrollToSection(sec.id, idx)}
                 aria-label={`Scroll to ${sec.title}`}
-                className="group relative flex items-center justify-center w-4 h-4 cursor-pointer focus:outline-none"
+                className="group relative flex items-center justify-center p-1.5 cursor-pointer focus:outline-none"
               >
-                {/* Floating tooltip displaying section name */}
-                <span className="hidden sm:block absolute right-8 px-2.5 py-1 rounded-full bg-zinc-900/90 text-zinc-300 text-[11px] font-sans border border-white/10 opacity-0 group-hover:opacity-100 transition-all duration-200 whitespace-nowrap pointer-events-none shadow-xl backdrop-blur-md scale-95 group-hover:scale-100">
+                {/* Floating tooltip displaying section name on hover */}
+                <span className="hidden sm:block absolute right-9 px-2.5 py-1 rounded-full bg-zinc-900/90 text-zinc-300 text-[11px] font-sans border border-white/10 opacity-0 group-hover:opacity-100 transition-all duration-200 whitespace-nowrap pointer-events-none shadow-xl backdrop-blur-md scale-95 group-hover:scale-100">
                   {sec.title}
                 </span>
 
-                {/* Inactive subtle dot */}
-                <span
-                  className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
-                    isActive ? 'bg-transparent' : 'bg-white/25 group-hover:bg-white/50'
-                  }`}
+                {/* Animated Pill: Slender capsule matching reference image */}
+                <motion.span
+                  className="block rounded-full w-[6.5px] sm:w-[7.5px]"
+                  animate={{
+                    height: isActive ? 40 : 15,
+                    backgroundColor: isActive ? '#ffffff' : 'rgba(255, 255, 255, 0.22)',
+                    boxShadow: isActive
+                      ? '0 0 16px rgba(255, 255, 255, 0.7)'
+                      : '0 0 0px rgba(0, 0, 0, 0)',
+                  }}
+                  whileHover={
+                    !isActive
+                      ? { backgroundColor: 'rgba(255, 255, 255, 0.45)' }
+                      : undefined
+                  }
+                  transition={{
+                    type: 'spring',
+                    stiffness: 340,
+                    damping: 22,
+                    mass: 0.65,
+                  }}
                 />
-
-                {/* Active Jelly Indicator: Elastic morphing capsule */}
-                {isActive && (
-                  <motion.span
-                    layoutId="jelly-side-dot"
-                    className="absolute w-2 h-5 rounded-full bg-white/55 border border-white/30 shadow-[0_0_12px_rgba(255,255,255,0.35)] backdrop-blur-sm"
-                    transition={{
-                      type: 'spring',
-                      stiffness: 300,
-                      damping: 16,
-                      mass: 0.6,
-                    }}
-                  />
-                )}
               </button>
             );
           })}
